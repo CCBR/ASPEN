@@ -1,0 +1,35 @@
+name: Autoassign milestone
+on:
+  issues:
+    types:
+      - opened, reopened
+jobs:
+  milestone:
+    runs-on: ubuntu-latest
+    steps:
+      - name: install milestone extension
+        run: |
+          gh extension install valeriobelli/gh-milestone
+      - name: get milestone name
+        run: |
+          msname=$(date "+%b %Y")
+      - name: get month
+        run: |
+          mon=$(date +%m)
+      - name: get year
+        run: |
+          year=$(date +%Y)
+      - name: get last day of month
+        run: |
+          lastday=$(cal `date "+%b %Y"`|awk 'NF {DAYS = $NF}; END {print DAYS}')
+      - name: create milestone
+        run: |
+          gh milestone create --title "$msname" --due-date "${year}-${mon}-${lastday}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+      - name: add milestone
+        run: gh issue edit $ISSUE --milestone "$msname"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
