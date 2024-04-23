@@ -717,7 +717,7 @@ function main(){
           USE_ENVMODULES=1
       ;;
       -c=*|--singcache=*)
-        SING_CACHE_DIR="${i#*=}"
+        SINGCACHE="${i#*=}"
       ;;
       -s=*|--manifest=*)
         MANIFEST="${i#*=}"
@@ -765,10 +765,17 @@ function main(){
 
   # CLUSTERSTATUSCMD="${PIPELINE_HOME}/resources/cluster_status.sh"
 
-  if [[ ! -z "$SING_CACHE_DIR" ]];then
-    EXPORT_SING_CACHE_DIR_CMD="export SINGULARITY_CACHEDIR=\"${SING_CACHE_DIR}\""
+  if [[ ! -z "$SINGCACHE" ]];then
+    EXPORT_SING_CACHE_DIR_CMD="export SINGULARITY_CACHEDIR=\"${SINGCACHE}\""
   else
-    EXPORT_SING_CACHE_DIR_CMD=""
+    if [[ ! -z "$SINGULARITY_CACHEDIR" ]];then
+      echo "Singularity cache dir is NOT provided and NOT set!"
+      echo "Setting it to \"/data/${USER}/.singularity\""
+      if [[ ! -d "/data/${USER}/.singularity" ]];then
+        mkdir /data/${USER}/.singularity
+      fi
+      EXPORT_SING_CACHE_DIR_CMD="export SINGULARITY_CACHEDIR=\"/data/${USER}/.singularity\""
+    fi
   fi
 
   case $RUNMODE in
