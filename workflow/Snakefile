@@ -1,14 +1,5 @@
 from os.path import join
 
-def get_diff_files():
-    flist = []
-    if CONTRASTS.shape[0] > 0:
-        flist.append(join(RESULTSDIR,"peaks","genrich","DiffATAC","degs.done"))
-        flist.append(join(RESULTSDIR,"peaks","genrich","DiffATAC","all_diff_atacs.html"))
-        flist.append(join(RESULTSDIR,"peaks","genrich","DiffATAC","all_diff_atacs.tsv"))
-    return flist
-
-
 include: join("rules/init.smk")
 include: join("rules/align.smk")
 include: join("rules/qc.smk")
@@ -47,7 +38,14 @@ rule all:
         expand(join(QCDIR,"tss","{replicate}.tss.txt"),replicate=REPLICATES),
         # #fld
         expand(join(QCDIR,"fld","{replicate}.fld.txt"),replicate=REPLICATES),
-        # # #macs2 peaks
+        #motif enrichment
+        expand(join(QCDIR,"{sample}.motif_enrichment"),sample=SAMPLES),
+        #frip
+        expand(join(QCDIR,"frip","{sample}.frip"),sample=SAMPLES),
+        #multiqc
+        join(QCDIR,"multiqc_report.html"),
+        join(QCDIR,"QCStats.tsv"),
+        #macs2 peaks
         expand(join(RESULTSDIR,"peaks","macs2","{sample}.consensus.macs2.peakfiles"),sample=SAMPLES),
         expand(join(RESULTSDIR,"peaks","macs2","{sample}.replicate.macs2.peakfiles"),sample=SAMPLES),
         expand(join(RESULTSDIR,"peaks","macs2","{sample}.macs2.tn5nicksbedfiles"),sample=SAMPLES),
@@ -55,34 +53,13 @@ rule all:
         expand(join(RESULTSDIR,"peaks","genrich","{sample}.consensus.genrich.peakfiles"),sample=SAMPLES),
         expand(join(RESULTSDIR,"peaks","genrich","{sample}.replicate.genrich.peakfiles"),sample=SAMPLES),
         expand(join(RESULTSDIR,"peaks","genrich","{sample}.genrich.tn5nicksbedfiles"),sample=SAMPLES),
-        # #jaccard comparison of called peaks
-        # join(QCDIR,"jaccard","macs2.replicate.jaccard.pca.html"),
-        # join(QCDIR,"jaccard","macs2.consensus.jaccard.pca.html"),
-        # join(QCDIR,"jaccard","macs2.consensus_replicate.jaccard.pca.html"),
-        # join(QCDIR,"jaccard","genrich.replicate.jaccard.pca.html"),
-        # join(QCDIR,"jaccard","genrich.consensus.jaccard.pca.html"),
-        # join(QCDIR,"jaccard","genrich.consensus_replicate.jaccard.pca.html"),
-        # join(QCDIR,"jaccard","allmethods.replicate.jaccard.pca.html"),
-        # join(QCDIR,"jaccard","allmethods.consensus.jaccard.pca.html"),
-        # join(QCDIR,"jaccard","allmethods.consensus_replicate.jaccard.pca.html"),
-        # # fixed width peaks
-        # expand(join(RESULTSDIR,"peaks","macs2","fixed_width","{sample}.fixed_width.consensus.narrowPeak"),sample=SAMPLES),
-        # expand(join(RESULTSDIR,"peaks","macs2","fixed_width","{sample}.renormalized.fixed_width.consensus.narrowPeak"),sample=SAMPLES),
-        # expand(join(RESULTSDIR,"peaks","genrich","fixed_width","{sample}.fixed_width.consensus.narrowPeak"),sample=SAMPLES),
-        # expand(join(RESULTSDIR,"peaks","genrich","fixed_width","{sample}.renormalized.fixed_width.consensus.narrowPeak"),sample=SAMPLES),
-        # # roi gtf for genrich-only
-        # join(RESULTSDIR,"peaks","genrich","fixed_width","ROI.gtf"),
-        # # counts matrix
-        # join(RESULTSDIR,"peaks","genrich","ROI.counts.tsv"),
+        # roi gtf 
+        expand(join(RESULTSDIR,"peaks","{peakcaller}","fixed_width","ROI.gtf"),peakcaller=PEAKCALLERS),
+        # counts matrix
+        expand(join(RESULTSDIR,"peaks","{peakcaller}","ROI.counts.tsv"),peakcaller=PEAKCALLERS),
         # diffatac
-        get_diff_files(),
-        # #motif enrichment
-        expand(join(QCDIR,"{sample}.motif_enrichment"),sample=SAMPLES),
-        # #frip
-        expand(join(QCDIR,"frip","{sample}.frip"),sample=SAMPLES),
-        # #multiqc
-        join(QCDIR,"multiqc_report.html"),
-        join(QCDIR,"QCStats.tsv")
+        expand(join(RESULTSDIR, "peaks", "{peakcaller}", "DiffATAC", "all_diff_atacs.tsv"),peakcaller=PEAKCALLERS) if CONTRASTS.shape[0] > 0 else [],
+
 
 # create jobby tables
 jobby_cmd = 'run_jobby_on_snakemake_log snakemake.log | tee logs/snakemake.log.jobby | cut -f2,3,18 > logs/snakemake.log.jobby.short'

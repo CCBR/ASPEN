@@ -152,7 +152,7 @@ rule atac_macs_peakcalling_fixed_width:
         width=config["fixed_width"],
         min_rep     = config['consensus_min_replicates'],
         min_spm     = config['consensus_min_spm'],
-        script="ccbr_atac_get_fixedwidth_peaks.sh"
+        script="ccbr_atac_get_fixedwidth_consensus_renormalized_peaks.sh"
     container: config["masterdocker"]    
     threads: getthreads("atac_macs_peakcalling_fixed_width")
     shell:"""
@@ -302,7 +302,7 @@ rule atac_genrich_peakcalling_fixed_width:
         width       = config["fixed_width"],
         min_rep     = config['consensus_min_replicates'],
         min_spm     = config['consensus_min_spm'],
-        script="ccbr_atac_get_fixedwidth_peaks.sh"
+        script="ccbr_atac_get_fixedwidth_consensus_renormalized_peaks.sh"
     container: config["masterdocker"]    
     threads: getthreads("atac_macs_peakcalling_fixed_width")
     shell:"""

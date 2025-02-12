@@ -11,6 +11,7 @@ for l in sys.stdin:
 			if s.startswith("/"):
 				x=os.path.basename(s)
 				x=x.replace(".genrich.tn5nicks.bam","")
+				x=x.replace(".macs2.tn5nicks.bam","")
 				outlist.append(x)
 			else:
 				outlist.append(s)

@@ -566,13 +566,13 @@ EOF
   elif [ "$1" == "slurm" ];then
 
   preruncleanup
-# if QOS is other than "global" and is supplied in the cluster.json file then add " --qos={cluster.qos}" to the
-# snakemake command below
-#define partitions
-BUYINPARTITIONS=$(bash <(curl -s https://raw.githubusercontent.com/CCBR/Tools/master/Biowulf/get_buyin_partition_list.bash 2>/dev/null))
+  PARTITIONS="norm"
+# find buy in partitions
+  ACCOUNT_SPONSOR=$(sacctmgr -rn list user | awk '{print $2}')
+  BUYINPARTITIONS=$(scontrol show partitions 2>/dev/null | grep -i $ACCOUNT_SPONSOR -B1 | grep '^PartitionName' | cut -d '=' -f2 | grep -iv 'gpu'| tr '\n' ',' | sed 's/.$//')
 # remove "norm" partition
-BUYINPARTITIONS=$(echo $BUYINPARTITIONS | tr ',' '\n' | grep -v "norm" | tr '\n' ',' | sed 's/.$//')
-PARTITIONS="norm"
+  BUYINPARTITIONS=$(echo $BUYINPARTITIONS | tr ',' '\n' | grep -v "norm" | tr '\n' ',' | sed 's/.$//')
+
 if [ ! -z "$BUYINPARTITIONS" ];then
 # as only 2 partitions are allow and 1 is norm .. so we randomly pick the first buyin partition
   BUYINPARTITIONS=$(echo $BUYINPARTITIONS | tr ',' '\n' | head -n1)

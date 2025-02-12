@@ -22,9 +22,9 @@ params:
   diffatactsv: "DiffATAC.tsv"
 ---
 
-`r message("");message("genome=",params$genome)`
+<!-- `r message("");message("genome=",params$genome)` -->
 
-`r message(params$genome == "mm10")`
+<!-- `r message(params$genome == "mm10")` -->
 
 ```{r setup, include=FALSE, cache=FALSE}
 # load libraries
@@ -177,17 +177,20 @@ print(p)
 groups_in_contrasts=c(params$contrast_numerator,params$contrast_denominator)
 sampleinfo %>% filter(sampleinfo$sampleName %in% groups_in_contrasts) -> sampleinfo2
 countmatrix2 <- countmatrix[,sampleinfo2$replicateName]
+colData = sampleinfo2[,c("replicateName","sampleName")]
+colData$sampleName <- relevel(as.factor(colData$sampleName),ref=params$contrast_denominator)
 dds2 <- DESeqDataSetFromMatrix(countData = as.matrix(countmatrix2),
-                                colData = sampleinfo2[,c("replicateName","sampleName")],
+                                colData = colData,
                                 design = ~ sampleName)
-dds2$sampleName <- relevel(dds2$sampleName, ref=params$contrast_denominator)
 dds2 <- DESeq(dds2)
 if (nrow(dds2)<2000) {
   rld2 <- varianceStabilizingTransformation(dds2, blind=TRUE)
 } else {
   rld2 <- vst(dds2, blind=TRUE)
 }
-pca2=prcomp(t(as.data.frame(assay(rld2))),scale.=T)
+pca_data <- assay(rld2)
+pca_data <- pca_data[apply(pca_data, 1, var) > 1e-5, ]
+pca2=prcomp(t(pca_data),scale.=T)
 m2.pc1 = round(pca2$sdev[1]^2/sum(pca2$sdev^2)*100,2)
 m2.pc2 = round(pca2$sdev[2]^2/sum(pca2$sdev^2)*100,2)
 m2.pc3 = round(pca2$sdev[3]^2/sum(pca2$sdev^2)*100,2)
@@ -246,7 +249,7 @@ EnhancedVolcano::EnhancedVolcano(resdf_w_anno,
 
 
 
-## HeatMap
+## Open ROIs
 
 ```{r updown,include=TRUE,echo=FALSE,cache=FALSE,warning=FALSE}
 x=as.data.frame(rbind(table(up_roi$shortAnno),table(down_roi$shortAnno)))
@@ -255,13 +258,4 @@ x$Total=rowSums(x)
 DT::datatable(x,rownames = TRUE)
 heatmap_matrix=assay(rld2)
 ```
-# `r message(str(rld2))`
-`r message(head(heatmap_matrix))`
 
-
-# ```{r heatmap,include=TRUE,echo=FALSE, message=FALSE, results='hide',fig.width=4,fig.height=10,warning=FALSE,message=FALSE,error=FALSE}
-# heatmap_matrix=assay(rld2)
-# interesting_genes=c(up_roi$Geneid,down_roi$Geneid)
-# heatmap_matrix %>% filter( Geneid %in% interesting_genes ) -> matrix_for_heatmap
-# Heatmap(matrix = t(scale(t(matrix_for_heatmap),scale = TRUE)),show_row_names = FALSE,name=" ")
-# ```

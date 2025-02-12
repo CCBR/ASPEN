@@ -92,6 +92,10 @@ REPLICATESDF = REPLICATESDF.set_index('replicateName')
 REPLICATES = list(REPLICATESDF.index)
 SAMPLES = list(REPLICATESDF.sampleName.unique())
 
+SAMPLE2REPLICATES=dict()
+for g in SAMPLES:
+    SAMPLE2REPLICATES[g]=list(REPLICATESDF[REPLICATESDF['sampleName']==g].index)
+
 print("#"*100)
 print("# Checking Sample Manifest...")
 print("# \tTotal Replicates in manifest : "+str(len(REPLICATES)))
@@ -127,6 +131,11 @@ for replicate in REPLICATES:
 print("# Read access to all raw fastqs is confirmed!")
 print("#"*100)
 
+# create a sampleinfo file
+SAMPLEINFO = join(WORKDIR,"sampleinfo.txt")
+cmd="cut -f1,2 "+ config["samplemanifest"] + " | tail -n +2 | sort > " + SAMPLEINFO
+os.system(cmd)
+
 # read in contrasts
 print("# Checking contrasts to be run")
 contrastsfileexists = False
@@ -143,13 +152,12 @@ try:
 except KeyError:
     print("# No contrast file provided in config. No contrasts will be run!")
 
+PEAKCALLERS = ["genrich", "macs2"]
 if contrastsfileexists:
     check_readaccess(config["contrasts"])
     try:
         if os.stat(contrastsfile).st_size > 0:
             CONTRASTS = pd.read_csv(contrastsfile,sep="\t",header=None)
-
-            DIFFATACOUTDIR = join(RESULTSDIR,"peaks","genrich","DiffATAC")
 
             if CONTRASTS.shape[1] != 2:
                 print(contrastsfile + " is expected to have 2 tab-delimited columns: Group1 and Group2")
@@ -159,7 +167,7 @@ if contrastsfileexists:
 
             # get groups in contrasts
             GROUPSINCONTRASTS = list(CONTRASTS.Group1.unique())
-            GROUPSINCONTRASTS.extend(list(CONTRASTS.Group1.unique()))
+            GROUPSINCONTRASTS.extend(list(CONTRASTS.Group2.unique()))
             GROUPSINCONTRASTS = set(GROUPSINCONTRASTS)
 
             # groups should exist in the sample manifest
@@ -167,11 +175,11 @@ if contrastsfileexists:
                 if not g in SAMPLES:
                     print("Group: " + g + "does not have any samples in the sample manifest: " + config["samplemanifest"])
                     exit()
+                nreplicates = len(SAMPLE2REPLICATES[g])
+                if nreplicates < 2:
+                    print("Group: " + g + " has " + str(nreplicates) + " replicates. Only 2 or more replicates per group is supported as we are using DESeq2 for differential analysis.")
+                    exit()
 
-            # create a sampleinfo file
-            sampleinfo = join(WORKDIR,"sampleinfo.txt")
-            cmd="cut -f1,2 "+ config["samplemanifest"] + " | tail -n +2 > " + sampleinfo
-            os.system(cmd)
             ncontrasts = CONTRASTS.shape[0]
             print("# Number of contrasts to run: ",str(ncontrasts))
         else:
@@ -184,11 +192,6 @@ else:
     CONTRASTS = pd.DataFrame()
     print(contrastsfile + " is absent. No contrasts will be run.")
 
-
-
-SAMPLE2REPLICATES=dict()
-for g in SAMPLES:
-    SAMPLE2REPLICATES[g]=list(REPLICATESDF[REPLICATESDF['sampleName']==g].index)
 
 # print(REPLICATESDF.columns)
 # print(REPLICATESDF.sampleName)

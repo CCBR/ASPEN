@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e -x -o pipefail
 
-ARGPARSE_DESCRIPTION="call atac-seq peaks using genrich v0.6 with 2 replicates" 
+ARGPARSE_DESCRIPTION="convert a set of narrowpeaks files to fixed width narrowpeak files, then call consensus peaks on those narrowpeak files, and finally normalize the p-values" 
 source /opt2/argparse.bash || exit 1
 argparse "$@" <<EOF || exit 1
 parser.add_argument('--narrowpeaks',required=True, nargs = '+', help = 'comma separated list of narrowPeak files')
@@ -14,16 +14,15 @@ parser.add_argument('--consensusrenormnp',required=True,help="consensus renormal
 parser.add_argument('--consensusminrep',required=False,default=2,type=int,help="minimum replicates that need to overlap for any peak to be considered a consensus peak")
 parser.add_argument('--consensusminspm',required=False,default=5,type=int,help="cutoff score per million or normalized p-value. All minimum number of replicate peaks that need to overlap with a consensus peak should also be greater than this cutoff score per million or SPM")
 
+parser.add_argument('--nofixedwidth', action='store_true', help="If set, disables fixed-width peak generation")
+
 parser.add_argument('--tmpdir',required=False,default="/dev/shm",help="temp dir")
 
 parser.add_argument('--scriptsfolder',required=True, help='folder where the scripts are ... usually workflow/scripts')
 EOF
 
-# nreplicates=${#NARROWPEAKS[@]}
-
-# REPLICATENAMES=$(echo $REPLICATENAMES|sed "s/,/ /g")
+if [ -z $NOFIXEDWIDTH ]; then
 NARROWPEAKS=$(echo $NARROWPEAKS|sed "s/,/ /g")
-
 count=0
 for np in $NARROWPEAKS;do
     count=$((count+1))
@@ -49,6 +48,9 @@ for np in $NARROWPEAKS;do
     -w $WIDTH \
     -t $TMPDIR
 done
+else
+OUTNPS="$NARROWPEAKS"
+fi
 
 Rscript ${SCRIPTSFOLDER}/fixed_width_peakSets_to_consensus_peakSet.R \
     -i $OUTNPS \
