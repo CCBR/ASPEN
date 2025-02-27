@@ -1,5 +1,7 @@
 ## ASPEN development version
 
+## ASPEN development version
+
 ## ASPEN 1.0.6
 
 - fix: dockername typo ([#57](https://github.com/CCBR/ASPEN/issues/57), @kopardev)
@@ -19,7 +21,7 @@
 
 ## ASPEN 1.0.3
 
-- fix: No module named 'numpy._core._multiarray_umath' error with`unset PYTHONPATH` ([#43](https://github.com/CCBR/ASPEN/issues/43), @kopardev)
+- fix: No module named 'numpy.\_core.\_multiarray_umath' error with`unset PYTHONPATH` ([#43](https://github.com/CCBR/ASPEN/issues/43), @kopardev)
 - fix: jobby command points to the correct location of snakemake.log file
 - ASPEN is now archived on Zenodo, you can cite it with the DOI [10.5281/zenodo.13755867](https://doi.org/10.5281/zenodo.13755867). ([#42](https://github.com/CCBR/ASPEN/issues/42), @kelly-sovacool)
 
