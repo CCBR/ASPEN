@@ -4,6 +4,11 @@ on:
     types: [assigned, opened, reopened]
   pull_request:
     types: [assigned, opened, reopened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
 jobs:
   milestone:
     runs-on: ubuntu-latest
