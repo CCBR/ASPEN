@@ -52,17 +52,12 @@ rule all:
         #genrich peaks
         expand(join(PEAKSDIR, "genrich", "{sample}.consensus.genrich.peakfiles"), sample=SAMPLES),
         expand(join(PEAKSDIR, "genrich", "{sample}.replicate.genrich.peakfiles"), sample=SAMPLES),
-        expand(join(PEAKSDIR, "genrich", "genrich","{sample}.genrich.tn5nicksbedfiles"),sample=SAMPLES),
-        # roi gtf
-        expand(join(RESULTSDIR,"peaks","{peakcaller}","fixed_width","ROI.gtf"),peakcaller=PEAKCALLERS),
-        # counts matrix
-        expand(join(RESULTSDIR,"peaks","{peakcaller}","ROI.counts.tsv"),peakcaller=PEAKCALLERS),
         # consensus peaks
         expand(join(PEAKSDIR, "{peakcaller}", "fixed_width", "{sample}.{peakcaller}.renormalized.fixed_width.consensus.narrowPeak.annotated.gz"), peakcaller=PEAKCALLERS, sample=SAMPLES),
         # spikein counts and scaling factors
         expand(join(RESULTSDIR, "spikein", "{replicate}", "{replicate}.counts"), replicate=REPLICATES),
         join(RESULTSDIR, "spikein", "scaling_factors.tsv"),
-        # expand(join(RESULTSDIR, "peaks", "{peakcaller}", "fixed_width", "counts", "ROI.{peakcaller}.{method}_scaled_counts.tsv"), method=COUNTING_METHODS, peakcaller=PEAKCALLERS),
+        expand(join(RESULTSDIR, "peaks", "{peakcaller}", "fixed_width", "counts", "ROI.{peakcaller}.{method}_scaled_counts.tsv"), method=COUNTING_METHODS, peakcaller=PEAKCALLERS),
         # visualizations
         expand(join(RESULTSDIR, "visualization", "{method}_bam", "{replicate}.{method}.bam"), method=COUNTING_METHODS, replicate=REPLICATES),
         expand(join(RESULTSDIR, "visualization", "{method}_bigwig", "{replicate}.{method}.bw"), method=COUNTING_METHODS, replicate=REPLICATES),

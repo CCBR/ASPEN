@@ -19,7 +19,7 @@ rule atac_calculate_regions_of_interest_for_diffatac:
 # take genrich/macs consensus fixed width peaks and calculate ROIs
 # """
     input:
-        expand(join(RESULTSDIR,"peaks","{{peakcaller}}","fixed_width","{sample}.renormalized.fixed_width.consensus.narrowPeak"),sample=SAMPLES)
+        expand(join(RESULTSDIR,"peaks","{{peakcaller}}","fixed_width","{sample}.{{peakcaller}}.renormalized.fixed_width.consensus.narrowPeak"),sample=SAMPLES)
     output:
         roi              = join(RESULTSDIR,"peaks","{peakcaller}","fixed_width","ROI.{peakcaller}.narrowPeak"),
         roi_bed          = join(RESULTSDIR,"peaks","{peakcaller}","fixed_width","ROI.{peakcaller}.bed"),
