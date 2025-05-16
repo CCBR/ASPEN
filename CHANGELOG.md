@@ -1,29 +1,27 @@
 ## ASPEN development version
 
-
-
 This version features a major overhaul of the pipeline with changes in the following areas:
 
 ### Spike-in alignment (#94, @kopardev)
 
-  - Added support for spike-in alignment and scaling factor computation. (#94, @kopardev)
-  - This new feature is controlled by two new parameters in the config file: `spikein` and `spikein_genome`. (#69)
-  
-###  Peak-calling (#94, @kopardev)
+- Added support for spike-in alignment and scaling factor computation. (#94, @kopardev)
+- This new feature is controlled by two new parameters in the config file: `spikein` and `spikein_genome`. (#69)
 
-  - Peak-called narrowPeak files are now q-value filtered by default, with a default q-value threshold of 0.1. Unfiltered files are still available for users who want to apply their own filters. (#90)
-  - Streamlined the output directory structure. 
-  - Added the name of the peak-caller to ROI filenames (#86)
-  - Added missing annotations (#79)
+### Peak-calling (#94, @kopardev)
+
+- Peak-called narrowPeak files are now q-value filtered by default, with a default q-value threshold of 0.1. Unfiltered files are still available for users who want to apply their own filters. (#90)
+- Streamlined the output directory structure.
+- Added the name of the peak-caller to ROI filenames (#86)
+- Added missing annotations (#79)
 
 ### Differential accessibility (#94, @kopardev)
 
-  - Add new rules for scaling counts and annotating regions of interest. (#68)
-  - DiffATAC analysis is now run for both MACS2 and Genrich peak calls, with results stored in separate directories.
-  - DiffATAC analysis now includes spike-in scaling factors when `spikein` is `TRUE`.
-  - Removed redundant steps in the differential accessibility analysis to streamline the process.
-  - create Tn5-based and reads-based counts matrices (#67)
-  - create spike-in scaled counts matrices (#62)
+- Add new rules for scaling counts and annotating regions of interest. (#68)
+- DiffATAC analysis is now run for both MACS2 and Genrich peak calls, with results stored in separate directories.
+- DiffATAC analysis now includes spike-in scaling factors when `spikein` is `TRUE`.
+- Removed redundant steps in the differential accessibility analysis to streamline the process.
+- create Tn5-based and reads-based counts matrices (#67)
+- create spike-in scaled counts matrices (#62)
 - Quality control
   - Updated FRiP calculation to use `tagAlign.gz` files instead of deduplicated BAM files.
   - Removed unnecessary QC metrics and simplified the QC workflow.
@@ -31,13 +29,14 @@ This version features a major overhaul of the pipeline with changes in the follo
 
 ### Output directory (#94, @kopardev)
 
-  - Consolidated peak calling outputs into a single directory for each peak caller. (#91)
-  - Simplified the output directory structure. (#92)
-  - Decreased output digital footprint by removing unwanted intermediate files, gzipping annotated files, etc. (#87)
+- Consolidated peak calling outputs into a single directory for each peak caller. (#91)
+- Simplified the output directory structure. (#92)
+- Decreased output digital footprint by removing unwanted intermediate files, gzipping annotated files, etc. (#87)
+- Improved slurm job logging with jobby (now depends on ccbr_tools v0.4). (#98, @kelly-sovacool)
 
 ### Documentation (#94, @kopardev)
 
-  - Simplified the documentation to focus on the core functionalities of the pipeline, as well as reflect all of the changes in this version.
+- Simplified the documentation to focus on the core functionalities of the pipeline, as well as reflect all of the changes in this version.
 
 ## ASPEN 1.0.6
 
