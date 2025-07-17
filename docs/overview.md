@@ -4,14 +4,13 @@ To address [these](introduction.md#challenges-in-atac-seq-data-analysis) challen
 
 ## **Flowchart**
 
-The flowchart below provides a visual summary of the ASPEN pipeline, illustrating the key steps involved in preprocessing, alignment, peak calling, and downstream analyses. 
+The flowchart below provides a visual summary of the ASPEN pipeline, illustrating the key steps involved in preprocessing, alignment, peak calling, and downstream analyses.
 
 ![alt text](assets/images/flowchart.png)
 
-
 ## 🛠️ **Data Preprocessing**
 
-### ✂️ **Adapter Trimming** 
+### ✂️ **Adapter Trimming**
 
 Utilizes CutAdapt to remove adapter sequences from raw reads, ensuring that subsequent analyses are not confounded by extraneous sequences.
 
@@ -40,7 +39,7 @@ This alignment process ensures that only high-confidence reads are retained, pro
 
 ### 🔍 **Peak Detection**
 
-ASPEN employs both MACS2 and Genrich for the identification of regions of open chromatin, ensuring comprehensive detection of regulatory elements. 
+ASPEN employs both MACS2 and Genrich for the identification of regions of open chromatin, ensuring comprehensive detection of regulatory elements.
 
 #### **MACS2 Peak Calling**
 
@@ -52,7 +51,7 @@ Genrich is integrated into the pipeline to complement MACS2. This tool is partic
 
 By combining the strengths of MACS2 and Genrich, ASPEN delivers a comprehensive and reliable peak detection framework, facilitating downstream analyses and enabling researchers to uncover critical insights into chromatin accessibility and gene regulation.
 
-### 🤝 **Consensus Peaks** 
+### 🤝 **Consensus Peaks**
 
 For datasets with multiple replicates, ASPEN employs several strategies to derive consensus peaks across replicates:
 
@@ -60,10 +59,9 @@ For datasets with multiple replicates, ASPEN employs several strategies to deriv
 
 - **`pooled.narrowPeak`**: In this approach, reads from all replicates are pooled together, and peak calling is performed on the combined dataset to generate a unified set of "pooled" peaks.
 
-- **`fixed_width.consensus.narrowPeak`**: This method calculates consensus peaks by renormalizing p-value scores across replicates, following the approach outlined by [_Corces et al._](https://doi.org/10.1038/nmeth.4396). 
+- **`fixed_width.consensus.narrowPeak`**: This method calculates consensus peaks by renormalizing p-value scores across replicates, following the approach outlined by [_Corces et al._](https://doi.org/10.1038/nmeth.4396).
 
 Among these methods, the fixed-width consensus peak strategy is recommended for its robustness and reproducibility. The other outputs are provided primarily for exploratory purposes.
-
 
 ### 🏷️ **Peak Annotation**
 
@@ -105,11 +103,11 @@ The Fraction of Reads in Peaks (FRiP) score quantifies the proportion of sequenc
 
 ### 🔑 **HOMER and AME**
 
-ASPEN integrates motif enrichment analysis tools, including HOMER and AME, to identify transcription factor binding motifs within accessible chromatin regions. This analysis provides valuable insights into the regulatory mechanisms governing gene expression. By uncovering enriched motifs, researchers can infer the potential transcription factors driving chromatin accessibility changes and identify key regulators of cellular processes. The combination of HOMER and AME ensures a comprehensive and robust approach to motif discovery, facilitating the interpretation of ATAC-seq data in the context of gene regulation and epigenetic control. HOCOMOCO v11 motifs, which are bundled as resources with ASPEN, are used for both motif enrichment tools. 
+ASPEN integrates motif enrichment analysis tools, including HOMER and AME, to identify transcription factor binding motifs within accessible chromatin regions. This analysis provides valuable insights into the regulatory mechanisms governing gene expression. By uncovering enriched motifs, researchers can infer the potential transcription factors driving chromatin accessibility changes and identify key regulators of cellular processes. The combination of HOMER and AME ensures a comprehensive and robust approach to motif discovery, facilitating the interpretation of ATAC-seq data in the context of gene regulation and epigenetic control. HOCOMOCO v11 motifs, which are bundled as resources with ASPEN, are used for both motif enrichment tools.
 
 ## 📜 **Comprehensive Reporting**
 
-### 📊 **MultiQC Integration** 
+### 📊 **MultiQC Integration**
 
 Generates a comprehensive and interactive HTML report that consolidates all quality control metrics, analysis results, and visualizations into a single, user-friendly document. This report is designed to facilitate the interpretation of results, provide clear and actionable insights, and enable seamless sharing of findings with collaborators. By integrating diverse outputs into an organized and visually appealing format, the HTML report ensures that researchers can efficiently explore their data and communicate their discoveries effectively.
 
@@ -147,7 +145,7 @@ To enhance the biological interpretation of differential accessibility results, 
 
 To account for potential global shifts in chromatin accessibility—particularly in perturbation studies where widespread chromatin compaction or relaxation may occur—ASPEN optionally supports **spike-in normalization**.
 
-Spike-in normalization involves the use of exogenous DNA or cells from a different species (e.g., *Drosophila melanogaster* or *E. coli*) that are added in equal proportions across all experimental samples prior to lysis and tagmentation. These spike-in reads serve as an internal control to correct for technical variation and global accessibility shifts that may not be captured by traditional normalization strategies.
+Spike-in normalization involves the use of exogenous DNA or cells from a different species (e.g., _Drosophila melanogaster_ or _E. coli_) that are added in equal proportions across all experimental samples prior to lysis and tagmentation. These spike-in reads serve as an internal control to correct for technical variation and global accessibility shifts that may not be captured by traditional normalization strategies.
 
 In ASPEN, if spike-in data is present:
 
@@ -156,6 +154,7 @@ In ASPEN, if spike-in data is present:
 - A normalization factor is calculated based on spike-in counts and applied to the accessibility read counts from the host genome.
 
 This spike-in-derived scaling factor allows the comparison of chromatin accessibility across conditions even when global chromatin accessibility levels differ (e.g., treatment-induced repression or global decondensation). This method is particularly valuable in experiments involving:
+
 - Transcription factor knockdowns/knockouts
 - Chromatin remodeler inhibition
 - Drug-induced chromatin modulation

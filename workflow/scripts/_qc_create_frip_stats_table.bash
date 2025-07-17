@@ -38,11 +38,9 @@ for r in $replicates;do
 	rm -f ${replicateName}.part*
 done > $RANDOMTXT
 
-grep -m1 "replicateName" $RANDOMTXT > ${RANDOMTXT}.header 
+grep -m1 "replicateName" $RANDOMTXT > ${RANDOMTXT}.header
 grep -v "replicateName" $RANDOMTXT | sort > ${RANDOMTXT}.body
 
 cat ${RANDOMTXT}.header ${RANDOMTXT}.body
 
 rm -f ${RANDOMTXT}*
-
-

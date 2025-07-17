@@ -52,7 +52,7 @@ toplot=as.data.frame(m.pca$x[,1:3])
 p <- plot_ly(as.data.frame(m.pca$x[,1:3]), x = ~PC1, y = ~PC2, z = ~PC3,  hoverinfo="text", color=h,
              hovertext = rownames(toplot)) %>%
   add_markers() %>%
-  layout(title = "Jaccard score 3-d PCA plot", 
+  layout(title = "Jaccard score 3-d PCA plot",
          scene = list(xaxis = list(title = paste0("PC1 (",m.pc1,"%)")),
                       yaxis = list(title = paste0("PC2 (",m.pc2,"%)")),
                       zaxis = list(title = paste0("PC3 (",m.pc3,"%)"))))

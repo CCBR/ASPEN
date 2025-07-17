@@ -41,7 +41,7 @@ callPeaks(){
     for f in ${PREFIX}.unfiltered.narrowPeak ${PREFIX}.narrowPeak;do
         npeaks=$(wc -l $f|awk '{print $1}')
         if [ "$npeaks" -gt "0" ];then
-            Rscript ${SCRIPTSFOLDER}/ccbr_annotate_peaks.R -n $f  -a ${f}.annotated -g $GENOME -l ${f}.genelist -f ${f}.annotation_summary 
+            Rscript ${SCRIPTSFOLDER}/ccbr_annotate_peaks.R -n $f  -a ${f}.annotated -g $GENOME -l ${f}.genelist -f ${f}.annotation_summary
             cut -f1,2 ${f}.annotation_summary > ${f}.annotation_distribution
         else
             touch ${f}.annotated
@@ -59,9 +59,9 @@ callPeaks(){
 #
 # MACS will save fragment pileup signal per million reads
 #
-# Genrich normalization is as per 1x genome coverage... and macs2 normalization is per million reads 
+# Genrich normalization is as per 1x genome coverage... and macs2 normalization is per million reads
 #     bedSort ${PREFIX}_treat_pileup.bdg ${PREFIX}_treat_pileup.bdg
-# # some coordinates go out of chromosome size in macs2 bam2bw conversion.... using a working around 
+# # some coordinates go out of chromosome size in macs2 bam2bw conversion.... using a working around
 #     awk -F"\t" -v OFS="\t" '{print $1,"0",$2}' $GENOMEFILE > /dev/shm/${PREFIX}.genome.bed
 #     bedtools intersect -a ${PREFIX}_treat_pileup.bdg -b /dev/shm/${PREFIX}.genome.bed > /dev/shm/${PREFIX}.bg
 #     mv /dev/shm/${PREFIX}.bg ${PREFIX}_treat_pileup.bdg
@@ -82,7 +82,7 @@ callPeaks(){
 #   bedToBam -i ${nicksBED%.*}.tmp.bed -g $GENOMEFILE > $nicksBAM
 #   samtools sort -@4 -o ${nicksBAM%.*}.sorted.bam $nicksBAM
 #   mv ${nicksBAM%.*}.sorted.bam $nicksBAM
-#   rm -f ${nicksBED%.*}.tmp.bed 
+#   rm -f ${nicksBED%.*}.tmp.bed
 #   pigz -f -p4 $nicksBED
 #   mv ${nicksBED}.gz ${OUTDIR}/tn5nicks/${nicksBED}.gz
 #   mv ${nicksBAM} ${OUTDIR}/tn5nicks/${nicksBAM}
@@ -108,7 +108,7 @@ Output files:
     ** tn5nicks BAM file (required for downstream DiffBind analysis ... in tn5nicks subfolder)
     ** bigwig files (in bigwig subfolder)
 * Pooled narrowPeak file with annotations
-* Consensus BED file with annotations 
+* Consensus BED file with annotations
 """
 source /opt2/argparse.bash || exit 1
 argparse "$@" <<EOF || exit 1
@@ -164,11 +164,11 @@ REP1NAME=`echo $(basename $TAGALIGN1)|awk -F".tag" '{print $1}'`
 if [ "$nreplicates" -ge 2 ]; then
     TAGALIGN2=$(echo $TAGALIGNFILES|awk '{print $2}')
     REP2NAME=`echo $(basename $TAGALIGN2)|awk -F".tag" '{print $1}'`
-fi	
+fi
 if [ "$nreplicates" -ge 3 ]; then
     TAGALIGN3=$(echo $TAGALIGNFILES|awk '{print $3}')
     REP3NAME=`echo $(basename $TAGALIGN3)|awk -F".tag" '{print $1}'`
-fi	
+fi
 if [ "$nreplicates" -ge 4 ]; then
     TAGALIGN4=$(echo $TAGALIGNFILES|awk '{print $4}')
     REP4NAME=`echo $(basename $TAGALIGN4)|awk -F".tag" '{print $1}'`
@@ -184,7 +184,7 @@ fi
 
 
 # replicate 1 peak calling
-callPeaks $TAGALIGN1 ${REP1NAME}.macs2 $RUNCHIPSEEKER $FILTERPEAKS 
+callPeaks $TAGALIGN1 ${REP1NAME}.macs2 $RUNCHIPSEEKER $FILTERPEAKS
 # replicate 2 peak calling
 if [ "$nreplicates" -ge 2 ]; then
 callPeaks $TAGALIGN2 ${REP2NAME}.macs2 $RUNCHIPSEEKER $FILTERPEAKS

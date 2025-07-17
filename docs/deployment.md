@@ -2,7 +2,6 @@
 
 To effectively run the ASPEN (ATAC-Seq PipEliNe) on the Biowulf High-Performance Computing (HPC) system, please follow the detailed user guide below:
 
-
 ## 🛠️ Prerequisites
 
 - **Biowulf Account:** Ensure you have an active Biowulf account.
@@ -22,7 +21,8 @@ This command adds aspen to your system's PATH, allowing you to execute pipeline 
 
 > **Note**: If you're operating outside of Biowulf, ensure that dependencies such as snakemake, python, and singularity are installed and accessible in your system's PATH.
 
-### 📝 Create a Sample Manifest  
+### 📝 Create a Sample Manifest
+
 ASPEN requires a sample manifest file (`samples.tsv`) to identify and organize your input data. This tab-separated file should include the following columns:
 
 - `replicateName`: Unique identifier for each replicate.
@@ -31,18 +31,20 @@ ASPEN requires a sample manifest file (`samples.tsv`) to identify and organize y
 - `path_to_R2_fastq`: Absolute path to the Read 2 FASTQ file (required for paired-end data).
 
 !!! note
-    Symlinks for R1 and R2 files will be created in the results directory, named as <replicateName>.R1.fastq.gz and <replicateName>.R2.fastq.gz, respectively. Therefore, original filenames do not need to be altered.
+Symlinks for R1 and R2 files will be created in the results directory, named as <replicateName>.R1.fastq.gz and <replicateName>.R2.fastq.gz, respectively. Therefore, original filenames do not need to be altered.
 
 !!! note
-    The `replicateName` is used as a prefix for individual peak calls, while the `sampleName` serves as a prefix for consensus peak calls.
+The `replicateName` is used as a prefix for individual peak calls, while the `sampleName` serves as a prefix for consensus peak calls.
 
 !!! note
-    For differential ATAC analysis, create a `contrasts.tsv` file with two columns (Group1 and Group2 ... aka Sample1 and Sample2, without headers) and place it in the output directory after initialization. Ensure each group/sample in the contrast has at least two replicates, as DESeq2 requires this for accurate contrast calculations.
+For differential ATAC analysis, create a `contrasts.tsv` file with two columns (Group1 and Group2 ... aka Sample1 and Sample2, without headers) and place it in the output directory after initialization. Ensure each group/sample in the contrast has at least two replicates, as DESeq2 requires this for accurate contrast calculations.
 
 ## 🏃 Running the ASPEN Pipeline
+
 ASPEN operates through a series of modes to facilitate various stages of the analysis.
 
 ### 🗂️ Initialize the Working Directory
+
 Begin by initializing your working directory, which will house configuration files and results. Replace <path_to_output_folder> with your desired output directory path:
 
 ```bash
@@ -52,10 +54,11 @@ aspen -m=init -w=<path_to_output_folder>
 This command generates a config.yaml and a placeholder `samples.tsv` in the specified directory. Edit these files to reflect your experimental setup, replacing the placeholder `samples.tsv` with your prepared manifest. If performing differential analysis, include the `contrasts.tsv` file at this stage.
 
 !!! note
-    To explore all possible options of the `aspen` command you can either run it without any arguments or run `aspen --help`
+To explore all possible options of the `aspen` command you can either run it without any arguments or run `aspen --help`
 
 Here is what help looks like:
-```bash 
+
+```bash
 
 ##########################################################################################
 
@@ -174,7 +177,7 @@ contrasts_fdr_cutoff: 0.05
 
 ### 🧬 Enabling Spike-In Normalization (Optional)
 
-ASPEN supports spike-in normalization, which is useful for controlling technical variability or comparing global shifts in chromatin accessibility across samples. Spike-in reads (e.g., from *Drosophila melanogaster* or *E. coli*) are aligned separately and used to compute normalization factors that are applied to host genome accessibility counts.
+ASPEN supports spike-in normalization, which is useful for controlling technical variability or comparing global shifts in chromatin accessibility across samples. Spike-in reads (e.g., from _Drosophila melanogaster_ or _E. coli_) are aligned separately and used to compute normalization factors that are applied to host genome accessibility counts.
 
 To enable spike-in normalization, edit the `config.yaml` file that was generated during `init`. You can find it in your output directory (`<path_to_output_folder>/config.yaml`).
 
@@ -194,13 +197,13 @@ To activate spike-in normalization:
 
 #### 📝 Example Configuration
 
-For *Drosophila* spike-in:
+For _Drosophila_ spike-in:
 
 <pre><code>spikein: True
 spikein_genome: "dmelr6.32"
 </code></pre>
 
-For *E. coli* spike-in:
+For _E. coli_ spike-in:
 
 <pre><code>spikein: True
 spikein_genome: "ecoli_k12"
@@ -217,7 +220,6 @@ Once enabled, ASPEN will:
 
 This step is optional but highly recommended when you expect global changes in chromatin accessibility due to treatments or perturbations.
 
-
 ### 🛠️ Dry Run the Pipeline
 
 Before executing the full analysis and after editing the `config.yaml` as needed, perform a dry run to visualize the workflow and identify potential issues:
@@ -225,9 +227,8 @@ Before executing the full analysis and after editing the `config.yaml` as needed
 ```bash
 aspen -m=dryrun -w=<path_to_output_folder>
 ```
+
 This step outlines the sequence of tasks (Directed Acyclic Graph - DAG) without actual execution, allowing you to verify the planned operations.
-
-
 
 ### 🚀 Execute the Pipeline
 
@@ -253,7 +254,6 @@ This command runs the pipeline with the specified working directory and Singular
 
 > **Note**: If deploying on Biowulf, try setting the `--singcache` to `/data/CCBR_Pipeliner/SIFS` to reuse the pre-pulled containers and save time.
 
-
 ## 📊 Monitor ASPEN Runs
 
 To monitor the status of your ASPEN pipeline and its associated jobs on a Slurm-managed system, you can utilize the squeue and scontrol commands. The squeue command provides information about jobs in the scheduling queue, while scontrol offers detailed insights into specific jobs.
@@ -263,6 +263,7 @@ To view all your active and pending jobs, execute:
 ```bash
 squeue -u $USER --format="%.18i %.30j %.11P %.15T %.10r %.10M %.10l %.5D %.5C %.10m %.25b %.8N" --sort=-S
 ```
+
 This command lists all jobs submitted by your user account, displaying details such as job IDs, partitions, job names, user names, job states, and the nodes allocated.
 
 For more granular information about a specific job, including its child jobs spawned by ASPEN, use the scontrol command:
@@ -270,6 +271,7 @@ For more granular information about a specific job, including its child jobs spa
 ```bash
 scontrol show job <jobid>
 ```
+
 Replace <jobid> with the specific Job ID of interest. This will provide comprehensive details about the job's configuration and status, aiding in effective monitoring and management of your ASPEN pipeline processes.
 
 To quickly guage the process of the entire pipeline run:
@@ -277,4 +279,3 @@ To quickly guage the process of the entire pipeline run:
 ```bash
 grep "done$" <path_to_output_folder>/snakemake.log
 ```
-

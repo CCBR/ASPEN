@@ -3,7 +3,7 @@
 # conda activate python3
 
 set -e -x -o pipefail
-ARGPARSE_DESCRIPTION="calculate TSS score from tagAlign file"     
+ARGPARSE_DESCRIPTION="calculate TSS score from tagAlign file"
 source /opt2/argparse.bash || \
 
 source <(curl -s https://raw.githubusercontent.com/CCBR/Tools/master/scripts/argparse.bash) || \
@@ -30,7 +30,7 @@ cp $TSSTARGZ .
 tar xzvf $(basename $TSSTARGZ)
 tar tzf $TSSTARGZ > beds.lst
 while read f;do
-# for f in `ls *.bed|grep -v tn5nicks`;do 
+# for f in `ls *.bed|grep -v tn5nicks`;do
 echo "bedmap --echo --count $f $nicksbed|awk -F\"\t\" '{if (\$6!=\"+|0\" && \$6!=\"-|0\"){print \$4,\$6}}'|sed \"s/ /|/g\"|awk -F\"|\" -v OFS=\"\t\" '{print \$3,\$5}' > ${f}.counts"
 done < beds.lst > do_bedmap
 head do_bedmap

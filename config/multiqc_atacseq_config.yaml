@@ -1,115 +1,115 @@
 custom_data:
-    Nreads:
-        section_name: 'Nreads'
-        description: 'Number of reads per replicate. Mitochondrial fraction should be < 10%.'
-    nrf_stats:
-        file_format: 'tsv'
-        section_name: 'NRF PBC Stats'
-        description: '
-            Non-redundant Fraction (NRF): Number of distinct uniquely mapping reads (i.e. after removing duplicates) / Total number of reads. 
-            PCR Bottlenecking Coefficient 1 (PBC1): (number of genomic locations where exactly one read maps uniquely) / (number of distinct genomic locations to which some read maps uniquely). 
-            PCR Bottlenecking Coefficient 2 (PBC2): (number of genomic locations where only one read maps uniquely) / (number of genomic locations where two reads map uniquely). 
-            The preferred values are as follows: NRF>0.9, PBC1>0.9, and PBC2>3. '
-        plot_type: 'table'
-        pconfig:
-            id: 'NRF Stats'
-            title: 'NRF Stats table'
-    fld_files:
-        file_format: 'tsv'
-        section_name: 'Fragment Length Distribution'
-        description: 'Per sample FLD. Peak < 150bp = Nucleosome Free Peak, Peak between 150-300 bp = Mononucleosome Peak, Peak > 300bp = Dinucleosome Peak'
-        plot_type: 'linegraph'
-        pconfig:
-            id: 'FLD'
-            title: 'Fragment Length Distribution'
-            ylab: 'Normalized read density X 1e3'
-            xlab: 'Fragment Length'
-            xmax: 1000
-    fld_stats_peaks:
-        file_format: 'tsv'
-        section_name: 'FLD Stats (Peaks)'
-        description: 'Presence or Absense of nucleosome-free, mono and di-nucleosome peaks in FLD. A nucleosome free region (NFR) must be present. A mononucleosome peak must be present.'
-        plot_type: 'table'
-        pconfig:
-            id: 'FLD Stats'
-            title: 'FLD Stats table'
-    fld_stats_details:
-        file_format: 'tsv'
-        section_name: 'FLD Stats (Fractions and Ratios)'
-        description: 'Fractions and Ratios of interest'
-        plot_type: 'table'
-        pconfig:
-            id: 'FLD Stats'
-            title: 'FLD Stats table'
-    MACS2_Peak_Annotations:
-        section_name: 'MACS2 Peaks'
-        description: 'Peaks called using MACS2. For human or mouse data, Npeaks should be >150,000, though values >100,000 may be acceptable. '
-    Genrich_Peak_Annotations:
-        section_name: 'Genrich Peaks'
-        description: 'Peaks called using Genrich. For human or mouse data, Npeaks should be >150,000, though values >100,000 may be acceptable. '
-    peak_width_files:
-        file_format: 'tsv'
-        section_name: 'Peak width distribution'
-        description: 'Peak width distribution of consensus peaks.'
-        plot_type: 'linegraph'
-        pconfig:
-            id: 'PWD'
-            title: 'Peak Width Distribution'
-            ylab: 'Peak Density Percentage'
-            xlab: 'Peak Width'
-            xmax: 20000
-    frip_stats:
-        file_format: 'tsv'
-        section_name: 'FRiP Stats'
-        description: 'The fraction of reads in called peak regions (FRiP score) should be >0.3, though values greater than 0.2 are acceptable. Fraction of Reads in Peaks/DHS/Enhancers/Promoters are also reported. For human or mouse data, FRiPromoters is 12-20%'
-        plot_type: 'table'
-        pconfig:
-            id: 'FRiP Stats'
-            title: 'FRiP Stats table'
-    tss_files:
-        file_format: 'tsv'
-        section_name: 'TSS distribution'
-        description: 'Greenleaf Normalized TSS per sample distribution'
-        plot_type: 'linegraph'
-        pconfig:
-            id: 'TSS Enrichment'
-            title: 'TSS Enrichment Distribution'
-            ylab: 'Greenleaf Normalized TSS Enrichment'
-            xlab: 'Distance from TSS'
-    tss_knicking_sites_files:
-        file_format: 'tsv'
-        section_name: 'TSS Score Scatter'
-        description: 'TSS score to TSS with >20 Tn5knicking sites scatter. '
-        plot_type: 'scatter'
-        pconfig:
-            id: 'TSS_scatter'
-            title: 'TSS_Score_Scatter'
-            ylab: 'TSS score'
-            xlab: 'Number of TSS sites with > 20 Tn5 knick sites'
+  Nreads:
+    section_name: "Nreads"
+    description: "Number of reads per replicate. Mitochondrial fraction should be < 10%."
+  nrf_stats:
+    file_format: "tsv"
+    section_name: "NRF PBC Stats"
+    description: "
+      Non-redundant Fraction (NRF): Number of distinct uniquely mapping reads (i.e. after removing duplicates) / Total number of reads.
+      PCR Bottlenecking Coefficient 1 (PBC1): (number of genomic locations where exactly one read maps uniquely) / (number of distinct genomic locations to which some read maps uniquely).
+      PCR Bottlenecking Coefficient 2 (PBC2): (number of genomic locations where only one read maps uniquely) / (number of genomic locations where two reads map uniquely).
+      The preferred values are as follows: NRF>0.9, PBC1>0.9, and PBC2>3. "
+    plot_type: "table"
+    pconfig:
+      id: "NRF Stats"
+      title: "NRF Stats table"
+  fld_files:
+    file_format: "tsv"
+    section_name: "Fragment Length Distribution"
+    description: "Per sample FLD. Peak < 150bp = Nucleosome Free Peak, Peak between 150-300 bp = Mononucleosome Peak, Peak > 300bp = Dinucleosome Peak"
+    plot_type: "linegraph"
+    pconfig:
+      id: "FLD"
+      title: "Fragment Length Distribution"
+      ylab: "Normalized read density X 1e3"
+      xlab: "Fragment Length"
+      xmax: 1000
+  fld_stats_peaks:
+    file_format: "tsv"
+    section_name: "FLD Stats (Peaks)"
+    description: "Presence or Absense of nucleosome-free, mono and di-nucleosome peaks in FLD. A nucleosome free region (NFR) must be present. A mononucleosome peak must be present."
+    plot_type: "table"
+    pconfig:
+      id: "FLD Stats"
+      title: "FLD Stats table"
+  fld_stats_details:
+    file_format: "tsv"
+    section_name: "FLD Stats (Fractions and Ratios)"
+    description: "Fractions and Ratios of interest"
+    plot_type: "table"
+    pconfig:
+      id: "FLD Stats"
+      title: "FLD Stats table"
+  MACS2_Peak_Annotations:
+    section_name: "MACS2 Peaks"
+    description: "Peaks called using MACS2. For human or mouse data, Npeaks should be >150,000, though values >100,000 may be acceptable. "
+  Genrich_Peak_Annotations:
+    section_name: "Genrich Peaks"
+    description: "Peaks called using Genrich. For human or mouse data, Npeaks should be >150,000, though values >100,000 may be acceptable. "
+  peak_width_files:
+    file_format: "tsv"
+    section_name: "Peak width distribution"
+    description: "Peak width distribution of consensus peaks."
+    plot_type: "linegraph"
+    pconfig:
+      id: "PWD"
+      title: "Peak Width Distribution"
+      ylab: "Peak Density Percentage"
+      xlab: "Peak Width"
+      xmax: 20000
+  frip_stats:
+    file_format: "tsv"
+    section_name: "FRiP Stats"
+    description: "The fraction of reads in called peak regions (FRiP score) should be >0.3, though values greater than 0.2 are acceptable. Fraction of Reads in Peaks/DHS/Enhancers/Promoters are also reported. For human or mouse data, FRiPromoters is 12-20%"
+    plot_type: "table"
+    pconfig:
+      id: "FRiP Stats"
+      title: "FRiP Stats table"
+  tss_files:
+    file_format: "tsv"
+    section_name: "TSS distribution"
+    description: "Greenleaf Normalized TSS per sample distribution"
+    plot_type: "linegraph"
+    pconfig:
+      id: "TSS Enrichment"
+      title: "TSS Enrichment Distribution"
+      ylab: "Greenleaf Normalized TSS Enrichment"
+      xlab: "Distance from TSS"
+  tss_knicking_sites_files:
+    file_format: "tsv"
+    section_name: "TSS Score Scatter"
+    description: "TSS score to TSS with >20 Tn5knicking sites scatter. "
+    plot_type: "scatter"
+    pconfig:
+      id: "TSS_scatter"
+      title: "TSS_Score_Scatter"
+      ylab: "TSS score"
+      xlab: "Number of TSS sites with > 20 Tn5 knick sites"
 
 sp:
-    nrf_stats:
-        fn: 'NRF_stats.tsv'
-    frip_stats:
-        fn: 'FRiP_stats.tsv'
-    fld_stats_peaks:
-        fn: 'FLD_stats_peaks.tsv'
-    fld_stats_details:
-        fn: 'FLD_stats_fractions_ratios.tsv'    
-    tss_knicking_sites_files:
-        fn: 'data.tss_nicking_sites.txt'
-    peak_width_files:
-        fn: '*.annotated.peak_width_density'
-    fld_files:
-        fn: '*.fld.txt'
-    tss_files:
-        fn: '*.tss.txt'
+  nrf_stats:
+    fn: "NRF_stats.tsv"
+  frip_stats:
+    fn: "FRiP_stats.tsv"
+  fld_stats_peaks:
+    fn: "FLD_stats_peaks.tsv"
+  fld_stats_details:
+    fn: "FLD_stats_fractions_ratios.tsv"
+  tss_knicking_sites_files:
+    fn: "data.tss_nicking_sites.txt"
+  peak_width_files:
+    fn: "*.annotated.peak_width_density"
+  fld_files:
+    fn: "*.fld.txt"
+  tss_files:
+    fn: "*.tss.txt"
 fn_clean_exts:
-     - '.genrich.narrowPeak.annotation_distribution'
-     - '.consensus.bed.annotated.peak_width_density'
-     - '.filt.bam'
-     - '.preseq'
-     - '.tss.txt'
-     - '.fld.txt'
-     - '.bowtie2.log'
-     - '.fastq.gz'
+  - ".genrich.narrowPeak.annotation_distribution"
+  - ".consensus.bed.annotated.peak_width_density"
+  - ".filt.bam"
+  - ".preseq"
+  - ".tss.txt"
+  - ".fld.txt"
+  - ".bowtie2.log"
+  - ".fastq.gz"

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e -x -o pipefail
-ARGPARSE_DESCRIPTION="fraction of reads in peaks (and DHS/Enhancers/Promoters [if genome is provided])" 
+ARGPARSE_DESCRIPTION="fraction of reads in peaks (and DHS/Enhancers/Promoters [if genome is provided])"
 source /opt2/argparse.bash || \
 source <(curl -s https://raw.githubusercontent.com/CCBR/Tools/master/scripts/argparse.bash) || \
 exit 1

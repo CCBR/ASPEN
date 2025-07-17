@@ -4,31 +4,31 @@ suppressPackageStartupMessages(library("argparse"))
 # create parser object
 parser <- ArgumentParser(description="Convert narrowPeak output to fixedwidth peakset as per the pan-cancer genome paper (https://doi.org/10.1126/science.aav1898) using the script narrowPeak_to_fixed_width_peakSet.R. This involves ...First, all replicate peak sets are combined into a cumulative peak set and trimmed for overlap using the same iterative procedure as narrowPeak_to_fixed_width_peakSet, i.e, keep the most significant (based of score per million or normalized p-value) peak and discards any peak that overlaps directly with the most significant peak. To identify reproducible peaks from this merged peak set, the individual replicate peak sets were overlapped with the merged peak set. Peaks from the merged peak set that were observed in at least 2(minReps) samples with a score per million value >=5(cutoffSPM) were labeled as reproducible and reported in the output narrowPeak file. NOTE: this script requires bedtools to be in the PATH")
 
-# specify our desired options 
-# by default ArgumentParser will add a help option 
-parser$add_argument("-i", "--inputNarrowPeaks", 
-          type="character", 
+# specify our desired options
+# by default ArgumentParser will add a help option
+parser$add_argument("-i", "--inputNarrowPeaks",
+          type="character",
           help="absolute fullpaths to fixed width narrowPeak input files from narrowPeak_to_fixed_width_peakSet.R",
           required=TRUE)
-parser$add_argument("-p", "--inputPrefixes", 
-          type="character", 
+parser$add_argument("-p", "--inputPrefixes",
+          type="character",
           help="prefixes to be added to the peaknames from the inputNarrowPeaks to avoid name clashes",
           required=TRUE)
-parser$add_argument("-o", "--outputNarrowPeak", 
-          type="character", 
+parser$add_argument("-o", "--outputNarrowPeak",
+          type="character",
           help="absolute fullpath to narrowPeak output file",
           required=TRUE)
-parser$add_argument("-t", "--tmpdir", 
+parser$add_argument("-t", "--tmpdir",
           type="character",
           help="tmp dir",
           required=FALSE,
           default=NULL)
-parser$add_argument("-m", "--minReps", 
+parser$add_argument("-m", "--minReps",
           type="integer",
           help="minimum replicates that need to overlap for any peak to be considered a consensus peak",
           required=FALSE,
           default=2)
-parser$add_argument("-c", "--cutoffSPM", 
+parser$add_argument("-c", "--cutoffSPM",
           type="integer",
           help="cutoff score per million or normalized p-value. All minimum number of replicate peaks that need to overlap with a consensus peak should also be greater than this cutoff score per million or SPM",
           required=FALSE,
@@ -63,7 +63,7 @@ if (debug==1){
   tmpdir=setwd(dirname(out_narrowPeak))
   } else {
   tmpdir=args$tmpdir
-  }  
+  }
   setwd(tmpdir)
 }
 
@@ -219,7 +219,7 @@ for (i in 1:length(narrowPeaks)) {
   x2[x2$normalizedpvalue2>norm_pvalue_threshold,]->x2
   update_peaks=peaksoverlapcount$peakname %in% x2$peakname
   peaksoverlapcount[update_peaks, "count"] <- 1 + peaksoverlapcount[update_peaks, "count"]
-  
+
   system(paste("rm -f",tmp))
 }
 
