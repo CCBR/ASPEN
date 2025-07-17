@@ -21,7 +21,7 @@ parser.add_argument('--keepfiles',required=False,default='False',help='to keep i
 EOF
 
 # outputs
-# ${samplename}.bowtie2.bam(.bai|.flagstat) for original bowtie2 alignment 
+# ${samplename}.bowtie2.bam(.bai|.flagstat) for original bowtie2 alignment
 # ${samplename}.qsorted.bam(.bai|.flagstat) for Genrich peak calling
 # ${samplename}.filtered.bam(.bai|.flagstat) for counting reads/tn5 nicks
 # ${samplename}.dedup.bam(.bai|.flagstat) used to generate tagAlign.gz for MACS2 peak calling

@@ -7,13 +7,21 @@ import sys
 import random
 import argparse
 
+
 def parse_args():
-    '''
+    """
     Gives options
-    '''
-    parser = argparse.ArgumentParser(description='Saves reads below a alignment threshold and discards all others')
-    parser.add_argument('-k', help='Alignment number cutoff')
-    parser.add_argument('--paired-end', dest='paired_ended', action='store_true', help='Data is paired-end')
+    """
+    parser = argparse.ArgumentParser(
+        description="Saves reads below a alignment threshold and discards all others"
+    )
+    parser.add_argument("-k", help="Alignment number cutoff")
+    parser.add_argument(
+        "--paired-end",
+        dest="paired_ended",
+        action="store_true",
+        help="Data is paired-end",
+    )
     args = parser.parse_args()
     alignment_cutoff = int(args.k)
     paired_ended = args.paired_ended
@@ -22,26 +30,25 @@ def parse_args():
 
 
 if __name__ == "__main__":
-    '''
+    """
     Runs the filtering step of choosing multimapped reads
-    '''
+    """
 
     [alignment_cutoff, paired_ended] = parse_args()
 
     if paired_ended:
         alignment_cutoff = int(alignment_cutoff) * 2
 
-    # Store each line in sam file as a list of reads, 
-    # where each read is a list of elements to easily 
+    # Store each line in sam file as a list of reads,
+    # where each read is a list of elements to easily
     # modify or grab things
-    current_reads = [] 
-    current_qname = ''
+    current_reads = []
+    current_qname = ""
 
     for line in sys.stdin:
+        read_elems = line.strip().split("\t")
 
-        read_elems = line.strip().split('\t')
-
-        if read_elems[0].startswith('@'):
+        if read_elems[0].startswith("@"):
             sys.stdout.write(line)
             continue
 
@@ -68,4 +75,3 @@ if __name__ == "__main__":
                 # First read in file
                 current_reads.append(line)
                 current_qname = read_elems[0]
-

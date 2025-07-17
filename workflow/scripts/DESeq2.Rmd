@@ -139,7 +139,7 @@ pander(sampleinfo,style="rmarkdown")
 dds1 <- DESeqDataSetFromMatrix(countData = as.matrix(countmatrix),
                                 colData = sampleinfo[,c("replicateName","sampleName")],
                                 design = ~ 1)
-dds1 <- DESeq(dds1) 
+dds1 <- DESeq(dds1)
 if (nrow(dds1)<2000) {
   rld1 <- varianceStabilizingTransformation(dds1, blind=TRUE)
 } else {
@@ -252,7 +252,7 @@ EnhancedVolcano::EnhancedVolcano(resdf_w_anno,
 ## Open ROIs
 
 ```{r updown,include=TRUE,echo=FALSE,cache=FALSE,warning=FALSE}
-# sometimes FC and FDR are too strict and up_roi/down_roi can be zero 
+# sometimes FC and FDR are too strict and up_roi/down_roi can be zero
 # to work with that scenario without errors:
 x=as.data.frame(rbind(table(up_roi$shortAnno),table(down_roi$shortAnno)))
 if (nrow(x) == 2) {
@@ -269,4 +269,3 @@ if (nrow(x) == 2) {
 }
 # heatmap_matrix=assay(rld2)
 ```
-

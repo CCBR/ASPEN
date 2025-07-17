@@ -39,14 +39,14 @@ Here are more details about these files:
 | `dryrun_git_commit.txt`          | TXT           | dryrun                                                | The git commit hash of the version of ASPEN used at dryrun                                                                                                            |
 | `dryrun.log`                     | TXT           | dryrun                                                | Log from `-m=dryrun`                                                                                                                                                  |
 | `fastqs`                         | FOLDER        | dryrun                                                | Folder containing symlinks to raw data                                                                                                                                |
-| `logs`                           | FOLDER        | dryrun                                                | Folder containing all logs including Slurm `.out` and `.err` files. Also contains older timestamped `runinfo.yaml` and `snakemake.stats` files.                                                                                                    |
+| `logs`                           | FOLDER        | dryrun                                                | Folder containing all logs including Slurm `.out` and `.err` files. Also contains older timestamped `runinfo.yaml` and `snakemake.stats` files.                       |
 | `results`                        | FOLDER        | Created at dryrun but populated during run            | Main outputs folder                                                                                                                                                   |
 | `runinfo.yaml`                   | YAML          | After completion of run                               | Metadata about the run executor, etc.                                                                                                                                 |
 | `runslurm_snakemake_report.html` | HTML          | After completion of run                               | HTML report including DAG and resource utilization                                                                                                                    |
 | `sampleinfo.txt`                 | TXT           | dryrun, run                                           | Tab-delimited mappings between `replicateNames` and `sampleNames`                                                                                                     |
 | `samples.tsv`                    | TSV           | init; can be edited later                             | Tab-delimited manifest with `replicateName`, `sampleName`, `path_to_R1_fastq`, `path_to_R2_fastq`. This file has a header.                                            |
 | `scripts`                        | FOLDER        | init                                                  | Folder keeps local copy of scripts called by various rules                                                                                                            |
-| `run_git_commit.txt`          | TXT           | run                                                | The git commit hash of the version of ASPEN used at run                                                                                                            |
+| `run_git_commit.txt`             | TXT           | run                                                   | The git commit hash of the version of ASPEN used at run                                                                                                               |
 | `slurm-XXXXXXX.out`              | TXT           | run                                                   | Slurm `.out` file for the master job                                                                                                                                  |
 | `snakemake.log`                  | TXT           | run                                                   | Snakemake `.log` file for the master job; older copies timestamped and moved into `logs` folder                                                                       |
 | `snakemake.stats`                | JSON          | run                                                   | per rule runtime stats                                                                                                                                                |
@@ -122,16 +122,14 @@ Content details:
 | visualization | tn5sites_bam        | - Tn5 nicking sites in BAM format. <br> - Derived from `filteredBam`.                                                                                                                                                                               |
 | visualization | tn5sites_bigwig     | - Tn5 nicking sites in BIGWIG format. <br> - Scaled using spike-in scaling factors if present. <br> - Derived from `tn5sites_bam`.                                                                                                                  |
 
+!!! note
+BAM files from `dedupBam` can be used for downstream footprinting analysis using [CCBR_TOBIAS](https://github.com/CCBR/CCBR_Tobias) pipeline
 
 !!! note
-    BAM files from `dedupBam` can be used for downstream footprinting analysis using [CCBR_TOBIAS](https://github.com/CCBR/CCBR_Tobias) pipeline
+[bamCompare](https://deeptools.readthedocs.io/en/develop/content/tools/bamCompare.html) from deeptools can be run to compare BAMs from `dedupBam` for comprehensive BAM comparisons.
 
 !!! note
-    [bamCompare](https://deeptools.readthedocs.io/en/develop/content/tools/bamCompare.html) from deeptools can be run to compare BAMs from `dedupBam` for comprehensive BAM comparisons.
-
-!!! note
-    BAM files from `dedupBam` can also be converted to BED format and processed with [chromVAR](https://github.com/GreenleafLab/chromVAR) to identify variability in motif accessibility across samples and assess differentially active transcription factors from the JASPAR database.
-
+BAM files from `dedupBam` can also be converted to BED format and processed with [chromVAR](https://github.com/GreenleafLab/chromVAR) to identify variability in motif accessibility across samples and assess differentially active transcription factors from the JASPAR database.
 
 #### Peak Annotation folder
 
@@ -306,4 +304,3 @@ This directory contains all .err and .out log files generated by SLURM for jobs 
 This structure is particularly useful for troubleshooting and debugging, especially when the SLURM job IDs of failed jobs are known. By examining the corresponding .err or .out files, users can efficiently identify the source of errors within specific Snakemake rules and wildcards.
 
 > DISCLAIMER: This folder hierarchy is significantly different than v1.0.6 and is subject to change with subsequent versions.
-

@@ -9,8 +9,8 @@
 # fasta files are created using bedtools getfasta on biowulf and then transferred here
 # chrM and chr_rDNA are added to blacklist fasta to create
 # 1.mm10.blacklist.chrM.chr_rDNA.fa
-# 2.hg19.blacklist_v3.chrM.chr_rDNA.fa          
-# 3.hg38.blacklist_v3.chrM.chr_rDNA.fa          
+# 2.hg19.blacklist_v3.chrM.chr_rDNA.fa
+# 3.hg38.blacklist_v3.chrM.chr_rDNA.fa
 
 # create index
 bwa index -p mm10_blacklist mm10.blacklist.chrM.chr_rDNA.fa

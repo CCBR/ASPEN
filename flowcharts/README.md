@@ -4,9 +4,7 @@ Tools from numerous open source ATACseq data analysis are composed together to c
 
 #### Overview
 
- ![img](https://i.loli.net/2021/11/16/a9yOfZdrMhLEGmD.png)
-
-
+![img](https://i.loli.net/2021/11/16/a9yOfZdrMhLEGmD.png)
 
 #### TAD or Trimming-Alignment-Deduplication
 
@@ -18,16 +16,16 @@ Tools from numerous open source ATACseq data analysis are composed together to c
 
 #### TSS (transcript-start-site) enrichment
 
- ![img](https://i.loli.net/2021/11/16/wZvSNEdBieCbncR.png)
+![img](https://i.loli.net/2021/11/16/wZvSNEdBieCbncR.png)
 
 #### FRiP (fraction of reads in peaks)
 
-####  ![img](https://i.loli.net/2021/11/16/YjeQlXFD5tGgL4k.png)
+#### ![img](https://i.loli.net/2021/11/16/YjeQlXFD5tGgL4k.png)
 
 #### Motif enrichment
 
- ![img](https://i.loli.net/2021/11/16/ikDREMzPtf9WNLH.png)
+![img](https://i.loli.net/2021/11/16/ikDREMzPtf9WNLH.png)
 
 #### Jaccard and ChIPSeeker
 
- ![img](https://i.loli.net/2021/11/16/o7zlj3nbmR6vqH2.png)
+![img](https://i.loli.net/2021/11/16/o7zlj3nbmR6vqH2.png)

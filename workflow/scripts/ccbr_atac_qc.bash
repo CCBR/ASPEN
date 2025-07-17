@@ -78,7 +78,7 @@ mv NRF_stats.txt.tmp NRF_stats.tsv
 #annotated2peakwidthdensity.sh
 #OUTPUT:.peak_width_density files in peak_annotation subfolder
 #####
-for f in `find . -name "*consensus*annotated"`;do 
+for f in `find . -name "*consensus*annotated"`;do
 echo $f
 python ${SCRIPTSDIR}/_qc_annotated2peakwidthdensity.py $f > ${f}.peak_width_density
 gzip -n $f
@@ -113,7 +113,7 @@ rm -f $RANDOMTXT
 #OUTPUT:FLD_stats.txt
 #####
 count=0
-delete_file_if_present FLD_stats_peaks.tsv 
+delete_file_if_present FLD_stats_peaks.tsv
 delete_file_if_present FLD_stats_fractions_ratios.tsv
 for f in `find . -name "*fld.txt"`;do
 count=$((count+1))

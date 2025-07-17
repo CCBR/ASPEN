@@ -18,8 +18,8 @@ suppressPackageStartupMessages(library("org.Bt.eg.db"))
 
 parser <- ArgumentParser()
 
-# specify our desired options 
-# by default ArgumentParser will add an help option 
+# specify our desired options
+# by default ArgumentParser will add an help option
 
 parser$add_argument("-b", "--bed", required=TRUE,
                     dest="bed", help="narrowpeak file")
@@ -34,7 +34,7 @@ parser$add_argument("-g", "--genome", required=TRUE, dest="genome",
                     help="hg38/hg19/mm10/mm9/mmul10/bosTau9")
 
 # get command line options, if help option encountered print help and exit,
-# otherwise if options not found on command line then set defaults, 
+# otherwise if options not found on command line then set defaults,
 args <- parser$parse_args()
 
 if (args$genome=="mm9" | args$genome=="mm10"){
@@ -76,11 +76,11 @@ pa=annotatePeak(peak = peaks,
                 TxDb = tdb,
                 level = "transcript",
                 genomicAnnotationPriority = c("Promoter", "5UTR", "3UTR", "Exon", "Intron", "Downstream", "Intergenic"),
-                annoDb = adb, 
-                sameStrand = FALSE, 
+                annoDb = adb,
+                sameStrand = FALSE,
                 ignoreOverlap = FALSE,
-                ignoreUpstream = FALSE, 
-                ignoreDownstream = FALSE, 
+                ignoreUpstream = FALSE,
+                ignoreDownstream = FALSE,
                 overlap = "TSS")
 
 padf=as.data.frame(pa)
@@ -124,13 +124,13 @@ colnames(merged)=c("#peakID",
                    "SYMBOL",
                    "GENENAME")
 
-# merge annotation with narrowPeak file 
+# merge annotation with narrowPeak file
 write.table(merged,args$annotated,sep = "\t",quote = FALSE, row.names = FALSE)
 l=paste("# Median peak width : ",median(merged$width),sep="")
 write(l,args$annotated,append=TRUE)
 
 
-# get promoter genes 
+# get promoter genes
 # ... all lines with annotation starting with "Promoter"
 promoters1=dplyr::filter(merged,grepl("Promoter",annotation))
 # ... all lines with annotation is "5' UTR"
@@ -165,5 +165,5 @@ for (ann in c("Exon","Intron")){
   x=dplyr::filter(merged,grepl(ann,annotation))
   w=median(x$width)
   l=paste(gsub(" ","",ann),nrow(x),w,sep="\t")
-  write(l,args$atypefreq,append=TRUE)  
+  write(l,args$atypefreq,append=TRUE)
 }
