@@ -308,8 +308,8 @@ function set_singularity_binds(){
   echo "$PIPELINE_HOME" > ${WORKDIR}/tmp1
   echo "$WORKDIR" >> ${WORKDIR}/tmp1
   grep -o '\/.*' <(cat ${WORKDIR}/config.yaml ${WORKDIR}/samples.tsv) | tr '\t' '\n' | grep -v ' \|\/\/' | sort | uniq >> ${WORKDIR}/tmp1
-  grep "^/" ${WORKDIR}/tmp1 | grep gpfs    | awk -F'/' -v OFS='/' '{print $1,$2,$3,$4,$5}' | sort | uniq > ${WORKDIR}/tmp2
-  grep "^/" ${WORKDIR}/tmp1 | grep -v gpfs | awk -F'/' -v OFS='/' '{print $1,$2,$3}'       | sort | uniq > ${WORKDIR}/tmp3
+  grep "^/" ${WORKDIR}/tmp1 | grep /vf    | awk -F'/' -v OFS='/' '{print $1,$2,$3,$4,$5}' | sort | uniq > ${WORKDIR}/tmp2
+  grep "^/" ${WORKDIR}/tmp1 | grep -v /vf | awk -F'/' -v OFS='/' '{print $1,$2,$3}'       | sort | uniq > ${WORKDIR}/tmp3
   while read a;do readlink -f $a;done < ${WORKDIR}/tmp3 > ${WORKDIR}/tmp4
   binds=$(cat ${WORKDIR}/tmp2 ${WORKDIR}/tmp3 ${WORKDIR}/tmp4 | sort | uniq | tr '\n' ',')
   rm -f ${WORKDIR}/tmp?
@@ -581,7 +581,7 @@ fi
 
   cat > ${WORKDIR}/submit_script.sbatch << EOF
 #!/bin/bash
-#SBATCH --job-name="apsen"
+#SBATCH --job-name="aspen"
 #SBATCH --mem=40g
 #SBATCH --partition=$PARTITIONS
 #SBATCH --time=96:00:00

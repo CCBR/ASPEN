@@ -120,7 +120,7 @@ Example commands:
 VersionInfo:
   python          : python/3.10
   snakemake       : snakemake
-  pipeline_home   : /gpfs/gsfs10/users/CCBR_Pipeliner/Pipelines/ASPEN/feature_spikeins
+  pipeline_home   : /data/CCBR_Pipeliner/Pipelines/ASPEN/feature_spikeins
   git commit/tag  : fc0699d6a7f9766963c8e7020c01214966616fab    v1.0.6-29-gfc0699d
   aspen_version   : v1.0.6-dev-spikeins
 

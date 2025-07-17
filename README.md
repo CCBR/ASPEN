@@ -47,7 +47,7 @@ aspen calls peaks using the following tools:
  * Genrich        [RECOMMENDED FOR USE]
 
 USAGE:
-  bash /gpfs/gsfs10/users/CCBR_Pipeliner/Pipelines/ASPEN/.v1.0.6/aspen -w/--workdir=<WORKDIR> -m/--runmode=<RUNMODE>
+  bash /data/CCBR_Pipeliner/Pipelines/ASPEN/.v1.0.6/aspen -w/--workdir=<WORKDIR> -m/--runmode=<RUNMODE>
 
 Required Arguments:
 1.  WORKDIR     : [Type: String]: Absolute or relative path to the output folder with write permissions.
@@ -71,16 +71,16 @@ Optional Arguments:
 --help|-h       : print this help
 
 Example commands:
-  bash /gpfs/gsfs10/users/CCBR_Pipeliner/Pipelines/ASPEN/.v1.0.6/aspen -w=/my/output/folder -m=init
-  bash /gpfs/gsfs10/users/CCBR_Pipeliner/Pipelines/ASPEN/.v1.0.6/aspen -w=/my/output/folder -m=dryrun
-  bash /gpfs/gsfs10/users/CCBR_Pipeliner/Pipelines/ASPEN/.v1.0.6/aspen -w=/my/output/folder -m=run
+  bash /data/CCBR_Pipeliner/Pipelines/ASPEN/.v1.0.6/aspen -w=/my/output/folder -m=init
+  bash /data/CCBR_Pipeliner/Pipelines/ASPEN/.v1.0.6/aspen -w=/my/output/folder -m=dryrun
+  bash /data/CCBR_Pipeliner/Pipelines/ASPEN/.v1.0.6/aspen -w=/my/output/folder -m=run
 
 ##########################################################################################
 
 VersionInfo:
   python          : python/3.10
   snakemake       : snakemake
-  pipeline_home   : /gpfs/gsfs10/users/CCBR_Pipeliner/Pipelines/ASPEN/.v1.0.6
+  pipeline_home   : /data/CCBR_Pipeliner/Pipelines/ASPEN/.v1.0.6
   git commit/tag  : f4366158ad972bc667422dcd4783bd69fa041556    v1.0.6
   aspen_version   : v1.0.6
 
