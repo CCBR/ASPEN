@@ -1,111 +1,112 @@
 {
-	"__default__": {
-		"gres": "lscratch:256",
-		"mem": "48g",
-		"partition": "norm,ccr", "qos": "global",
-		"threads": "2",
-		"time": "2-00:00:00",
-        "name"      : "{rule}.{wildcards}",
-        "output"    : "logs/${{SLURM_JOBID}}.%j.{rule}.{wildcards}.out",
-        "error"     : "logs/${{SLURM_JOBID}}.%j.{rule}.{wildcards}.err"
-	},
-	"trim_align_dedup": {
-		"mem": "120g",
-		"threads": "16",
-		"time": "12:00:00"
-	},
-	"trim": {
-		"mem": "120g",
-		"threads": "16",
-		"time": "12:00:00"
-	},
-	"remove_BL": {
-		"mem": "120g",
-		"threads": "16",
-		"time": "12:00:00"
-	},
-	"create_bigwigs": {
-		"mem": "120g",
-		"threads": "16",
-		"time": "12:00:00"
-	},
-	"align": {
-		"mem": "240g",
-		"threads": "16",
-		"time": "12:00:00"
-	},
-	"align2spikein": {
-		"mem": "240g",
-		"threads": "16",
-		"time": "12:00:00"
-	},
-	"fastqc": {
-		"mem": "120g",
-		"threads": "16",
-		"time": "12:00:00"
-	},
-	"atac_tss": {
-		"mem": "120g",
-		"threads": "16",
-		"time": "12:00:00"
-	},
-	"motif_enrichment": {
-		"mem": "120g",
-		"threads": "16",
-		"time": "24:00:00"
-	},
-	"create_tn5bams": {
-		"mem": "120g",
-		"threads": "16",
-		"time": "12:00:00"
-	},
-	"jaccard": {
-		"mem": "40g",
-		"threads": "16",
-                "time": "02-00:00:00"
-	},
-	"create_BL_index": {
-		"time": "1:00:00"
-	},
-	"fastq_screen": {
-		"mem": "120g",
-		"threads": "16",
-		"time": "12:00:00"
-	},
-	"atac_macs_peakcalling": {
-		"mem": "120g",
-		"threads": "4",
-		"time": "12:00:00"
-	},
-	"atac_genrich_peakcalling": {
-		"mem": "120g",
-		"threads": "4",
-		"time": "12:00:00"
-	},
-	"atac_macs_peakcalling_fixed_width": {
-		"mem": "120g",
-		"threads": "4",
-		"time": "12:00:00"
-	},
-	"atac_genrich_peakcalling_fixed_width": {
-		"mem": "120g",
-		"threads": "4",
-		"time": "12:00:00"
-	},
-	"atac_genrich_calculate_regions_of_interest_for_diffatac": {
-		"mem": "120g",
-		"threads": "4",
-		"time": "12:00:00"
-	},
-	"get_counts_table": {
-		"threads": "16",
-		"mem": "120g",
-		"time": "12:00:00"
-	},
-	"frip": {
-		"time": "12:00:00"
-	},
-	"multiqc": {
-		"time": "4:00:00"
-	}
+    "__default__": {
+        "gres": "lscratch:256",
+        "mem": "48g",
+        "partition": "norm",
+        "qos": "global",
+        "threads": "2",
+        "time": "2-00:00:00",
+        "name": "{rule}.{wildcards}",
+        "output": "logs/${{SLURM_JOBID}}.%j.{rule}.{wildcards}.out",
+        "error": "logs/${{SLURM_JOBID}}.%j.{rule}.{wildcards}.err"
+    },
+    "trim_align_dedup": {
+        "mem": "120g",
+        "threads": "16",
+        "time": "12:00:00"
+    },
+    "trim": {
+        "mem": "120g",
+        "threads": "16",
+        "time": "12:00:00"
+    },
+    "remove_BL": {
+        "mem": "120g",
+        "threads": "16",
+        "time": "12:00:00"
+    },
+    "create_bigwigs": {
+        "mem": "120g",
+        "threads": "16",
+        "time": "12:00:00"
+    },
+    "align": {
+        "mem": "240g",
+        "threads": "16",
+        "time": "12:00:00"
+    },
+    "align2spikein": {
+        "mem": "240g",
+        "threads": "16",
+        "time": "12:00:00"
+    },
+    "fastqc": {
+        "mem": "120g",
+        "threads": "16",
+        "time": "12:00:00"
+    },
+    "atac_tss": {
+        "mem": "120g",
+        "threads": "16",
+        "time": "12:00:00"
+    },
+    "motif_enrichment": {
+        "mem": "120g",
+        "threads": "16",
+        "time": "24:00:00"
+    },
+    "create_tn5bams": {
+        "mem": "120g",
+        "threads": "16",
+        "time": "12:00:00"
+    },
+    "jaccard": {
+        "mem": "40g",
+        "threads": "16",
+        "time": "02-00:00:00"
+    },
+    "create_BL_index": {
+        "time": "1:00:00"
+    },
+    "fastq_screen": {
+        "mem": "120g",
+        "threads": "16",
+        "time": "12:00:00"
+    },
+    "atac_macs_peakcalling": {
+        "mem": "120g",
+        "threads": "4",
+        "time": "12:00:00"
+    },
+    "atac_genrich_peakcalling": {
+        "mem": "120g",
+        "threads": "4",
+        "time": "12:00:00"
+    },
+    "atac_macs_peakcalling_fixed_width": {
+        "mem": "120g",
+        "threads": "4",
+        "time": "12:00:00"
+    },
+    "atac_genrich_peakcalling_fixed_width": {
+        "mem": "120g",
+        "threads": "4",
+        "time": "12:00:00"
+    },
+    "atac_genrich_calculate_regions_of_interest_for_diffatac": {
+        "mem": "120g",
+        "threads": "4",
+        "time": "12:00:00"
+    },
+    "get_counts_table": {
+        "threads": "16",
+        "mem": "120g",
+        "time": "12:00:00"
+    },
+    "frip": {
+        "time": "12:00:00"
+    },
+    "multiqc": {
+        "time": "4:00:00"
+    }
 }
