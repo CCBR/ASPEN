@@ -1,6 +1,7 @@
 ## ASPEN development version
 
 - Fix broken data path for biowulf. (#104, @kelly-sovacool)
+- Remove deprecated `ccr` partition. (#106, @kelly-sovacool)
 
 ## ASPEN 1.1.1
 
