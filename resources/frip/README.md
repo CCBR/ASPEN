@@ -43,23 +43,20 @@ optional arguments:
 Sources:
 
 - HACER
-
-  - hg19 : http://bioinfo.vanderbilt.edu/AE/HACER/download/T1.txt
+    - hg19 : http://bioinfo.vanderbilt.edu/AE/HACER/download/T1.txt
 
 - FANTOM
-
-  - hg38 : http://fantom.gsc.riken.jp/5/datafiles/reprocessed/hg38_latest/extra/enhancer/F5.hg38.enhancers.bed.gz
-  - hg19 : http://fantom.gsc.riken.jp/5/datafiles/latest/extra/Enhancers/human_permissive_enhancers_phase_1_and_2.bed.gz
-  - mm9 : http://fantom.gsc.riken.jp/5/datafiles/latest/extra/Enhancers/mouse_permissive_enhancers_phase_1_and_2.bed.gz
-  - mm10 : http://fantom.gsc.riken.jp/5/datafiles/reprocessed/mm10_latest/extra/enhancer/F5.mm10.enhancers.bed.gz
+    - hg38 : http://fantom.gsc.riken.jp/5/datafiles/reprocessed/hg38_latest/extra/enhancer/F5.hg38.enhancers.bed.gz
+    - hg19 : http://fantom.gsc.riken.jp/5/datafiles/latest/extra/Enhancers/human_permissive_enhancers_phase_1_and_2.bed.gz
+    - mm9 : http://fantom.gsc.riken.jp/5/datafiles/latest/extra/Enhancers/mouse_permissive_enhancers_phase_1_and_2.bed.gz
+    - mm10 : http://fantom.gsc.riken.jp/5/datafiles/reprocessed/mm10_latest/extra/enhancer/F5.mm10.enhancers.bed.gz
 
 - DBSuper
-
-  - mm9 : http://asntech.org/dbsuper/data/bed/mm9/all_mm9_bed.bed
-  - hg19 : http://asntech.org/dbsuper/data/bed/hg19/all_hg19_bed.bed
+    - mm9 : http://asntech.org/dbsuper/data/bed/mm9/all_mm9_bed.bed
+    - hg19 : http://asntech.org/dbsuper/data/bed/hg19/all_hg19_bed.bed
 
 - EnhancerAtlas:
-  - fasta files were downloaded using the following commands for hg19 and mm9 data:
+    - fasta files were downloaded using the following commands for hg19 and mm9 data:
 
 ```
 % for i in 3T3-L1	416B	AtT-20	BAT	Bone_marrow	Brain_E14.5	Brown_preadipocyte_E18.5	C3H10Thalf	CD19+	CD4+CD8+	CD4+Treg	CD4+	CD8+	Cerebellum	Cerebellum_neonate	CH12	CMP	Cortex	Dendritic_cell	EpiLC	EpiSC	Erythroid_fetal_liver	Erythroid_spleen	ESC_Bruce4	ESC_J1	ESC_KH2	ESC_NPC	Forebrain_E11.5	Forebrain_E12.5	Forelimb_bud_embryo	Forelimb_E11	Forelimb_E13	G1E-ER4	G1E	GMP	Heart_E11.5	Heart_E12.5	Heart_E14.5	Heart	Hepatocyte	HFSC	Hindbrain_E11.5	Intestine	IPSC	Kidney	Large_intestine_epithelial	Lens_P1	Limb_E11.5	Limb_E14.5	Liver_E14.5	Liver	Lung_E14.5	Lung	Lung_neonate	MC3T3-E1	Megakaryocyte	MEL	Microglia	Midbrain_E11	Neuron_cortical	NIH-3T3	NKC_spleen	NKT	NPC	Olfactory_bulb	Pancreas	Pancreatic_islet	PDC_BM	PDC	Peritoneal_macrophage	Placenta	Pre-B	Pre-pro-B	Pro-B_BM	Prostate	Rib_chondrocyte_P1	Spermatid	Spleen	Stomach_neonate	Striatum	Testis	Th1	Th2	Thymus	Treg_cell	Uterus	V6.5	WAT	ZHBTc4;do

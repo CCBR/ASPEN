@@ -35,22 +35,24 @@ suppressPackageStartupMessages(library("RColorBrewer"))
 suppressPackageStartupMessages(library("ComplexHeatmap"))
 
 # read in sampleinfo
-coldata=params$coldata
-sampleinfo=read.csv(file=coldata,header=FALSE,sep="\t",comment.char = "#",strip.white = TRUE)
-colnames(sampleinfo) = c("replicateName","sampleName")
+coldata <- params$coldata
+sampleinfo <- read.csv(file = coldata, header = FALSE, sep = "\t", comment.char = "#", strip.white = TRUE)
+colnames(sampleinfo) <- c("replicateName", "sampleName")
 
 # read in counts matrix
-rawcountsmatrix=params$rawcountsmatrix
-countsdf=read.csv(file=rawcountsmatrix,header=TRUE,sep="\t",comment.char = "#",check.names = FALSE,strip.white = TRUE)
-original_countsdf = countsdf
-nroi=nrow(countsdf)
+rawcountsmatrix <- params$rawcountsmatrix
+countsdf <- read.csv(file = rawcountsmatrix, header = TRUE, sep = "\t", comment.char = "#", check.names = FALSE, strip.white = TRUE)
+original_countsdf <- countsdf
+nroi <- nrow(countsdf)
 
-excludecols=unlist(strsplit(params$excludecols,","))
-indexcols=unlist(strsplit(params$indexcols,","))
-countmatrix=countsdf %>% dplyr::select(-all_of(excludecols)) %>% column_to_rownames(var="Geneid")
-countmatrix=countmatrix[,sampleinfo$replicateName]
-sampleinfo$librarySize=colSums(countmatrix)
-nsamples=nrow(sampleinfo)
+excludecols <- unlist(strsplit(params$excludecols, ","))
+indexcols <- unlist(strsplit(params$indexcols, ","))
+countmatrix <- countsdf %>%
+  dplyr::select(-all_of(excludecols)) %>%
+  column_to_rownames(var = "Geneid")
+countmatrix <- countmatrix[, sampleinfo$replicateName]
+sampleinfo$librarySize <- colSums(countmatrix)
+nsamples <- nrow(sampleinfo)
 ```
 
 ## ROIs
@@ -62,97 +64,104 @@ Total of `r nroi` ROIs
 Total of `r nsamples` replicates.
 
 ```{r metadata,include=TRUE,echo=FALSE,cache=FALSE}
-pander(sampleinfo,style="rmarkdown")
-
+pander(sampleinfo, style = "rmarkdown")
 ```
 
 ## PCA
 
 ```{r allsamplepca,include=TRUE,echo=FALSE, results='hide',cache=FALSE,warning=FALSE,message=FALSE,error=FALSE}
-dds1 <- DESeqDataSetFromMatrix(countData = as.matrix(countmatrix),
-                                colData = sampleinfo[,c("replicateName","sampleName")],
-                                design = ~ 1)
+dds1 <- DESeqDataSetFromMatrix(
+  countData = as.matrix(countmatrix),
+  colData = sampleinfo[, c("replicateName", "sampleName")],
+  design = ~1
+)
 dds1 <- DESeq(dds1)
-if (nrow(dds1)<2000) {
-  rld1 <- varianceStabilizingTransformation(dds1,blind=TRUE)
+if (nrow(dds1) < 2000) {
+  rld1 <- varianceStabilizingTransformation(dds1, blind = TRUE)
 } else {
-  rld1 <- vst(dds1, blind=TRUE)
+  rld1 <- vst(dds1, blind = TRUE)
 }
-assayrld1 = as.data.frame(assay(rld1))
-assayrld1$row_variance = rowVars(as.matrix(assayrld1))
-assayrld1 = arrange(assayrld1,desc(row_variance))
-zero_variance_rows=assayrld1$row_variance<1e-5
-assayrld1$row_variance = NULL
-assayrld1 = assayrld1[!zero_variance_rows,]
-assayrld1_original=assayrld1
+assayrld1 <- as.data.frame(assay(rld1))
+assayrld1$row_variance <- rowVars(as.matrix(assayrld1))
+assayrld1 <- arrange(assayrld1, desc(row_variance))
+zero_variance_rows <- assayrld1$row_variance < 1e-5
+assayrld1$row_variance <- NULL
+assayrld1 <- assayrld1[!zero_variance_rows, ]
+assayrld1_original <- assayrld1
 if (nrow(assayrld1) > 50000) {
-  assayrld1 = assayrld1[1:50000,]
+  assayrld1 <- assayrld1[1:50000, ]
 }
-pca1=prcomp(t(assayrld1),scale. = T)
-m.pc1 = round(pca1$sdev[1]^2/sum(pca1$sdev^2)*100,2)
-m.pc2 = round(pca1$sdev[2]^2/sum(pca1$sdev^2)*100,2)
-m.pc3 = round(pca1$sdev[3]^2/sum(pca1$sdev^2)*100,2)
-xlab=paste0("PC1(",m.pc1,"%)")
-ylab=paste0("PC2(",m.pc2,"%)")
+pca1 <- prcomp(t(assayrld1), scale. = T)
+m.pc1 <- round(pca1$sdev[1]^2 / sum(pca1$sdev^2) * 100, 2)
+m.pc2 <- round(pca1$sdev[2]^2 / sum(pca1$sdev^2) * 100, 2)
+m.pc3 <- round(pca1$sdev[3]^2 / sum(pca1$sdev^2) * 100, 2)
+xlab <- paste0("PC1(", m.pc1, "%)")
+ylab <- paste0("PC2(", m.pc2, "%)")
 samples <- as.factor(sampleinfo$sampleName)
-p <- ggplot(pca1$x,aes(x=PC1,y=PC2,label=rownames(pca1$x)))+
-  geom_point(aes(col=samples,shape=samples))+scale_shape_manual(values=seq(0,15))+
-  geom_text_repel(max.overlaps = 15,size=2)+
-  xlab(xlab)+ylab(ylab)+
-  theme_light(base_size = 10)+
-  ggtitle("PCA (all samples)")+
+p <- ggplot(pca1$x, aes(x = PC1, y = PC2, label = rownames(pca1$x))) +
+  geom_point(aes(col = samples, shape = samples)) +
+  scale_shape_manual(values = seq(0, 15)) +
+  geom_text_repel(max.overlaps = 15, size = 2) +
+  xlab(xlab) +
+  ylab(ylab) +
+  theme_light(base_size = 10) +
+  ggtitle("PCA (all samples)") +
   theme_light()
 print(p)
 ```
 
 ```{r degs,include=TRUE,echo=FALSE, results='hide',cache=FALSE,warning=FALSE,message=FALSE,error=FALSE}
-allfiles = list.files(path=params$diffatacdir,pattern="_vs_")
-degfiles = allfiles[grepl(".tsv",allfiles)]
-contrasts = gsub(".tsv","",degfiles)
+allfiles <- list.files(path = params$diffatacdir, pattern = "_vs_")
+degfiles <- allfiles[grepl(".tsv", allfiles)]
+contrasts <- gsub(".tsv", "", degfiles)
 # deg_file=paste(params$diffatacdir,"DGCR8_KO_vs_Wt.tsv",sep="/")
-add_prefix <- function(string,prefix) {
-  return (paste(prefix,string,sep="_"))
+add_prefix <- function(string, prefix) {
+  return(paste(prefix, string, sep = "_"))
 }
-get_sig_geneids <- function(df,fc=2,fdr=0.05) {
-  df %>% filter(log2FoldChange > fc) %>% filter(padj < fdr) -> df_up
-  df %>% filter(log2FoldChange < (-1 * fc)) %>% filter(padj < fdr) -> df_down
-  return (c(df_up$Geneid,df_down$Geneid))
+get_sig_geneids <- function(df, fc = 2, fdr = 0.05) {
+  df %>%
+    filter(log2FoldChange > fc) %>%
+    filter(padj < fdr) -> df_up
+  df %>%
+    filter(log2FoldChange < (-1 * fc)) %>%
+    filter(padj < fdr) -> df_down
+  return(c(df_up$Geneid, df_down$Geneid))
 }
 read_deg_file <- function(deg_file) {
-  df = read.csv(file=deg_file,header=TRUE,sep="\t",comment.char = "#",strip.white = TRUE)
-  df %>% select(c("Geneid","log2FoldChange","pvalue","padj")) -> df
-  return (df)
-}
-get_anno_from_deg_file <- function(deg_file) {
-  df = read.csv(file=deg_file,header=TRUE,sep="\t",comment.char = "#",strip.white = TRUE)
-  df %>% select(-c("baseMean","lfcSE","stat","width","strand","log2FoldChange","pvalue","padj")) -> df
-  return (df)
-}
-rename_columns <- function(df,contrast) {
-  colnames(df) <- c("Geneid",add_prefix(string="log2FoldChange",prefix=contrast),add_prefix(string="pvalue",prefix=contrast),add_prefix(string="padj",prefix=contrast))
+  df <- read.csv(file = deg_file, header = TRUE, sep = "\t", comment.char = "#", strip.white = TRUE)
+  df %>% select(c("Geneid", "log2FoldChange", "pvalue", "padj")) -> df
   return(df)
 }
-all_sig_geneids = c()
-dfs = list()
-collist = c()
-for (i in 1:length(degfiles)){
+get_anno_from_deg_file <- function(deg_file) {
+  df <- read.csv(file = deg_file, header = TRUE, sep = "\t", comment.char = "#", strip.white = TRUE)
+  df %>% select(-c("baseMean", "lfcSE", "stat", "width", "strand", "log2FoldChange", "pvalue", "padj")) -> df
+  return(df)
+}
+rename_columns <- function(df, contrast) {
+  colnames(df) <- c("Geneid", add_prefix(string = "log2FoldChange", prefix = contrast), add_prefix(string = "pvalue", prefix = contrast), add_prefix(string = "padj", prefix = contrast))
+  return(df)
+}
+all_sig_geneids <- c()
+dfs <- list()
+collist <- c()
+for (i in 1:length(degfiles)) {
   # i=1
-  deg_file=paste(params$diffatacdir,degfiles[i],sep="/")
+  deg_file <- paste(params$diffatacdir, degfiles[i], sep = "/")
   print(deg_file)
-  contrast=contrasts[i]
+  contrast <- contrasts[i]
   x <- read_deg_file(deg_file)
-  all_sig_geneids <- c(all_sig_geneids,get_sig_geneids(x,params$FC_cutoff,params$FDR_cutoff))
-  dfs[[contrast]] <- rename_columns(x,contrast)
-  for (j in c("log2FoldChange","pvalue","padj")){
-    k=add_prefix(j,contrast)
-    collist = c(collist,k)
+  all_sig_geneids <- c(all_sig_geneids, get_sig_geneids(x, params$FC_cutoff, params$FDR_cutoff))
+  dfs[[contrast]] <- rename_columns(x, contrast)
+  for (j in c("log2FoldChange", "pvalue", "padj")) {
+    k <- add_prefix(j, contrast)
+    collist <- c(collist, k)
   }
 }
 all_sig_geneids <- unique(all_sig_geneids)
-dfs[["anno"]] <- get_anno_from_deg_file(deg_file=paste(params$diffatacdir,degfiles[1],sep="/"))
-dfs %>% purrr::reduce(inner_join, by="Geneid") -> merged_dfs
-write.table(merged_dfs,file=params$outtsv,quote = FALSE,sep="\t",row.names = FALSE,col.names = TRUE)
-DT::datatable(merged_dfs,rownames = FALSE) %>% DT::formatRound(columns=collist,digits=3)
+dfs[["anno"]] <- get_anno_from_deg_file(deg_file = paste(params$diffatacdir, degfiles[1], sep = "/"))
+dfs %>% purrr::reduce(inner_join, by = "Geneid") -> merged_dfs
+write.table(merged_dfs, file = params$outtsv, quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
+DT::datatable(merged_dfs, rownames = FALSE) %>% DT::formatRound(columns = collist, digits = 3)
 ```
 
 ## Heatmap
@@ -160,7 +169,7 @@ DT::datatable(merged_dfs,rownames = FALSE) %>% DT::formatRound(columns=collist,d
 Considering all significantly UP or DOWN ROIs aggregated across all contrasts. (Total `r length(all_sig_geneids)` ROIs)
 
 ```{r heatmap,include=TRUE,echo=FALSE, message=FALSE, results='hide',fig.width=4,fig.height=10,warning=FALSE,message=FALSE,error=FALSE}
-heatmap_matrix=assay(rld1)
-heatmap_matrix=heatmap_matrix[all_sig_geneids,]
-Heatmap(matrix = t(scale(t(heatmap_matrix),scale = TRUE)),show_row_names = FALSE,name=" ")
+heatmap_matrix <- assay(rld1)
+heatmap_matrix <- heatmap_matrix[all_sig_geneids, ]
+Heatmap(matrix = t(scale(t(heatmap_matrix), scale = TRUE)), show_row_names = FALSE, name = " ")
 ```

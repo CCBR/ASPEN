@@ -138,11 +138,11 @@ MACS2 parameters can be changed by editing this block in the `config.yaml`:
 
 ```yaml
 macs2:
-  extsize: 200
-  shiftsize: 100
-  p: 0.01
-  qfilter: 0.05
-  annotatePeaks: True
+    extsize: 200
+    shiftsize: 100
+    p: 0.01
+    qfilter: 0.05
+    annotatePeaks: True
 ```
 
 #### Genrich
@@ -151,14 +151,14 @@ Genrich paramaters can be changed by editing this block in the `config.yaml`:
 
 ```yaml
 genrich:
-  s: 5
-  m: 6
-  q: 1
-  l: 100
-  g: 100
-  d: 100
-  qfilter: 0.05
-  annotatePeaks: True
+    s: 5
+    m: 6
+    q: 1
+    l: 100
+    g: 100
+    d: 100
+    qfilter: 0.05
+    annotatePeaks: True
 ```
 
 #### Contrasts

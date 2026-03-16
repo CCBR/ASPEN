@@ -8,8 +8,8 @@
 - is strand aware
 - extracts chrom, start, geneid, geneName from the "gene" line for gene_type == "protein_coding" only
 - creates 400 bins around the TSS
-  - start if on + strand
-  - end if on - strand
+    - start if on + strand
+    - end if on - strand
 - each bin is 10 bp width so total -2k through +2k rgeion is covered in the 400 bins
 
 ```bash

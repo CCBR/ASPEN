@@ -54,40 +54,41 @@ suppressPackageStartupMessages(library("RColorBrewer"))
 suppressPackageStartupMessages(library("ComplexHeatmap"))
 options(ggrepel.max.overlaps = 100)
 # setup variables
-mount="~/data_RBL_NCI"
+mount <- "~/data_RBL_NCI"
 
 # read in sampleinfo
-coldata=params$coldata
-sampleinfo=read.csv(file=coldata,header=FALSE,sep="\t",comment.char = "#",strip.white = TRUE)
-colnames(sampleinfo) = c("replicateName","sampleName")
+coldata <- params$coldata
+sampleinfo <- read.csv(file = coldata, header = FALSE, sep = "\t", comment.char = "#", strip.white = TRUE)
+colnames(sampleinfo) <- c("replicateName", "sampleName")
 
 # read in counts matrix
-rawcountsmatrix=params$rawcountsmatrix
-countsdf=read.csv(file=rawcountsmatrix,header=TRUE,sep="\t",comment.char = "#",check.names = FALSE,strip.white = TRUE)
-original_countsdf = countsdf
+rawcountsmatrix <- params$rawcountsmatrix
+countsdf <- read.csv(file = rawcountsmatrix, header = TRUE, sep = "\t", comment.char = "#", check.names = FALSE, strip.white = TRUE)
+original_countsdf <- countsdf
 
 # excludecols=unlist(strsplit("Chr,Start,End,Strand,Length",","))
 # indexcols=unlist(strsplit("Geneid",","))
-excludecols=unlist(strsplit(params$excludecols,","))
-indexcols=unlist(strsplit(params$indexcols,","))
-countmatrix=countsdf %>% dplyr::select(-all_of(excludecols)) %>% column_to_rownames(var="Geneid")
-countmatrix=countmatrix[,sampleinfo$replicateName]
-sampleinfo$librarySize=colSums(countmatrix)
+excludecols <- unlist(strsplit(params$excludecols, ","))
+indexcols <- unlist(strsplit(params$indexcols, ","))
+countmatrix <- countsdf %>%
+  dplyr::select(-all_of(excludecols)) %>%
+  column_to_rownames(var = "Geneid")
+countmatrix <- countmatrix[, sampleinfo$replicateName]
+sampleinfo$librarySize <- colSums(countmatrix)
 
-roi=original_countsdf[,c("Chr","Start","End","Geneid")]
-colnames(roi)=c("chr","start","end","Geneid")
-roi=makeGRangesFromDataFrame(roi,keep.extra.columns=TRUE)
-nroi=nrow(as.data.frame(roi))
+roi <- original_countsdf[, c("Chr", "Start", "End", "Geneid")]
+colnames(roi) <- c("chr", "start", "end", "Geneid")
+roi <- makeGRangesFromDataFrame(roi, keep.extra.columns = TRUE)
+nroi <- nrow(as.data.frame(roi))
 
-contrast=paste0(params$contrast_numerator,"_vs_",params$contrast_denominator)
+contrast <- paste0(params$contrast_numerator, "_vs_", params$contrast_denominator)
 if (!(params$contrast_numerator %in% sampleinfo$sampleName)) {
-  stop(paste("ERROR:",params$contrast_numerator,"is not a samplename in sampleinfo file."))
+  stop(paste("ERROR:", params$contrast_numerator, "is not a samplename in sampleinfo file."))
 }
 if (!(params$contrast_denominator %in% sampleinfo$sampleName)) {
-  stop(paste("ERROR:",params$contrast_denominator,"is not a samplename in sampleinfo file."))
+  stop(paste("ERROR:", params$contrast_denominator, "is not a samplename in sampleinfo file."))
 }
-nsamples=nrow(sampleinfo)
-
+nsamples <- nrow(sampleinfo)
 ```
 
 
@@ -99,24 +100,28 @@ Total of `r nroi` ROIs
 x <- 0
 if (params$genome == "hg38") {
   txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
-  roiAnno <- annotatePeak(roi, tssRegion=c(-2000, 200),
-                            TxDb=txdb, annoDb="org.Hs.eg.db")
-  roiAnnodf=as.data.frame(roiAnno)
-  roiAnnodf$shortAnno=stringr::word(roiAnnodf$annotation,1)
-  table_anno=table(roiAnnodf$shortAnno)
+  roiAnno <- annotatePeak(roi,
+    tssRegion = c(-2000, 200),
+    TxDb = txdb, annoDb = "org.Hs.eg.db"
+  )
+  roiAnnodf <- as.data.frame(roiAnno)
+  roiAnnodf$shortAnno <- stringr::word(roiAnnodf$annotation, 1)
+  table_anno <- table(roiAnnodf$shortAnno)
   piecolor <- brewer.pal(length(table_anno), "Set2")
-  pieplot <- pie(table_anno,col=piecolor)
+  pieplot <- pie(table_anno, col = piecolor)
   x <- 1
 }
-if (params$genome == "mm10"){
+if (params$genome == "mm10") {
   txdb <- TxDb.Mmusculus.UCSC.mm10.knownGene
-  roiAnno <- annotatePeak(roi, tssRegion=c(-2000, 200),
-                            TxDb=txdb, annoDb="org.Mm.eg.db")
-  roiAnnodf=as.data.frame(roiAnno)
-  roiAnnodf$shortAnno=stringr::word(roiAnnodf$annotation,1)
-  table_anno=table(roiAnnodf$shortAnno)
+  roiAnno <- annotatePeak(roi,
+    tssRegion = c(-2000, 200),
+    TxDb = txdb, annoDb = "org.Mm.eg.db"
+  )
+  roiAnnodf <- as.data.frame(roiAnno)
+  roiAnnodf$shortAnno <- stringr::word(roiAnnodf$annotation, 1)
+  table_anno <- table(roiAnnodf$shortAnno)
   piecolor <- brewer.pal(length(table_anno), "Set2")
-  pieplot <- pie(table_anno,col=piecolor)
+  pieplot <- pie(table_anno, col = piecolor)
   x <- 2
 }
 ```
@@ -127,8 +132,7 @@ if (params$genome == "mm10"){
 Total of `r nsamples` samples.
 
 ```{r metadata,include=TRUE,echo=FALSE,cache=FALSE}
-pander(sampleinfo,style="rmarkdown")
-
+pander(sampleinfo, style = "rmarkdown")
 ```
 
 
@@ -136,73 +140,80 @@ pander(sampleinfo,style="rmarkdown")
 ## PCA
 
 ```{r allsamplepca,include=TRUE,echo=FALSE, results='hide',cache=FALSE,warning=FALSE,message=FALSE,error=FALSE}
-dds1 <- DESeqDataSetFromMatrix(countData = as.matrix(countmatrix),
-                                colData = sampleinfo[,c("replicateName","sampleName")],
-                                design = ~ 1)
+dds1 <- DESeqDataSetFromMatrix(
+  countData = as.matrix(countmatrix),
+  colData = sampleinfo[, c("replicateName", "sampleName")],
+  design = ~1
+)
 dds1 <- DESeq(dds1)
-if (nrow(dds1)<2000) {
-  rld1 <- varianceStabilizingTransformation(dds1, blind=TRUE)
+if (nrow(dds1) < 2000) {
+  rld1 <- varianceStabilizingTransformation(dds1, blind = TRUE)
 } else {
-  rld1 <- vst(dds1, blind=TRUE)
+  rld1 <- vst(dds1, blind = TRUE)
 }
-assayrld1 = as.data.frame(assay(rld1))
-assayrld1$row_variance = rowVars(as.matrix(assayrld1))
-assayrld1 = arrange(assayrld1,desc(row_variance))
-zero_variance_rows=assayrld1$row_variance<1e-5
-assayrld1$row_variance = NULL
-assayrld1 = assayrld1[!zero_variance_rows,]
-assayrld1_original=assayrld1
+assayrld1 <- as.data.frame(assay(rld1))
+assayrld1$row_variance <- rowVars(as.matrix(assayrld1))
+assayrld1 <- arrange(assayrld1, desc(row_variance))
+zero_variance_rows <- assayrld1$row_variance < 1e-5
+assayrld1$row_variance <- NULL
+assayrld1 <- assayrld1[!zero_variance_rows, ]
+assayrld1_original <- assayrld1
 if (nrow(assayrld1) > 50000) {
-  assayrld1 = assayrld1[1:50000,]
+  assayrld1 <- assayrld1[1:50000, ]
 }
-pca1=prcomp(t(assayrld1),scale. = T)
-m.pc1 = round(pca1$sdev[1]^2/sum(pca1$sdev^2)*100,2)
-m.pc2 = round(pca1$sdev[2]^2/sum(pca1$sdev^2)*100,2)
-m.pc3 = round(pca1$sdev[3]^2/sum(pca1$sdev^2)*100,2)
-xlab=paste0("PC1(",m.pc1,"%)")
-ylab=paste0("PC2(",m.pc2,"%)")
+pca1 <- prcomp(t(assayrld1), scale. = T)
+m.pc1 <- round(pca1$sdev[1]^2 / sum(pca1$sdev^2) * 100, 2)
+m.pc2 <- round(pca1$sdev[2]^2 / sum(pca1$sdev^2) * 100, 2)
+m.pc3 <- round(pca1$sdev[3]^2 / sum(pca1$sdev^2) * 100, 2)
+xlab <- paste0("PC1(", m.pc1, "%)")
+ylab <- paste0("PC2(", m.pc2, "%)")
 samples <- as.factor(sampleinfo$sampleName)
-p <- ggplot(pca1$x,aes(x=PC1,y=PC2,label=rownames(pca1$x)))+
-  geom_point(aes(col=samples,shape=samples))+scale_shape_manual(values=seq(0,15))+
-  geom_text_repel(max.overlaps = 15,size=2)+
-  xlab(xlab)+ylab(ylab)+
-  theme_light(base_size = 10)+
-  ggtitle("PCA (all samples)")+
+p <- ggplot(pca1$x, aes(x = PC1, y = PC2, label = rownames(pca1$x))) +
+  geom_point(aes(col = samples, shape = samples)) +
+  scale_shape_manual(values = seq(0, 15)) +
+  geom_text_repel(max.overlaps = 15, size = 2) +
+  xlab(xlab) +
+  ylab(ylab) +
+  theme_light(base_size = 10) +
+  ggtitle("PCA (all samples)") +
   theme_light()
 print(p)
 ```
 
 ```{r contrast,include=TRUE,echo=FALSE, results='hide',cache=FALSE,warning=FALSE,message=FALSE,error=FALSE}
-
-groups_in_contrasts=c(params$contrast_numerator,params$contrast_denominator)
+groups_in_contrasts <- c(params$contrast_numerator, params$contrast_denominator)
 sampleinfo %>% filter(sampleinfo$sampleName %in% groups_in_contrasts) -> sampleinfo2
-countmatrix2 <- countmatrix[,sampleinfo2$replicateName]
-colData = sampleinfo2[,c("replicateName","sampleName")]
-colData$sampleName <- relevel(as.factor(colData$sampleName),ref=params$contrast_denominator)
-dds2 <- DESeqDataSetFromMatrix(countData = as.matrix(countmatrix2),
-                                colData = colData,
-                                design = ~ sampleName)
+countmatrix2 <- countmatrix[, sampleinfo2$replicateName]
+colData <- sampleinfo2[, c("replicateName", "sampleName")]
+colData$sampleName <- relevel(as.factor(colData$sampleName), ref = params$contrast_denominator)
+dds2 <- DESeqDataSetFromMatrix(
+  countData = as.matrix(countmatrix2),
+  colData = colData,
+  design = ~sampleName
+)
 dds2 <- DESeq(dds2)
-if (nrow(dds2)<2000) {
-  rld2 <- varianceStabilizingTransformation(dds2, blind=TRUE)
+if (nrow(dds2) < 2000) {
+  rld2 <- varianceStabilizingTransformation(dds2, blind = TRUE)
 } else {
-  rld2 <- vst(dds2, blind=TRUE)
+  rld2 <- vst(dds2, blind = TRUE)
 }
 pca_data <- assay(rld2)
 pca_data <- pca_data[apply(pca_data, 1, var) > 1e-5, ]
-pca2=prcomp(t(pca_data),scale.=T)
-m2.pc1 = round(pca2$sdev[1]^2/sum(pca2$sdev^2)*100,2)
-m2.pc2 = round(pca2$sdev[2]^2/sum(pca2$sdev^2)*100,2)
-m2.pc3 = round(pca2$sdev[3]^2/sum(pca2$sdev^2)*100,2)
-xlab2=paste0("PC1(",m2.pc1,"%)")
-ylab2=paste0("PC2(",m2.pc2,"%)")
+pca2 <- prcomp(t(pca_data), scale. = T)
+m2.pc1 <- round(pca2$sdev[1]^2 / sum(pca2$sdev^2) * 100, 2)
+m2.pc2 <- round(pca2$sdev[2]^2 / sum(pca2$sdev^2) * 100, 2)
+m2.pc3 <- round(pca2$sdev[3]^2 / sum(pca2$sdev^2) * 100, 2)
+xlab2 <- paste0("PC1(", m2.pc1, "%)")
+ylab2 <- paste0("PC2(", m2.pc2, "%)")
 samples2 <- as.factor(sampleinfo2$sampleName)
-p <- ggplot(pca2$x,aes(x=PC1,y=PC2,label=rownames(pca2$x)))+
-  geom_point(aes(col=samples2,shape=samples2))+scale_shape_manual(values=seq(0,15))+
-  geom_text_repel(max.overlaps = 15,size=2)+
-  xlab(xlab2)+ylab(ylab2)+
-  theme_light(base_size = 10)+
-  ggtitle("PCA")+
+p <- ggplot(pca2$x, aes(x = PC1, y = PC2, label = rownames(pca2$x))) +
+  geom_point(aes(col = samples2, shape = samples2)) +
+  scale_shape_manual(values = seq(0, 15)) +
+  geom_text_repel(max.overlaps = 15, size = 2) +
+  xlab(xlab2) +
+  ylab(ylab2) +
+  theme_light(base_size = 10) +
+  ggtitle("PCA") +
   theme_light()
 print(p)
 ```
@@ -210,41 +221,42 @@ print(p)
 ## Results
 
 ```{r result,include=TRUE,echo=FALSE,warning=FALSE,message=FALSE,error=FALSE}
-res = DESeq2::results(dds2)
-resdf = as.data.frame(res)
-resdf$Geneid = rownames(resdf)
-resdf_w_anno = merge(resdf,roiAnnodf,by="Geneid")
-up_roi=resdf_w_anno[resdf_w_anno$log2FoldChange > params$FC_cutoff & resdf_w_anno$padj < params$FDR_cutoff,]
-down_roi=resdf_w_anno[resdf_w_anno$log2FoldChange < (-1 * params$FC_cutoff) & resdf_w_anno$padj < params$FDR_cutoff,]
-outfilename = paste0(contrast,".results.tsv")
-write.table(resdf_w_anno,file=params$diffatactsv,quote = FALSE,sep="\t",row.names = FALSE,col.names = TRUE)
-resdf_w_anno %>% dplyr::select(-c("baseMean","lfcSE","stat","width","strand","annotation","geneChr","geneStart","geneEnd","geneLength","geneStrand","transcriptId","geneId")) -> resdf_w_anno
-DT::datatable(resdf_w_anno,rownames = FALSE) %>% DT::formatRound(columns=c("log2FoldChange","pvalue","padj"),digits=3)
+res <- DESeq2::results(dds2)
+resdf <- as.data.frame(res)
+resdf$Geneid <- rownames(resdf)
+resdf_w_anno <- merge(resdf, roiAnnodf, by = "Geneid")
+up_roi <- resdf_w_anno[resdf_w_anno$log2FoldChange > params$FC_cutoff & resdf_w_anno$padj < params$FDR_cutoff, ]
+down_roi <- resdf_w_anno[resdf_w_anno$log2FoldChange < (-1 * params$FC_cutoff) & resdf_w_anno$padj < params$FDR_cutoff, ]
+outfilename <- paste0(contrast, ".results.tsv")
+write.table(resdf_w_anno, file = params$diffatactsv, quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
+resdf_w_anno %>% dplyr::select(-c("baseMean", "lfcSE", "stat", "width", "strand", "annotation", "geneChr", "geneStart", "geneEnd", "geneLength", "geneStrand", "transcriptId", "geneId")) -> resdf_w_anno
+DT::datatable(resdf_w_anno, rownames = FALSE) %>% DT::formatRound(columns = c("log2FoldChange", "pvalue", "padj"), digits = 3)
 ```
 
 ## Volcano
 
 ```{r volcano,include=TRUE,echo=FALSE, message=FALSE, results='hide',fig.width=6,fig.height=12,warning=FALSE,message=FALSE,error=FALSE}
-legendtxt = c("NS",paste0("log2FC > |",params$FC_cutoff,"|"),paste0("FDR < ",params$FDR_cutoff),"significant")
+legendtxt <- c("NS", paste0("log2FC > |", params$FC_cutoff, "|"), paste0("FDR < ", params$FDR_cutoff), "significant")
 EnhancedVolcano::EnhancedVolcano(resdf_w_anno,
-                lab=resdf_w_anno$SYMBOL,
-                x = "log2FoldChange",
-                y = "padj",
-                ylab = bquote(~-Log[10]~FDR),
-                FCcutoff = params$FC_cutoff,
-                xlim=c(min(resdf$log2FoldChange)-1,max(resdf$log2FoldChange)+1),
-                ylim= c(0, max(-log10(resdf$padj), na.rm=TRUE) + 1),
-                pCutoff = params$FDR_cutoff,
-                legendPosition = 'top',
-                pointSize = 0.8,
-                labSize = 2,
-                legendLabSize = 4,
-                legendIconSize = 1,
-                legendLabels = legendtxt,
-                title="",titleLabSize=0,
-                drawConnectors = TRUE,
-                subtitle = contrast,subtitleLabSize = 10,
-                caption = "",captionLabSize=0)
+  lab = resdf_w_anno$SYMBOL,
+  x = "log2FoldChange",
+  y = "padj",
+  ylab = bquote(~ -Log[10] ~ FDR),
+  FCcutoff = params$FC_cutoff,
+  xlim = c(min(resdf$log2FoldChange) - 1, max(resdf$log2FoldChange) + 1),
+  ylim = c(0, max(-log10(resdf$padj), na.rm = TRUE) + 1),
+  pCutoff = params$FDR_cutoff,
+  legendPosition = "top",
+  pointSize = 0.8,
+  labSize = 2,
+  legendLabSize = 4,
+  legendIconSize = 1,
+  legendLabels = legendtxt,
+  title = "", titleLabSize = 0,
+  drawConnectors = TRUE,
+  subtitle = contrast, subtitleLabSize = 10,
+  caption = "", captionLabSize = 0
+)
 ```
 
 
@@ -254,10 +266,12 @@ EnhancedVolcano::EnhancedVolcano(resdf_w_anno,
 ```{r updown,include=TRUE,echo=FALSE,cache=FALSE,warning=FALSE}
 # sometimes FC and FDR are too strict and up_roi/down_roi can be zero
 # to work with that scenario without errors:
-x=as.data.frame(rbind(table(up_roi$shortAnno),table(down_roi$shortAnno)))
+x <- as.data.frame(rbind(table(up_roi$shortAnno), table(down_roi$shortAnno)))
 if (nrow(x) == 2) {
-  rownames(x) <- c(paste("Open in", params$contrast_numerator),
-                   paste("Open in", params$contrast_denominator))
+  rownames(x) <- c(
+    paste("Open in", params$contrast_numerator),
+    paste("Open in", params$contrast_denominator)
+  )
   x$Total <- rowSums(x)
   DT::datatable(x, rownames = TRUE)
 } else if (nrow(x) > 0) {
