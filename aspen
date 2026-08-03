@@ -35,6 +35,14 @@ ____ ____ ___  ____ _  _
 EOF
 }
 
+function log_info()    { echo "INFO  $*"; }
+function log_step()    { echo "STEP  $*"; }
+function log_ok()      { echo "OK    $*"; }
+function log_warn()    { echo "WARN  $*"; }
+function log_error()   { echo "ERROR $*"; }
+function log_next()    { echo "NEXT  $*"; }
+function log_divider() { echo "------------------------------------------------------------------"; }
+
 ##########################################################################################
 # initial setup
 ##########################################################################################
@@ -160,15 +168,7 @@ EOF
 # ERR
 ##########################################################################################
 
-function err() { usage && cat <<< "
-#
-# ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR
-#
-  $@
-#
-# ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR
-#
-" && exit 1 1>&2; }
+function err() { log_error "$@"; exit 1 1>&2; }
 
 
 ##########################################################################################
@@ -184,6 +184,9 @@ function init() {
 
 printbanner $ASPENVERSION
 
+log_step "[init] Preparing workdir"
+log_info "Workdir: $WORKDIR"
+
 # create output folder
 if [ -d $WORKDIR ];then err "Folder $WORKDIR already exists!"; fi
 mkdir -p $WORKDIR
@@ -191,27 +194,27 @@ mkdir -p $WORKDIR
 # copy essential files
 # for f in $ESSENTIAL_FILES;do
 f="${PIPELINE_HOME}/config/config.yaml"
-echo "Copying essential file: $f"
+log_info "Copying essential file: $f"
 fbn=$(basename $f)
 cat $f | envsubst '$PIPELINE_HOME $WORKDIR $GENOME $ASPENVERSION' > $WORKDIR/$fbn
 
 for f in ${PIPELINE_HOME}/resources/cluster.json ${PIPELINE_HOME}/resources/tools.yaml
 do
-  echo "Copying essential file: $f"
+  log_info "Copying essential file: $f"
   fbn=$(basename $f)
   cp $f $WORKDIR/$fbn
 done
 
 if [[ "$MANIFEST_SUPPLIED" == "true" ]];then
   f=$MANIFEST
-  echo "Copying essential file: $f"
+  log_info "Copying essential file: $f"
   fbn=$(basename $f)
   cp $f $WORKDIR/$fbn
 fi
 
 if [[ "$MANIFEST_SUPPLIED" == "false" ]];then
 f=$MANIFEST
-echo "Copying essential file: $f"
+log_info "Copying essential file: $f"
 fbn=$(basename $f)
 cat $f | envsubst '$PIPELINE_HOME $WORKDIR $GENOME $ASPENVERSION' > $WORKDIR/$fbn
 fi
@@ -225,13 +228,10 @@ done
 cd ${WORKDIR}
 
 #create log folder
-if [ ! -d $WORKDIR/logs ]; then mkdir -p $WORKDIR/logs;echo "Logs Dir: $WORKDIR/logs";fi
+if [ ! -d $WORKDIR/logs ]; then mkdir -p $WORKDIR/logs; log_ok "Logs Dir: $WORKDIR/logs"; fi
 
-cat << EOF
-Done Initializing   : $WORKDIR
-You can now edit    : $WORKDIR/config.yaml and
-                      $WORKDIR/samples.tsv
-EOF
+log_ok "Initialization completed for $WORKDIR"
+log_next "Edit $WORKDIR/config.yaml and $WORKDIR/samples.tsv"
 
 }
 
@@ -294,7 +294,7 @@ function reconfig(){
   cat ${PIPELINE_HOME}/config/config.yaml |\
     envsubst '$PIPELINE_HOME $WORKDIR $GENOME $ASPENVERSION' \
     > $WORKDIR/config.yaml
-  echo "$WORKDIR/config.yaml has been updated!"
+  log_ok "$WORKDIR/config.yaml has been updated"
 
 }
 
@@ -316,7 +316,7 @@ function set_singularity_binds(){
   binds=$(echo $binds | awk '{print substr($1,1,length($1)-1)}')
   SINGULARITY_BINDS="-B $EXTRA_SINGULARITY_BINDS,$binds"
   SINGULARITY_STR="--use-singularity --singularity-args \"${SINGULARITY_BINDS}\" --singularity-prefix \"${SING_CACHE_DIR}\" "
-  echo "Singularity Extra string : $SINGULARITY_STR"
+  log_info "Singularity bind string: $SINGULARITY_STR"
 }
 
 
@@ -327,6 +327,77 @@ function set_cluster_arg(){
     CLUSTER_SBATCH_CMD="${CLUSTER_SBATCH_CMD} --gres {cluster.gres}"
   fi
 }
+
+function print_versions() {
+  log_divider
+  echo "INFO  Tool Versions:"
+  snakemake --version 2>/dev/null && log_ok "Snakemake version checked" || log_warn "Snakemake version: unable to determine"
+  singularity --version 2>/dev/null && log_ok "Singularity/Apptainer version checked" || log_warn "Singularity/Apptainer version: UNAVAILABLE"
+  log_divider
+}
+
+function json_escape() {
+  printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
+}
+
+function write_pipeline_state_marker() {
+  local state="$1"
+  local reason="${2:-}"
+  local job_id="${3:-NA}"
+  local now_utc
+  local sidecar="${WORKDIR}/pipeline.status.json"
+  local sidecar_tmp="${sidecar}.tmp.$$"
+  local submission_ts=""
+  local submit_epoch
+
+  now_utc=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+  if [[ "${state}" == "running" && "${reason}" == "submission_started" ]]; then
+    submission_ts="${now_utc}"
+    date +%s > "${WORKDIR}/pipeline.submit_epoch"
+  elif [[ -f "${WORKDIR}/pipeline.submit_epoch" ]]; then
+    submit_epoch=$(cat "${WORKDIR}/pipeline.submit_epoch" 2>/dev/null || true)
+    if [[ -n "${submit_epoch}" ]]; then
+      submission_ts=$(date -u -d "@${submit_epoch}" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || true)
+    fi
+  fi
+
+  rm -f "${WORKDIR}/pipeline.running" "${WORKDIR}/pipeline.completed" \
+        "${WORKDIR}/pipeline.failed" "${WORKDIR}/pipeline.canceled"
+  : > "${WORKDIR}/pipeline.${state}"
+
+  cat > "${sidecar_tmp}" << STATEEOF
+{
+  "pipeline": "ASPEN",
+  "version": "${ASPENVERSION}",
+  "state": "$(json_escape "${state}")",
+  "reason": "$(json_escape "${reason}")",
+  "runmode": "$(json_escape "${RUNMODE:-unknown}")",
+  "workdir": "$(json_escape "${WORKDIR}")",
+  "user": "$(json_escape "${USER:-unknown}")",
+  "slurm_job_id": "$(json_escape "${job_id}")",
+  "submission_timestamp_utc": "$(json_escape "${submission_ts}")",
+  "timestamp_utc": "${now_utc}"
+}
+STATEEOF
+  mv "${sidecar_tmp}" "${sidecar}"
+  log_info "State marker updated: pipeline.${state} (reason=${reason}, slurm_job_id=${job_id})"
+}
+
+function run_jobby_best_effort() {
+  mkdir -p "${WORKDIR}/logs"
+  if ! command -v jobby >/dev/null 2>&1; then
+    module load ccbrpipeliner >/dev/null 2>&1 || true
+  fi
+  if [[ -f "${WORKDIR}/snakemake.log" ]] && command -v jobby >/dev/null 2>&1; then
+    if ! jobby --tsv "${WORKDIR}/snakemake.log" | tee "${WORKDIR}/snakemake.log.jobby" >/dev/null; then
+      printf '%s\n' "jobby failed while parsing ${WORKDIR}/snakemake.log" > "${WORKDIR}/snakemake.log.jobby"
+    fi
+  else
+    printf '%s\n' "jobby unavailable or snakemake.log missing" > "${WORKDIR}/snakemake.log.jobby"
+  fi
+}
+
 ##########################################################################################
 # RUNCHECK ... check essential files and load required packages
 ##########################################################################################
@@ -357,6 +428,7 @@ command -V singularity 2>/dev/null || module load singularity || (>&2 echo "modu
 
 function dryrun() {
 # Dry-run
+  log_step "[dryrun] Running preflight checks"
   runcheck
   if [ -f ${WORKDIR}/dryrun.log ]; then
     modtime=$(stat ${WORKDIR}/dryrun.log |grep Modify|awk '{print $2,$3}'|awk -F"." '{print $1}'|sed "s/ //g"|sed "s/-//g"|sed "s/://g")
@@ -365,8 +437,10 @@ function dryrun() {
       mv ${WORKDIR}/dryrun_git_commit.txt ${WORKDIR}/logs/dryrun_git_commit.${modtime}.txt
     fi
   fi
-  run "--dry-run" | tee ${WORKDIR}/dryrun.log && \
+  run "--dry-run" | tee ${WORKDIR}/dryrun.log
   echo "Git Commit/Tag: $GIT_COMMIT_TAG" > ${WORKDIR}/dryrun_git_commit.txt
+  log_ok "Dry-run completed."
+  log_next "Submit run with: aspen --workdir=$WORKDIR --runmode=run"
 }
 
 ##########################################################################################
@@ -408,10 +482,14 @@ function runlocal() {
   runcheck
   set_singularity_binds
   set_cluster_arg
-  if [ "$SLURM_JOB_ID" == "" ];then err "runlocal can only be done on an interactive node"; exit 1; fi
+  if [ "$SLURM_JOB_ID" == "" ];then err "runlocal can only be done on an interactive node"; fi
   module load singularity
-  run "--dry-run" && echo "Dry-run was successful .... starting local execution" && \
-  run "local"
+  log_step "[runlocal] Starting local interactive execution"
+  log_divider
+  log_info "Singularity/Apptainer Cache Directory: $SING_CACHE_DIR"
+  log_divider
+  print_versions
+  run "--dry-run" && log_ok "Dry-run was successful. Starting local execution." && run "local"
 }
 
 ##########################################################################################
@@ -424,9 +502,18 @@ function runslurm() {
   runcheck
   set_singularity_binds
   set_cluster_arg
-  run "--dry-run" && \
-    echo "Dry-run was successful .... submitting jobs to job-scheduler" && \
-    run "slurm"
+  log_divider
+  log_step "[run] Preparing SLURM submission"
+  log_info "ASPEN Run Summary"
+  log_info "Mode:      SLURM"
+  log_info "Workdir:   $WORKDIR"
+  log_info "Genome:    $GENOME"
+  log_info "Log file:  ${WORKDIR}/snakemake.log"
+  log_divider
+  log_info "Singularity/Apptainer Cache Directory: $SING_CACHE_DIR"
+  log_divider
+  print_versions
+  run "--dry-run" && log_ok "Dry-run was successful." && run "slurm"
 }
 
 ##########################################################################################
@@ -464,7 +551,7 @@ function create_runinfo {
 function preruncleanup() {
 # Cleanup function to rename/move files related to older runs to prevent overwriting them.
 
-  echo "Running..."
+  log_step "[run] Preparing workdir for new execution"
 
   # check initialization
   check_essential_files
@@ -514,7 +601,7 @@ echo "Git Commit/Tag: $GIT_COMMIT_TAG" > ${WORKDIR}/run_git_commit.txt
   if [ "$1" == "local" ];then
 
   preruncleanup
-  echo "Done preruncleanup!"
+  log_ok "[runlocal] Workdir ready"
 
   # --use-envmodules \
   _set_rand_str
@@ -579,6 +666,18 @@ if [ ! -z "$BUYINPARTITIONS" ];then
   PARTITIONS="norm,$BUYINPARTITIONS"
 fi
 
+  # Stale-script guard: regenerate if missing pipeline state marker support
+  REWRITE_SUBMIT_SCRIPT="false"
+  if [[ ! -f "${WORKDIR}/submit_script.sbatch" ]]; then
+    REWRITE_SUBMIT_SCRIPT="true"
+  elif ! grep -q -- "_write_pipeline_state_marker" "${WORKDIR}/submit_script.sbatch"; then
+    backup_file="${WORKDIR}/submit_script.sbatch.$(date +%Y%m%d%H%M%S).bak"
+    cp "${WORKDIR}/submit_script.sbatch" "${backup_file}"
+    log_warn "Existing submit script lacked pipeline state marker logic; backed up to ${backup_file}"
+    REWRITE_SUBMIT_SCRIPT="true"
+  fi
+
+  if [[ "${REWRITE_SUBMIT_SCRIPT}" == "true" ]]; then
   cat > ${WORKDIR}/submit_script.sbatch << EOF
 #!/bin/bash
 #SBATCH --job-name="aspen"
@@ -587,39 +686,78 @@ fi
 #SBATCH --time=96:00:00
 #SBATCH --cpus-per-task=2
 
+function _write_pipeline_state_marker() {
+  local state="\$1"
+  local reason="\${2:-}"
+  local job_id="\${3:-\${SLURM_JOB_ID:-NA}}"
+  local now_utc
+  now_utc=\$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+  rm -f "${WORKDIR}/pipeline.running" "${WORKDIR}/pipeline.completed" "${WORKDIR}/pipeline.failed" "${WORKDIR}/pipeline.canceled"
+  touch "${WORKDIR}/pipeline.\${state}"
+  printf '{"pipeline":"ASPEN","version":"%s","state":"%s","reason":"%s","workdir":"%s","user":"%s","slurm_job_id":"%s","timestamp_utc":"%s"}\n' "${ASPENVERSION}" "\${state}" "\${reason}" "${WORKDIR}" "\${USER:-unknown}" "\${job_id}" "\${now_utc}" > "${WORKDIR}/pipeline.status.json"
+}
+
+trap '_write_pipeline_state_marker canceled "signal_SIGTERM"; exit 130' SIGTERM
+trap '_write_pipeline_state_marker canceled "signal_SIGINT"; exit 130' SIGINT
+
 $MODULE_STR
 
 cd \$SLURM_SUBMIT_DIR
 
 $EXPORT_SING_CACHE_DIR_CMD
 
-snakemake -s $SNAKEFILE \
---directory $WORKDIR \
-$SINGULARITY_STR \
---printshellcmds \
---latency-wait 120 \
---configfile $CONFIGFILE \
---cluster-config $CLUSTERFILE \
---cluster "$CLUSTER_SBATCH_CMD" \
--j 500 \
---rerun-incomplete \
-${RERUNTRIGGERS} \
---restart-times ${retries} \
---keep-going \
---stats ${WORKDIR}/snakemake.stats \
-2>&1|tee ${WORKDIR}/snakemake.log
+snakemake -s $SNAKEFILE --directory $WORKDIR $SINGULARITY_STR --printshellcmds --latency-wait 120 --configfile $CONFIGFILE --cluster-config $CLUSTERFILE --cluster "$CLUSTER_SBATCH_CMD" -j 500 --rerun-incomplete ${RERUNTRIGGERS} --restart-times ${retries} --keep-going --stats ${WORKDIR}/snakemake.stats 2>&1 | tee ${WORKDIR}/snakemake.log
+snakemake_rc="\${PIPESTATUS[0]}"
 
-if [ "\$?" -eq "0" ];then
-  snakemake -s $SNAKEFILE \
-  --directory $WORKDIR \
-  --report ${WORKDIR}/runslurm_snakemake_report.html \
-  --configfile $CONFIGFILE
+if ! command -v jobby >/dev/null 2>&1; then
+  module load ccbrpipeliner >/dev/null 2>&1 || true
+fi
+if command -v jobby >/dev/null 2>&1; then
+  jobby --tsv "${WORKDIR}/snakemake.log" | tee "${WORKDIR}/snakemake.log.jobby" >/dev/null 2>&1 || true
+fi
+
+if [ "\${snakemake_rc}" -eq "0" ]; then
+  snakemake -s $SNAKEFILE --directory $WORKDIR --report ${WORKDIR}/runslurm_snakemake_report.html --configfile $CONFIGFILE
+  report_rc="\$?"
+  if [ "\${report_rc}" -eq "0" ]; then
+    _write_pipeline_state_marker completed "snakemake_and_report_succeeded" "\${SLURM_JOB_ID:-NA}"
+  else
+    _write_pipeline_state_marker failed "report_generation_failed" "\${SLURM_JOB_ID:-NA}"
+    exit "\${report_rc}"
+  fi
+else
+  _write_pipeline_state_marker failed "snakemake_failed" "\${SLURM_JOB_ID:-NA}"
+  exit "\${snakemake_rc}"
 fi
 
 EOF
+  log_ok "Created ${WORKDIR}/submit_script.sbatch"
+  fi
 
-  cd $WORKDIR
-  sbatch submit_script.sbatch
+  write_pipeline_state_marker running "submission_started"
+
+  if ! sbatch_output=$(sbatch --parsable ${WORKDIR}/submit_script.sbatch 2>&1); then
+    write_pipeline_state_marker failed "sbatch_submission_failed"
+    run_jobby_best_effort
+    log_error "Failed to submit ${WORKDIR}/submit_script.sbatch"
+    log_error "sbatch output: ${sbatch_output}"
+    log_next "Check ${WORKDIR}/submit_script.sbatch and re-run: aspen --workdir=$WORKDIR --runmode=run"
+    exit 1
+  fi
+
+  sbatch_job_id=$(echo "${sbatch_output}" | cut -d';' -f1 | tr -d '[:space:]')
+  if [[ -z "${sbatch_job_id}" ]]; then
+    sbatch_job_id="NA"
+  fi
+  write_pipeline_state_marker running "sbatch_submitted" "${sbatch_job_id}"
+
+  log_divider
+  log_ok "Job submitted successfully (SLURM job ID: ${sbatch_job_id})"
+  log_next "Monitor:  squeue -u $USER"
+  log_next "Progress: tail -f ${WORKDIR}/snakemake.log"
+  log_next "Status:   ls -1 ${WORKDIR}/pipeline.*"
+  log_next "Sidecar:  ${WORKDIR}/pipeline.status.json"
+  log_divider
 
 
 ##########################################################################################
@@ -672,11 +810,11 @@ EOF
 function reset() {
 # Delete the workdir and re-initialize it
   printbanner $ASPENVERSION
-  echo "Working Dir: $WORKDIR"
+  log_info "Working Dir: $WORKDIR"
   if [ ! -d $WORKDIR ];then err "Folder $WORKDIR does not exist!";fi
-  echo "Deleting $WORKDIR"
+  log_warn "Deleting $WORKDIR"
   rm -rf $WORKDIR
-  echo "Re-Initializing $WORKDIR"
+  log_step "Re-initializing $WORKDIR"
   init
 }
 
@@ -746,8 +884,8 @@ function main(){
     MANIFEST_SUPPLIED="false"
     MANIFEST=${PIPELINE_HOME}/config/samples.tsv
   fi
-  echo "Working Dir       : $WORKDIR"
-  echo "Samples Manifest  : $MANIFEST"
+  log_info "Working Dir:      $WORKDIR"
+  log_info "Samples Manifest: $MANIFEST"
 
   # required files
   CONFIGFILE="${WORKDIR}/config.yaml"
@@ -758,14 +896,14 @@ function main(){
   if [[ -z "$SING_CACHE_DIR" ]]; then
     if [[ -n "$SIFCACHE" && -d "$SIFCACHE" ]]; then
       SING_CACHE_DIR="$SIFCACHE"
-      echo "Using SIFCACHE directory for singularity cache: ${SING_CACHE_DIR}"
+      log_info "Using SIFCACHE directory for singularity cache: ${SING_CACHE_DIR}"
     else
       if [[ -d "/data/$USER" ]]; then
         SING_CACHE_DIR="/data/$USER/.singularity"
       else
         SING_CACHE_DIR="${WORKDIR}/.singularity"
       fi
-      echo "singularity cache dir (--singcache) is not set, using ${SING_CACHE_DIR}"
+      log_info "singularity cache dir (--singcache) is not set, using ${SING_CACHE_DIR}"
       mkdir -p "$SING_CACHE_DIR"
     fi
   fi
