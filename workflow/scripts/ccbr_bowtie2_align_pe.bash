@@ -16,7 +16,7 @@ parser.add_argument('--genomename',required=True, help='hg19/hg38/mm9/mm10')
 parser.add_argument('--indexdir',required=True, help='dir where the bowtie2 index resides')
 parser.add_argument('--chromosomes',required=True, help='chromosome names to keep in BAM')
 parser.add_argument('--multimapping',required=False, default=4, help='multimapping threshold')
-parser.add_argument('--scriptsfolder',required=False, default='/opt2', help='folder where the scripts are... used for debuging without rebuilding the docker')
+parser.add_argument('--scriptsfolder',required=False, default='/opt2', help='folder where the scripts are... used for debugging without rebuilding the docker')
 parser.add_argument('--keepfiles',required=False,default='False',help='to keep intermediate files, set this to True')
 EOF
 
