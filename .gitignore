@@ -6,3 +6,4 @@ aspen.bak
 site/
 tmp_test/
 .snakemake/log/
+node_modules
