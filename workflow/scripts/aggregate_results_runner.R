@@ -3,53 +3,73 @@ suppressPackageStartupMessages(library("argparse"))
 
 
 # create parser object
-parser <- ArgumentParser(description = "Wrapper for running aggregate_results.Rmd")
+parser <- ArgumentParser(
+  description = "Wrapper for running aggregate_results.Rmd"
+)
 
 
-parser$add_argument("-m", "--countsmatrix",
+parser$add_argument(
+  "-m",
+  "--countsmatrix",
   type = "character",
   help = "path to countsmatrix",
   required = TRUE
 )
-parser$add_argument("-a", "--diffatacdir",
+parser$add_argument(
+  "-a",
+  "--diffatacdir",
   type = "character",
   help = "diff atac dir",
   required = TRUE
 )
-parser$add_argument("-c", "--coldata",
+parser$add_argument(
+  "-c",
+  "--coldata",
   type = "character",
   help = "coldata or sampleinto TSV file",
   required = TRUE
 )
-parser$add_argument("-f", "--foldchange",
+parser$add_argument(
+  "-f",
+  "--foldchange",
   type = "double",
   help = "log2FC threshold",
   required = FALSE,
   default = 2.0
 )
-parser$add_argument("-p", "--fdr",
+parser$add_argument(
+  "-p",
+  "--fdr",
   type = "double",
   help = "adj. p-value threshold",
   required = FALSE,
   default = 0.05
 )
-parser$add_argument("-i", "--indexcols",
+parser$add_argument(
+  "-i",
+  "--indexcols",
   type = "character",
   help = "comma-separated list of index columns",
   required = TRUE
 )
-parser$add_argument("-e", "--excludecols",
+parser$add_argument(
+  "-e",
+  "--excludecols",
   type = "character",
   help = "comma-separated list of columns to exclude",
   required = TRUE
 )
-parser$add_argument("-t", "--tmpdir",
+parser$add_argument(
+  "-t",
+  "--tmpdir",
   type = "character",
   help = "temp dir",
   required = FALSE,
   default = "/tmp"
 )
-parser$add_argument("-s", "--scriptsdir",
+parser$add_argument(
+  "-s",
+  "--scriptsdir",
   type = "character",
   help = "scripts dir",
   required = TRUE
@@ -88,7 +108,8 @@ myparams <- list(
   outtsv = outtsv
 )
 
-rmarkdown::render(paste(args$scriptsdir, "aggregate_results.Rmd", sep = "/"),
+rmarkdown::render(
+  paste(args$scriptsdir, "aggregate_results.Rmd", sep = "/"),
   params = myparams,
   output_file = outhtml,
   intermediates_dir = args$tmpdir

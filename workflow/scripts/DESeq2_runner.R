@@ -3,71 +3,96 @@ suppressPackageStartupMessages(library("argparse"))
 # suppressPackageStartupMessages(library("here"))
 # scriptfolder=here()
 
-
 # create parser object
-parser <- ArgumentParser(description = "Wrapper for running DESeq2 with ATACseq counts matrix")
+parser <- ArgumentParser(
+  description = "Wrapper for running DESeq2 with ATACseq counts matrix"
+)
 
 
-parser$add_argument("-m", "--countsmatrix",
+parser$add_argument(
+  "-m",
+  "--countsmatrix",
   type = "character",
   help = "path to countsmatrix",
   required = TRUE
 )
-parser$add_argument("-g", "--genome",
+parser$add_argument(
+  "-g",
+  "--genome",
   type = "character",
   help = "genome .. either hg38 or mm10",
   required = FALSE,
   default = "hg38"
 )
-parser$add_argument("-c", "--coldata",
+parser$add_argument(
+  "-c",
+  "--coldata",
   type = "character",
   help = "coldata or sampleinto TSV file",
   required = TRUE
 )
-parser$add_argument("-n", "--contrastnumerator",
+parser$add_argument(
+  "-n",
+  "--contrastnumerator",
   type = "character",
   help = "Group1 of the contrasts",
   required = TRUE
 )
-parser$add_argument("-d", "--contrastdenominator",
+parser$add_argument(
+  "-d",
+  "--contrastdenominator",
   type = "character",
   help = "Group2 of the contrasts",
   required = TRUE
 )
-parser$add_argument("-f", "--foldchange",
+parser$add_argument(
+  "-f",
+  "--foldchange",
   type = "double",
   help = "log2FC threshold",
   required = FALSE,
   default = 2.0
 )
-parser$add_argument("-p", "--fdr",
+parser$add_argument(
+  "-p",
+  "--fdr",
   type = "double",
   help = "adj. p-value threshold",
   required = FALSE,
   default = 0.05
 )
-parser$add_argument("-i", "--indexcols",
+parser$add_argument(
+  "-i",
+  "--indexcols",
   type = "character",
   help = "comma-separated list of index columns",
   required = TRUE
 )
-parser$add_argument("-e", "--excludecols",
+parser$add_argument(
+  "-e",
+  "--excludecols",
   type = "character",
   help = "comma-separated list of columns to exclude",
   required = TRUE
 )
-parser$add_argument("-o", "--outdir",
+parser$add_argument(
+  "-o",
+  "--outdir",
   type = "character",
   help = "output dir",
   required = TRUE
 )
-parser$add_argument("-t", "--tmpdir",
+parser$add_argument(
+  "-t",
+  "--tmpdir",
   type = "character",
   help = "temp dir",
   required = FALSE,
   default = "/tmp"
 )
-parser$add_argument("-s", "--scriptsdir",
+parser$add_argument(
+  "-s",
+  "--scriptsdir",
   type = "character",
   help = "scripts dir",
   required = TRUE
@@ -101,7 +126,13 @@ if (!dir.exists(args$outdir)) {
   )
 }
 
-sampleinfo <- read.csv(file = args$coldata, header = FALSE, sep = "\t", comment.char = "#", strip.white = TRUE)
+sampleinfo <- read.csv(
+  file = args$coldata,
+  header = FALSE,
+  sep = "\t",
+  comment.char = "#",
+  strip.white = TRUE
+)
 colnames(sampleinfo) <- c("replicateName", "sampleName")
 freq_table <- as.data.frame(table(sampleinfo$sampleName))
 for (condition in c(args$contrastnumerator, args$contrastdenominator)) {
@@ -129,7 +160,8 @@ myparams <- list(
   diffatactsv = paste(args$outdir, outtsv, sep = "/")
 )
 
-rmarkdown::render(paste(args$scriptsdir, "DESeq2.Rmd", sep = "/"),
+rmarkdown::render(
+  paste(args$scriptsdir, "DESeq2.Rmd", sep = "/"),
   params = myparams,
   output_file = paste(args$outdir, outhtml, sep = "/"),
   intermediates_dir = args$tmpdir

@@ -2,29 +2,39 @@
 suppressPackageStartupMessages(library("argparse"))
 
 # create parser object
-parser <- ArgumentParser(description = "Convert narrowPeak output to fixedwidth peakset as per the pan-cancer genome paper (https://doi.org/10.1126/science.aav1898). This involves ... First, the most significant peak is kept and any peak that directly overlaps with that significant peak is removed. Then, this process iterates to the next most significant peak and so on until all peaks have either been kept or removed due to direct overlap with a more significant peak. This prevents the removal of peaks due to daisy chaining or indirect overlap and simultaneously maintains a compendium of fixed-width peaks. The significance of each peak is determined by normalized p-values.  To normalize, the peak scores (-log10(p-value)) for each sample were converted to a score per million by dividing each individual peak score by the sum of all of the peak scores in the given sample divided by 1 million. NOTE: this script requires bedtools to be in the PATH")
+parser <- ArgumentParser(
+  description = "Convert narrowPeak output to fixedwidth peakset as per the pan-cancer genome paper (https://doi.org/10.1126/science.aav1898). This involves ... First, the most significant peak is kept and any peak that directly overlaps with that significant peak is removed. Then, this process iterates to the next most significant peak and so on until all peaks have either been kept or removed due to direct overlap with a more significant peak. This prevents the removal of peaks due to daisy chaining or indirect overlap and simultaneously maintains a compendium of fixed-width peaks. The significance of each peak is determined by normalized p-values.  To normalize, the peak scores (-log10(p-value)) for each sample were converted to a score per million by dividing each individual peak score by the sum of all of the peak scores in the given sample divided by 1 million. NOTE: this script requires bedtools to be in the PATH"
+)
 
 # specify our desired options
 # by default ArgumentParser will add an help option
 
-parser$add_argument("-i", "--inputNarrowPeak",
+parser$add_argument(
+  "-i",
+  "--inputNarrowPeak",
   type = "character",
   help = "narrowPeak input file absolute full path",
   required = TRUE
 )
-parser$add_argument("-o", "--outputNarrowPeak",
+parser$add_argument(
+  "-o",
+  "--outputNarrowPeak",
   type = "character",
   help = "narrowPeak output file absolute full path",
   required = FALSE,
   default = NULL
 )
-parser$add_argument("-t", "--tmpdir",
+parser$add_argument(
+  "-t",
+  "--tmpdir",
   type = "character",
   help = "tmp dir",
   required = FALSE,
   default = NULL
 )
-parser$add_argument("-w", "--peakWidth",
+parser$add_argument(
+  "-w",
+  "--peakWidth",
   type = "integer",
   help = "desired peak width",
   required = FALSE,
@@ -63,7 +73,8 @@ if (debug == 1) {
 bn <- basename(narrowPeak)
 
 # Read narrowPeak file
-x <- read.csv(narrowPeak,
+x <- read.csv(
+  narrowPeak,
   header = FALSE,
   sep = "\t",
   check.names = FALSE,
@@ -103,7 +114,8 @@ x[, c("chrom", "newstart", "newend", "peakname", "rank", "strand")] %>%
 # Write temporary bed file
 tmp1bed <- paste(bn, "tmp1.bed", sep = ".")
 tmp <- paste(bn, "tmp", sep = ".")
-write.table(xdf,
+write.table(
+  xdf,
   file = tmp1bed,
   sep = "\t",
   row.names = FALSE,
@@ -116,15 +128,26 @@ cmd <- paste("bedtools intersect -wa -wb -a", tmp1bed, "-b", tmp1bed, ">", tmp)
 system(cmd)
 
 # Read the intersected file
-x2 <- read.csv(tmp,
+x2 <- read.csv(
+  tmp,
   header = FALSE,
   sep = "\t",
   check.names = FALSE,
   strip.white = TRUE
 )
 colnames(x2) <- c(
-  "chrom", "newstart", "newend", "peakname", "rank", "strand",
-  "chromb", "newstartb", "newendb", "peaknameb", "rankb", "strandb"
+  "chrom",
+  "newstart",
+  "newend",
+  "peakname",
+  "rank",
+  "strand",
+  "chromb",
+  "newstartb",
+  "newendb",
+  "peaknameb",
+  "rankb",
+  "strandb"
 )
 
 # Determine which peaks to keep
@@ -155,7 +178,8 @@ xdf$summitdist <- offset
 mutate_at(xdf, vars("newstart", "newend", "summitdist"), as.integer) -> xdf
 
 # Write final output file
-write.table(xdf,
+write.table(
+  xdf,
   file = out_narrowPeak,
   sep = "\t",
   row.names = FALSE,
