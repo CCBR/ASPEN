@@ -28,7 +28,7 @@ custom_data:
   fld_stats_peaks:
     file_format: "tsv"
     section_name: "FLD Stats (Peaks)"
-    description: "Presence or Absense of nucleosome-free, mono and di-nucleosome peaks in FLD. A nucleosome free region (NFR) must be present. A mononucleosome peak must be present."
+    description: "Presence or Absence of nucleosome-free, mono and di-nucleosome peaks in FLD. A nucleosome free region (NFR) must be present. A mononucleosome peak must be present."
     plot_type: "table"
     pconfig:
       id: "FLD Stats"

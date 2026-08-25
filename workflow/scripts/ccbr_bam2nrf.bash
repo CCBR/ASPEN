@@ -9,7 +9,7 @@ parser.add_argument('--bam',required=True, help='sored bam file')
 parser.add_argument('--preseq',required=True, help='preseq output file')
 parser.add_argument('--preseqlog',required=True, help='preseqlog file')
 parser.add_argument('--nrf',required=True, help='NRF output file')
-parser.add_argument('--scriptsfolder',required=False, default='/opt2', help='folder where the scripts are... used for debuging without rebuilding the docker')
+parser.add_argument('--scriptsfolder',required=False, default='/opt2', help='folder where the scripts are... used for debugging without rebuilding the docker')
 EOF
 
 {

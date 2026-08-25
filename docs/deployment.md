@@ -147,7 +147,7 @@ macs2:
 
 #### Genrich
 
-Genrich paramaters can be changed by editing this block in the `config.yaml`:
+Genrich parameters can be changed by editing this block in the `config.yaml`:
 
 ```yaml
 genrich:
@@ -163,7 +163,7 @@ genrich:
 
 #### Contrasts
 
-If contrasts are to be calculated then fixed-width peaks are used with the following changable options:
+If contrasts are to be calculated then fixed-width peaks are used with the following changeable options:
 
 ```yaml
 # peak fixed width
@@ -274,7 +274,7 @@ scontrol show job <jobid>
 
 Replace <jobid> with the specific Job ID of interest. This will provide comprehensive details about the job's configuration and status, aiding in effective monitoring and management of your ASPEN pipeline processes.
 
-To quickly guage the process of the entire pipeline run:
+To quickly gauge the process of the entire pipeline run:
 
 ```bash
 grep "done$" <path_to_output_folder>/snakemake.log

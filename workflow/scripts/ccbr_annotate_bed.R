@@ -169,7 +169,7 @@ write.table(promoter_genes, args$genelist, sep = "\t", quote = FALSE, row.names 
 l <- paste("# Median peak width : ", median(promoters$width), sep = "")
 write(l, args$genelist, append = TRUE)
 
-# annotation type frequence table
+# annotation type frequency table
 
 l <- paste("#annotationType", "frequency", "medianWidth", sep = "\t")
 write(l, args$atypefreq)

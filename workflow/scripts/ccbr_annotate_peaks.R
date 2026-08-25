@@ -197,7 +197,7 @@ write(l, args$genelist, append = TRUE)
 l <- paste("# Median qValue : ", median(promoters$qValue), sep = "")
 write(l, args$genelist, append = TRUE)
 
-# annotation type frequence table
+# annotation type frequency table
 
 l <- paste("#annotationType", "frequency", "medianWidth", "medianpValue", "medianqValue", sep = "\t")
 write(l, args$atypefreq)
