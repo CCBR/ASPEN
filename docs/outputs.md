@@ -138,7 +138,7 @@ important for interpreting output files and configuring the pipeline correctly.
 
 **Round 1 — Per-sample consensus** (`*.macs2.consensus.bed` / `*.genrich.consensus.bed`)
 
-> *"Which peaks are reproducible across biological replicates of the same sample?"*
+> _"Which peaks are reproducible across biological replicates of the same sample?"_
 
 1. All replicate tagAlign files for a sample are **pooled** and passed to MACS2/Genrich together → produces a large set of candidate peaks from the pooled data.
 2. Each candidate peak is checked for overlap with peaks called in each **individual replicate**.
@@ -152,7 +152,7 @@ replicate 3 peaks ─┘                    (≥ min_replicates)
 
 **Round 2 — ROI consensus** (`ROI.macs2.bed` / `ROI.genrich.bed`)
 
-> *"Across ALL samples, what is the unified set of fixed-width windows for differential accessibility analysis?"*
+> _"Across ALL samples, what is the unified set of fixed-width windows for differential accessibility analysis?"_
 
 1. Per-sample consensus peaks are converted to **fixed-width windows** (default: 500 bp, centered on the peak summit) using the method from [Corces et al. 2018](https://doi.org/10.1038/nmeth.4396). Window width is controlled by `fixed_width` in `config.yaml`.
 2. Fixed-width peaks from all samples are **merged** → `ROI.macs2.bed` — the master set of regions used for DESeq2 read counting and differential accessibility analysis.
@@ -165,11 +165,11 @@ sample3.consensus.bed ─► fixed-width peaks ─┘
 ```
 
 !!! tip "Config knobs that control consensus"
-    | Parameter | Default | Effect |
-    |---|---|---|
-    | `consensus_min_replicates` | `1` | Min. replicates a peak must appear in to be retained in per-sample consensus |
-    | `consensus_min_spm` | `5` | Min. signal-per-million reads threshold for a peak to be included |
-    | `fixed_width` | `500` | Width (bp) of fixed-width peaks used to build the ROI set |
+| Parameter | Default | Effect |
+|---|---|---|
+| `consensus_min_replicates` | `1` | Min. replicates a peak must appear in to be retained in per-sample consensus |
+| `consensus_min_spm` | `5` | Min. signal-per-million reads threshold for a peak to be included |
+| `fixed_width` | `500` | Width (bp) of fixed-width peaks used to build the ROI set |
 
 #### Peak Annotation folder
 
