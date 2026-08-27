@@ -237,6 +237,4 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     genome_sizes = parse_genome_sizes(args.genomefile)
-    extract_fragments(
-        args.bam, args.tn5bed, args.readsbed, args.ncpus, genome_sizes
-    )
+    extract_fragments(args.bam, args.tn5bed, args.readsbed, args.ncpus, genome_sizes)

@@ -118,7 +118,9 @@ if (args$genome == "bosTau9") {
   tdb <- TxDb.Btaurus.UCSC.bosTau9.refGene
 }
 if (args$genome %in% c("hs1", "hs1_chrR")) {
-  tdb <- AnnotationDbi::loadDb("/opt2/annotation/TxDb.Hsapiens.NCBI.T2T.CHM13v2.0.sqlite")
+  tdb <- AnnotationDbi::loadDb(
+    "/opt2/annotation/TxDb.Hsapiens.NCBI.T2T.CHM13v2.0.sqlite"
+  )
 }
 
 
