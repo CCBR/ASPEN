@@ -165,11 +165,12 @@ sample3.consensus.bed ─► fixed-width peaks ─┘
 ```
 
 !!! tip "Config knobs that control consensus"
-| Parameter | Default | Effect |
-|---|---|---|
-| `consensus_min_replicates` | `1` | Min. replicates a peak must appear in to be retained in per-sample consensus |
-| `consensus_min_spm` | `5` | Min. signal-per-million reads threshold for a peak to be included |
-| `fixed_width` | `500` | Width (bp) of fixed-width peaks used to build the ROI set |
+
+| Parameter                  | Default | Effect                                                                       |
+| -------------------------- | ------- | ---------------------------------------------------------------------------- |
+| `consensus_min_replicates` | `1`     | Min. replicates a peak must appear in to be retained in per-sample consensus |
+| `consensus_min_spm`        | `5`     | Min. signal-per-million reads threshold for a peak to be included            |
+| `fixed_width`              | `500`   | Width (bp) of fixed-width peaks used to build the ROI set                    |
 
 #### Peak Annotation folder
 
