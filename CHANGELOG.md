@@ -1,4 +1,4 @@
-## ASPEN 1.3.0
+## ASPEN development version
 
 - Generate Tn5 nicking-site and read counts matrices, and the corresponding DiffATAC/DESeq2 results, from both `dedup.bam` (PCR/optical duplicates removed) and `filtered.bam` (duplicates retained, labeled `nondedup`), written to separate `dedup`/`nondedup` output subfolders under `visualization/` and `peaks/{peakcaller}/{fixed_width/counts,DiffATAC}/`; previously only the duplicate-retaining `filtered.bam` was used. `dedup` is recommended for standard differential accessibility testing. (#138, @kopardev)
 - Fail fast with a clear, actionable error message when a replicate has 0 reads aligned to the spike-in genome, instead of crashing with an opaque `ZeroDivisionError` in `_compute_downsampling_scaling_factors.py`; the error is now also captured in a dedicated `results/spikein/compute_scaling_factors.log`. (#139, @kopardev)
