@@ -24,10 +24,10 @@ Employs FastQC for initial quality checks and MultiQC for aggregated reporting, 
 
 Two categories of reads are systematically removed during the preprocessing stage, since both would otherwise confound peak detection:
 
-| Filtered out | Why | Source of coordinates |
-|---|---|---|
-| Blacklisted regions | Repetitive/artifact-prone genomic loci with unusually high, spurious signal | ENCODE (and other genomic consortia) blacklists, bundled per-genome in `resources/blacklistFa/` |
-| Mitochondrial reads (`chrM`/`chrR`) | Often make up a large fraction of ATAC-seq reads (mitochondrial DNA is highly accessible); excluding them focuses compute and peak calling on nuclear chromatin | The reference genome's `chrM`/`chrR` contig |
+| Filtered out                        | Why                                                                                                                                                             | Source of coordinates                                                                           |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Blacklisted regions                 | Repetitive/artifact-prone genomic loci with unusually high, spurious signal                                                                                     | ENCODE (and other genomic consortia) blacklists, bundled per-genome in `resources/blacklistFa/` |
+| Mitochondrial reads (`chrM`/`chrR`) | Often make up a large fraction of ATAC-seq reads (mitochondrial DNA is highly accessible); excluding them focuses compute and peak calling on nuclear chromatin | The reference genome's `chrM`/`chrR` contig                                                     |
 
 This filtering step enhances the accuracy and reliability of peak detection by concentrating on biologically meaningful and interpretable regions of the genome.
 
@@ -35,7 +35,7 @@ This filtering step enhances the accuracy and reliability of peak detection by c
 
 Reads are aligned to the reference genome using Bowtie2, a fast and memory-efficient aligner optimized for short-read sequencing data. This step produces several key output files essential for subsequent analyses:
 
-- **`filtered.bam`**: A BAM file with low-quality alignments and reads mapping to blacklisted regions removed. This is the **`nondedup`** BAM referenced elsewhere in these docs — i.e. the file *before* PCR/optical duplicate removal — and is used for the `nondedup` variant of the counts matrices and DiffATAC results.
+- **`filtered.bam`**: A BAM file with low-quality alignments and reads mapping to blacklisted regions removed. This is the **`nondedup`** BAM referenced elsewhere in these docs — i.e. the file _before_ PCR/optical duplicate removal — and is used for the `nondedup` variant of the counts matrices and DiffATAC results.
 - **`qsorted.bam`**: A quality-sorted BAM file containing all aligned reads, serving as the primary input for Genrich peak calling.
 - **`dedup.bam`**: A BAM file derived from `filtered.bam` with PCR/optical duplicates additionally removed via PicardTools. Used for MACS2 peak calling, FRiP, transcription factor footprinting with TOBIAS, and the **recommended `dedup`** variant of the counts matrices and DiffATAC results.
 - **`tagAlign.gz`**: A compressed file containing alignment information in a simplified format, specifically prepared for MACS2 peak calling.
@@ -59,33 +59,33 @@ Genrich is integrated into the pipeline to complement MACS2. This tool is partic
 By combining the strengths of MACS2 and Genrich, ASPEN delivers a comprehensive and reliable peak detection framework, facilitating downstream analyses and enabling researchers to uncover critical insights into chromatin accessibility and gene regulation.
 
 !!! tip "Which peak caller should I use?"
-    Both MACS2 and Genrich run automatically for every sample — you
-    don't have to choose upfront. **Genrich is generally
-    recommended for ATAC-seq** because it was purpose-built for
-    assays like ATAC-seq/DNase-seq: it models Tn5 transposase cut
-    sites directly (`-j` ATAC-seq mode) rather than adapting a
-    ChIP-seq fragment-shift model, and it combines biological
-    replicates natively via Fisher's method instead of requiring a
-    separate consensus step. **MACS2** was originally designed for
-    ChIP-seq and requires ATAC-specific parameter workarounds to
-    approximate cut-site signal, but remains the field standard —
-    it's included because many reviewers and downstream tools
-    expect to see MACS2 peaks, and comparing both gives an extra
-    sanity check. CCBR's internal benchmarking on ASPEN's ATAC-seq
-    data has generally found Genrich peaks to be higher quality. If
-    your MACS2 and Genrich DiffATAC results disagree substantially
-    for a given region, treat that region as lower-confidence
-    rather than assuming one caller is unconditionally "right".
+Both MACS2 and Genrich run automatically for every sample — you
+don't have to choose upfront. **Genrich is generally
+recommended for ATAC-seq** because it was purpose-built for
+assays like ATAC-seq/DNase-seq: it models Tn5 transposase cut
+sites directly (`-j` ATAC-seq mode) rather than adapting a
+ChIP-seq fragment-shift model, and it combines biological
+replicates natively via Fisher's method instead of requiring a
+separate consensus step. **MACS2** was originally designed for
+ChIP-seq and requires ATAC-specific parameter workarounds to
+approximate cut-site signal, but remains the field standard —
+it's included because many reviewers and downstream tools
+expect to see MACS2 peaks, and comparing both gives an extra
+sanity check. CCBR's internal benchmarking on ASPEN's ATAC-seq
+data has generally found Genrich peaks to be higher quality. If
+your MACS2 and Genrich DiffATAC results disagree substantially
+for a given region, treat that region as lower-confidence
+rather than assuming one caller is unconditionally "right".
 
 ### 🤝 **Consensus Peaks**
 
 For datasets with multiple replicates, ASPEN generates three related-but-distinct peak representations — not three competing choices, but two sequential stages plus one diagnostic side-output:
 
-| Output | Stage | Width | Best used for |
-|---|---|---|---|
-| `pooled.narrowPeak` | Diagnostic (pre-filter) — peaks called on all replicates' reads pooled together | Variable | Sanity-checking how strict the reproducibility filter (`consensus_min_replicates`/`consensus_min_spm`) is |
-| `consensus.bed` | Round 1 — per-sample, reproducibility-filtered via the ["Consensus MAX" strategy](https://doi.org/10.5936/csbj.201401002) (_Yang et al._) | Variable | Peak annotation (ChIPseeker) and comparison against other pipelines' conventional peak outputs |
-| `fixed_width.consensus.narrowPeak` | Round 2 — cross-sample ROI set, p-values renormalized across replicates following [_Corces et al._](https://doi.org/10.1038/nmeth.4396) | Fixed (`fixed_width` config, default 500 bp) | Differential accessibility testing (DESeq2) — fixed width avoids confounding read/Tn5 counts with peak-length differences and avoids daisy-chained merges across many samples |
+| Output                             | Stage                                                                                                                                     | Width                                        | Best used for                                                                                                                                                                 |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pooled.narrowPeak`                | Diagnostic (pre-filter) — peaks called on all replicates' reads pooled together                                                           | Variable                                     | Sanity-checking how strict the reproducibility filter (`consensus_min_replicates`/`consensus_min_spm`) is                                                                     |
+| `consensus.bed`                    | Round 1 — per-sample, reproducibility-filtered via the ["Consensus MAX" strategy](https://doi.org/10.5936/csbj.201401002) (_Yang et al._) | Variable                                     | Peak annotation (ChIPseeker) and comparison against other pipelines' conventional peak outputs                                                                                |
+| `fixed_width.consensus.narrowPeak` | Round 2 — cross-sample ROI set, p-values renormalized across replicates following [_Corces et al._](https://doi.org/10.1038/nmeth.4396)   | Fixed (`fixed_width` config, default 500 bp) | Differential accessibility testing (DESeq2) — fixed width avoids confounding read/Tn5 counts with peak-length differences and avoids daisy-chained merges across many samples |
 
 **Use the fixed-width ROI set for differential accessibility testing; use `consensus.bed`/`pooled.narrowPeak` for peak annotation, QC, or cross-pipeline comparison.**
 
@@ -116,21 +116,21 @@ ASPEN employs custom scripts to analyze the distribution of fragment lengths wit
 To evaluate the sufficiency of sequencing depth and detect potential biases introduced during PCR amplification, ASPEN utilizes Preseq to estimate library complexity, reporting the Non-Redundant Fraction (`NRF`) and PCR Bottlenecking Coefficients (`PBC1`, `PBC2`). This metric helps determine whether the sequencing effort is adequate to capture the diversity of the library, ensuring that the data is representative of the underlying chromatin landscape. By identifying potential saturation or over-representation of certain fragments, researchers can assess the reliability of their sequencing results.
 
 !!! tip "Rule of thumb"
-    Per [ENCODE's ATAC-seq data standards](https://www.encodeproject.org/atac-seq/#standards), the preferred values are **`NRF` > 0.9, `PBC1` > 0.9, and `PBC2` > 3**. Lower values indicate a less complex library (e.g. over-amplified by PCR), which can inflate apparent signal at a subset of loci rather than reflecting true biological accessibility.
+Per [ENCODE's ATAC-seq data standards](https://www.encodeproject.org/atac-seq/#standards), the preferred values are **`NRF` > 0.9, `PBC1` > 0.9, and `PBC2` > 3**. Lower values indicate a less complex library (e.g. over-amplified by PCR), which can inflate apparent signal at a subset of loci rather than reflecting true biological accessibility.
 
 ### 🧬 **Transcription Start Site (TSS) Enrichment**
 
 ASPEN calculates TSS enrichment scores, a widely recognized quality metric for ATAC-seq data. These scores measure the accumulation of sequencing reads around transcription start sites (TSS), which are hallmark regions of open chromatin. High TSS enrichment scores indicate well-prepared libraries with minimal technical artifacts, as they reflect the accessibility of promoter regions and the integrity of the chromatin preparation process.
 
 !!! tip "Rule of thumb"
-    [ENCODE's ATAC-seq data standards](https://www.encodeproject.org/atac-seq/#standards) define annotation-dependent TSS enrichment cutoffs — for example, using a GRCh38 RefSeq TSS annotation: **< 5 is concerning, 5-7 is acceptable, and > 7 is ideal**. **Caveat:** ASPEN builds its TSS bins from GENCODE (not RefSeq) gene annotations (see `resources/tssBed/`), so ENCODE's exact per-annotation cutoffs may not transfer precisely to ASPEN's TSS enrichment values — treat these numbers as directional guidance (aim for high single digits or higher) rather than an exact pass/fail threshold.
+[ENCODE's ATAC-seq data standards](https://www.encodeproject.org/atac-seq/#standards) define annotation-dependent TSS enrichment cutoffs — for example, using a GRCh38 RefSeq TSS annotation: **< 5 is concerning, 5-7 is acceptable, and > 7 is ideal**. **Caveat:** ASPEN builds its TSS bins from GENCODE (not RefSeq) gene annotations (see `resources/tssBed/`), so ENCODE's exact per-annotation cutoffs may not transfer precisely to ASPEN's TSS enrichment values — treat these numbers as directional guidance (aim for high single digits or higher) rather than an exact pass/fail threshold.
 
 ### 📊 **Fraction of Reads in Peaks (FRiP)**
 
 The Fraction of Reads in Peaks (FRiP) score quantifies the proportion of sequencing reads that fall within identified peaks, serving as a measure of the signal-to-noise ratio in the dataset. Higher FRiP scores indicate datasets with strong, biologically meaningful signals and minimal background noise. Additionally, ASPEN computes the fraction of reads localized to specific genomic features, such as promoters, enhancers, and DNase hypersensitive sites (DHS). These feature-specific FRiP scores provide further insights into the quality and biological relevance of the data.
 
 !!! tip "Rule of thumb"
-    Per [ENCODE's ATAC-seq data standards](https://www.encodeproject.org/atac-seq/#standards), a FRiP score **> 0.3** indicates high-quality data, though values **> 0.2** may still be acceptable. Consistently lower scores suggest poor signal-to-noise and warrant a closer look at library prep or peak-calling parameters.
+Per [ENCODE's ATAC-seq data standards](https://www.encodeproject.org/atac-seq/#standards), a FRiP score **> 0.3** indicates high-quality data, though values **> 0.2** may still be acceptable. Consistently lower scores suggest poor signal-to-noise and warrant a closer look at library prep or peak-calling parameters.
 
 ---
 
@@ -191,7 +191,7 @@ In ASPEN, if spike-in data is present:
 This spike-in-derived scaling factor allows the comparison of chromatin accessibility across conditions even when global chromatin accessibility levels differ (e.g., treatment-induced repression or global decondensation).
 
 !!! tip "Should I turn on spike-in normalization?"
-    Ask yourself: do I expect a **global, genome-wide shift** in chromatin accessibility between my conditions — rather than just **localized** changes at a handful of specific regulatory elements?
+Ask yourself: do I expect a **global, genome-wide shift** in chromatin accessibility between my conditions — rather than just **localized** changes at a handful of specific regulatory elements?
 
     - **Yes** (e.g. a chromatin remodeler inhibitor, a broad transcription factor knockdown/knockout, drug-induced chromatin modulation) → turn on spike-in normalization. Standard depth-based normalization (DESeq2 size factors) assumes *most* regions are unchanged between conditions — that assumption breaks down under a genome-wide shift, and spike-in gives you an external, biology-independent scale instead.
     - **No** (you expect differences to be confined to specific loci/pathways, with most of the genome unchanged) → spike-in is probably unnecessary. It adds experimental complexity (extra reagents, a second alignment step, and a "0 spike-in reads" failure mode to manage — see the warning below) for a scenario DESeq2's built-in normalization already handles well.
