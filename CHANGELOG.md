@@ -1,3 +1,9 @@
+## ASPEN 1.3.0
+
+- Generate Tn5 nicking-site and read counts matrices, and the corresponding DiffATAC/DESeq2 results, from both `dedup.bam` (PCR/optical duplicates removed) and `filtered.bam` (duplicates retained, labeled `nondedup`), written to separate `dedup`/`nondedup` output subfolders under `visualization/` and `peaks/{peakcaller}/{fixed_width/counts,DiffATAC}/`; previously only the duplicate-retaining `filtered.bam` was used. `dedup` is recommended for standard differential accessibility testing. (#138, @kopardev)
+- Fail fast with a clear, actionable error message when a replicate has 0 reads aligned to the spike-in genome, instead of crashing with an opaque `ZeroDivisionError` in `_compute_downsampling_scaling_factors.py`; the error is now also captured in a dedicated `results/spikein/compute_scaling_factors.log`. (#139, @kopardev)
+- Overhaul documentation for accuracy and clarity across `docs/overview.md`, `docs/outputs.md`, `docs/introduction.md`, `docs/deployment.md`, and `docs/index.md`: fix stale claims left over from the dedup/nondedup change, clarify how consensus peaks and ROIs are generated, add ENCODE-referenced QC rule-of-thumb callouts (library complexity, TSS enrichment, FRiP), consolidate scattered spike-in "when should I use this" guidance into a single decision-tree callout, and remove the outdated, unreferenced `docs/extra.md` page whose content is now covered by `docs/outputs.md`. (#138, @kopardev)
+
 ## ASPEN 1.2.0
 
 - Add `hs1_chrR` as a supported reference genome (T2T-CHM13 + chrR rDNA unit from [Paralkar lab](https://github.com/vikramparalkar/rDNA-Mapping-Genomes)). (#117, @kopardev)

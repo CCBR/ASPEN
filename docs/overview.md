@@ -22,15 +22,22 @@ Employs FastQC for initial quality checks and MultiQC for aggregated reporting, 
 
 ### 🚫 **Blacklist Filtering**
 
-Reads aligning to known blacklisted regions and mitochondrial DNA are systematically removed during the preprocessing stage. Blacklisted regions, as defined by ENCODE and other genomic consortia, represent genomic loci prone to artifacts due to their repetitive nature or unusually high signal, which can confound downstream analyses. Similarly, mitochondrial reads, which often constitute a significant proportion of sequencing data, are excluded to prevent skewing results and to ensure computational resources are focused on nuclear chromatin. This filtering step enhances the accuracy and reliability of peak detection by concentrating on biologically meaningful and interpretable regions of the genome.
+Two categories of reads are systematically removed during the preprocessing stage, since both would otherwise confound peak detection:
+
+| Filtered out | Why | Source of coordinates |
+|---|---|---|
+| Blacklisted regions | Repetitive/artifact-prone genomic loci with unusually high, spurious signal | ENCODE (and other genomic consortia) blacklists, bundled per-genome in `resources/blacklistFa/` |
+| Mitochondrial reads (`chrM`/`chrR`) | Often make up a large fraction of ATAC-seq reads (mitochondrial DNA is highly accessible); excluding them focuses compute and peak calling on nuclear chromatin | The reference genome's `chrM`/`chrR` contig |
+
+This filtering step enhances the accuracy and reliability of peak detection by concentrating on biologically meaningful and interpretable regions of the genome.
 
 ### 🔗 **Read Alignment**
 
 Reads are aligned to the reference genome using Bowtie2, a fast and memory-efficient aligner optimized for short-read sequencing data. This step produces several key output files essential for subsequent analyses:
 
-- **`filtered.bam`**: A BAM file with low-quality alignments, reads mapping to blacklisted regions removed, ensuring high-quality data for differential open chromatin analysis.
+- **`filtered.bam`**: A BAM file with low-quality alignments and reads mapping to blacklisted regions removed. This is the **`nondedup`** BAM referenced elsewhere in these docs — i.e. the file *before* PCR/optical duplicate removal — and is used for the `nondedup` variant of the counts matrices and DiffATAC results.
 - **`qsorted.bam`**: A quality-sorted BAM file containing all aligned reads, serving as the primary input for Genrich peak calling.
-- **`dedup.bam`**: A BAM file with PCR duplicates removed, used for advanced downstream analyses such as transcription factor footprinting with TOBIAS.
+- **`dedup.bam`**: A BAM file derived from `filtered.bam` with PCR/optical duplicates additionally removed via PicardTools. Used for MACS2 peak calling, FRiP, transcription factor footprinting with TOBIAS, and the **recommended `dedup`** variant of the counts matrices and DiffATAC results.
 - **`tagAlign.gz`**: A compressed file containing alignment information in a simplified format, specifically prepared for MACS2 peak calling.
 
 This alignment process ensures that only high-confidence reads are retained, providing a robust foundation for accurate and reproducible ATAC-seq data analysis.
@@ -51,17 +58,36 @@ Genrich is integrated into the pipeline to complement MACS2. This tool is partic
 
 By combining the strengths of MACS2 and Genrich, ASPEN delivers a comprehensive and reliable peak detection framework, facilitating downstream analyses and enabling researchers to uncover critical insights into chromatin accessibility and gene regulation.
 
+!!! tip "Which peak caller should I use?"
+    Both MACS2 and Genrich run automatically for every sample — you
+    don't have to choose upfront. **Genrich is generally
+    recommended for ATAC-seq** because it was purpose-built for
+    assays like ATAC-seq/DNase-seq: it models Tn5 transposase cut
+    sites directly (`-j` ATAC-seq mode) rather than adapting a
+    ChIP-seq fragment-shift model, and it combines biological
+    replicates natively via Fisher's method instead of requiring a
+    separate consensus step. **MACS2** was originally designed for
+    ChIP-seq and requires ATAC-specific parameter workarounds to
+    approximate cut-site signal, but remains the field standard —
+    it's included because many reviewers and downstream tools
+    expect to see MACS2 peaks, and comparing both gives an extra
+    sanity check. CCBR's internal benchmarking on ASPEN's ATAC-seq
+    data has generally found Genrich peaks to be higher quality. If
+    your MACS2 and Genrich DiffATAC results disagree substantially
+    for a given region, treat that region as lower-confidence
+    rather than assuming one caller is unconditionally "right".
+
 ### 🤝 **Consensus Peaks**
 
-For datasets with multiple replicates, ASPEN employs several strategies to derive consensus peaks across replicates:
+For datasets with multiple replicates, ASPEN generates three related-but-distinct peak representations — not three competing choices, but two sequential stages plus one diagnostic side-output:
 
-- **`consensus.bed`**: This file represents consensus peaks derived using the "Consensus MAX" strategy, as described by [_Yang et al._](https://doi.org/10.5936/csbj.201401002). It identifies overlapping peaks across replicates to define a shared set of regions.
+| Output | Stage | Width | Best used for |
+|---|---|---|---|
+| `pooled.narrowPeak` | Diagnostic (pre-filter) — peaks called on all replicates' reads pooled together | Variable | Sanity-checking how strict the reproducibility filter (`consensus_min_replicates`/`consensus_min_spm`) is |
+| `consensus.bed` | Round 1 — per-sample, reproducibility-filtered via the ["Consensus MAX" strategy](https://doi.org/10.5936/csbj.201401002) (_Yang et al._) | Variable | Peak annotation (ChIPseeker) and comparison against other pipelines' conventional peak outputs |
+| `fixed_width.consensus.narrowPeak` | Round 2 — cross-sample ROI set, p-values renormalized across replicates following [_Corces et al._](https://doi.org/10.1038/nmeth.4396) | Fixed (`fixed_width` config, default 500 bp) | Differential accessibility testing (DESeq2) — fixed width avoids confounding read/Tn5 counts with peak-length differences and avoids daisy-chained merges across many samples |
 
-- **`pooled.narrowPeak`**: In this approach, reads from all replicates are pooled together, and peak calling is performed on the combined dataset to generate a unified set of "pooled" peaks.
-
-- **`fixed_width.consensus.narrowPeak`**: This method calculates consensus peaks by renormalizing p-value scores across replicates, following the approach outlined by [_Corces et al._](https://doi.org/10.1038/nmeth.4396).
-
-Among these methods, the fixed-width consensus peak strategy is recommended for its robustness and reproducibility. The other outputs are provided primarily for exploratory purposes.
+**Use the fixed-width ROI set for differential accessibility testing; use `consensus.bed`/`pooled.narrowPeak` for peak annotation, QC, or cross-pipeline comparison.**
 
 ### 🏷️ **Peak Annotation**
 
@@ -71,7 +97,7 @@ ASPEN integrates ChIPseeker to perform comprehensive annotation of identified pe
 
 Regions of Interest (ROIs) are generated through a systematic process to ensure consistency and reliability in downstream analyses:
 
-- 🧩 **Replicate-Level Peaks**: `.narrowPeak` files from individual replicates are converted into fixed-width peaks, centering on their summits and extending ±250 bp to achieve a uniform width of 500 bp.
+- 🧩 **Replicate-Level Peaks**: `.narrowPeak` files from individual replicates are converted into fixed-width peaks, centered on their summits and extended symmetrically to the width configured by `fixed_width` in `config.yaml` (default: 500 bp, i.e. ±250 bp from the summit).
 - 🧬 **Sample-Level Consensus Peaks**: Fixed-width replicate peak files are combined to generate a consensus set of peaks at the sample level, ensuring reproducibility across replicates.
 - 🔗 **Merged ROIs**: Sample-level consensus peak files are merged using the [Coerses method](https://doi.org/10.1038/nmeth.4396) to create a comprehensive set of ROIs.
 
@@ -87,15 +113,24 @@ ASPEN employs custom scripts to analyze the distribution of fragment lengths wit
 
 ### 📚 **Library Complexity**
 
-To evaluate the sufficiency of sequencing depth and detect potential biases introduced during PCR amplification, ASPEN utilizes Preseq to estimate library complexity. This metric helps determine whether the sequencing effort is adequate to capture the diversity of the library, ensuring that the data is representative of the underlying chromatin landscape. By identifying potential saturation or over-representation of certain fragments, researchers can assess the reliability of their sequencing results.
+To evaluate the sufficiency of sequencing depth and detect potential biases introduced during PCR amplification, ASPEN utilizes Preseq to estimate library complexity, reporting the Non-Redundant Fraction (`NRF`) and PCR Bottlenecking Coefficients (`PBC1`, `PBC2`). This metric helps determine whether the sequencing effort is adequate to capture the diversity of the library, ensuring that the data is representative of the underlying chromatin landscape. By identifying potential saturation or over-representation of certain fragments, researchers can assess the reliability of their sequencing results.
+
+!!! tip "Rule of thumb"
+    Per [ENCODE's ATAC-seq data standards](https://www.encodeproject.org/atac-seq/#standards), the preferred values are **`NRF` > 0.9, `PBC1` > 0.9, and `PBC2` > 3**. Lower values indicate a less complex library (e.g. over-amplified by PCR), which can inflate apparent signal at a subset of loci rather than reflecting true biological accessibility.
 
 ### 🧬 **Transcription Start Site (TSS) Enrichment**
 
 ASPEN calculates TSS enrichment scores, a widely recognized quality metric for ATAC-seq data. These scores measure the accumulation of sequencing reads around transcription start sites (TSS), which are hallmark regions of open chromatin. High TSS enrichment scores indicate well-prepared libraries with minimal technical artifacts, as they reflect the accessibility of promoter regions and the integrity of the chromatin preparation process.
 
+!!! tip "Rule of thumb"
+    [ENCODE's ATAC-seq data standards](https://www.encodeproject.org/atac-seq/#standards) define annotation-dependent TSS enrichment cutoffs — for example, using a GRCh38 RefSeq TSS annotation: **< 5 is concerning, 5-7 is acceptable, and > 7 is ideal**. **Caveat:** ASPEN builds its TSS bins from GENCODE (not RefSeq) gene annotations (see `resources/tssBed/`), so ENCODE's exact per-annotation cutoffs may not transfer precisely to ASPEN's TSS enrichment values — treat these numbers as directional guidance (aim for high single digits or higher) rather than an exact pass/fail threshold.
+
 ### 📊 **Fraction of Reads in Peaks (FRiP)**
 
 The Fraction of Reads in Peaks (FRiP) score quantifies the proportion of sequencing reads that fall within identified peaks, serving as a measure of the signal-to-noise ratio in the dataset. Higher FRiP scores indicate datasets with strong, biologically meaningful signals and minimal background noise. Additionally, ASPEN computes the fraction of reads localized to specific genomic features, such as promoters, enhancers, and DNase hypersensitive sites (DHS). These feature-specific FRiP scores provide further insights into the quality and biological relevance of the data.
+
+!!! tip "Rule of thumb"
+    Per [ENCODE's ATAC-seq data standards](https://www.encodeproject.org/atac-seq/#standards), a FRiP score **> 0.3** indicates high-quality data, though values **> 0.2** may still be acceptable. Consistently lower scores suggest poor signal-to-noise and warrant a closer look at library prep or peak-calling parameters.
 
 ---
 
@@ -117,7 +152,7 @@ ASPEN extends its core functionalities by offering advanced capabilities for dif
 
 ### 🛠️ **Refinement of Peak Calls to Fixed-Width Peaks**
 
-Following the initial peak calling, ASPEN standardizes the identified peaks by centering them on their summits and extending them symmetrically to a uniform width of 500 base pairs (bp). This refinement ensures consistency across datasets and facilitates downstream analyses. The approach of extending peak summits by ±250 bp is a widely accepted practice in ATAC-seq data analysis, as it focuses on the most accessible regions of chromatin while minimizing variability in peak sizes. This standardization enhances the comparability of results across experimental conditions and replicates.
+Following the initial peak calling, ASPEN standardizes the identified peaks by centering them on their summits and extending them symmetrically to the width configured by `fixed_width` in `config.yaml` (default: 500 bp, i.e. ±250 bp from the summit). This refinement ensures consistency across datasets and facilitates downstream analyses. Extending peak summits to a fixed width is a widely accepted practice in ATAC-seq data analysis, as it focuses on the most accessible regions of chromatin while minimizing variability in peak sizes. This standardization enhances the comparability of results across experimental conditions and replicates.
 
 ### 📍 **Definition of Regions of Interest (ROIs)**
 
@@ -127,9 +162,11 @@ ASPEN processes the fixed-width peak calls for each replicate across all samples
 
 Once the ROIs are established, ASPEN generates two key count matrices to quantify chromatin accessibility:
 
-- **Tn5 Nicking Sites Count Matrix**: This matrix quantifies the frequency of Tn5 transposase insertion events at each ROI. The `filtered.bam` file is used to determine Tn5 insertion sites and count them. Tn5 transposase preferentially inserts into accessible chromatin regions, and the number of insertion events serves as a direct proxy for chromatin accessibility. This metric provides a precise measure of chromatin openness across experimental conditions.
+- **Tn5 Nicking Sites Count Matrix**: This matrix quantifies the frequency of Tn5 transposase insertion events at each ROI. Tn5 transposase preferentially inserts into accessible chromatin regions, and the number of insertion events serves as a direct proxy for chromatin accessibility.
 
-- **Read Counts Matrix**: This matrix records the number of sequencing reads mapped to each ROI. Similar to the Tn5 nicking sites matrix, the `filtered.bam` file is used for this quantification. While Tn5 nicking sites offer a more direct measure of chromatin accessibility, read counts are included as they are widely utilized in recent publications. Together, these matrices provide a comprehensive view of chromatin accessibility dynamics.
+- **Read Counts Matrix**: This matrix records the number of sequencing reads mapped to each ROI. While Tn5 nicking sites offer a more direct measure of chromatin accessibility, read counts are included as they are widely utilized in recent publications.
+
+Both matrices (and the corresponding DiffATAC/DESeq2 results) are generated **twice** — once from `dedup.bam` (PCR/optical duplicates removed) and once from `filtered.bam` (duplicates retained, labeled `nondedup`) — under separate `dedup`/`nondedup` output folders. **The `dedup` results are recommended** for standard differential accessibility testing, since PCR duplication rate varies across samples and is not corrected by DESeq2/edgeR size factors. See [Counts matrices: reads vs Tn5 nicking sites, and `dedup` vs `nondedup`](outputs.md#counts-matrices-reads-vs-tn5-nicking-sites-and-dedup-vs-nondedup) in the Outputs page for the full explanation, including when the `nondedup` outputs are still useful.
 
 ### 📈 **Differential Accessibility Analysis Using DESeq2**
 
@@ -143,9 +180,7 @@ To enhance the biological interpretation of differential accessibility results, 
 
 #### 🧪 **Optional: Spike-In Normalization**
 
-To account for potential global shifts in chromatin accessibility—particularly in perturbation studies where widespread chromatin compaction or relaxation may occur—ASPEN optionally supports **spike-in normalization**.
-
-Spike-in normalization involves the use of exogenous DNA or cells from a different species (e.g., _Drosophila melanogaster_ or _E. coli_) that are added in equal proportions across all experimental samples prior to lysis and tagmentation. These spike-in reads serve as an internal control to correct for technical variation and global accessibility shifts that may not be captured by traditional normalization strategies.
+As discussed in [Challenges in ATAC-seq Data Analysis](introduction.md#challenges-in-atac-seq-data-analysis), perturbation studies can cause global shifts in chromatin accessibility that traditional normalization can't correct for. ASPEN addresses this with optional **spike-in normalization**: exogenous DNA or cells from a different species (e.g., _Drosophila melanogaster_ or _E. coli_) are added in equal proportions across all experimental samples prior to lysis and tagmentation, serving as an internal control for technical variation and global accessibility shifts.
 
 In ASPEN, if spike-in data is present:
 
@@ -153,13 +188,20 @@ In ASPEN, if spike-in data is present:
 - The number of spike-in reads is counted for each sample.
 - A normalization factor is calculated based on spike-in counts and applied to the accessibility read counts from the host genome.
 
-This spike-in-derived scaling factor allows the comparison of chromatin accessibility across conditions even when global chromatin accessibility levels differ (e.g., treatment-induced repression or global decondensation). This method is particularly valuable in experiments involving:
+This spike-in-derived scaling factor allows the comparison of chromatin accessibility across conditions even when global chromatin accessibility levels differ (e.g., treatment-induced repression or global decondensation).
 
-- Transcription factor knockdowns/knockouts
-- Chromatin remodeler inhibition
-- Drug-induced chromatin modulation
+!!! tip "Should I turn on spike-in normalization?"
+    Ask yourself: do I expect a **global, genome-wide shift** in chromatin accessibility between my conditions — rather than just **localized** changes at a handful of specific regulatory elements?
+
+    - **Yes** (e.g. a chromatin remodeler inhibitor, a broad transcription factor knockdown/knockout, drug-induced chromatin modulation) → turn on spike-in normalization. Standard depth-based normalization (DESeq2 size factors) assumes *most* regions are unchanged between conditions — that assumption breaks down under a genome-wide shift, and spike-in gives you an external, biology-independent scale instead.
+    - **No** (you expect differences to be confined to specific loci/pathways, with most of the genome unchanged) → spike-in is probably unnecessary. It adds experimental complexity (extra reagents, a second alignment step, and a "0 spike-in reads" failure mode to manage — see the warning below) for a scenario DESeq2's built-in normalization already handles well.
+
+    See [Enabling Spike-In Normalization](deployment.md#enabling-spike-in-normalization-optional) for the config steps once you've decided to use it.
 
 ASPEN performs spike-in-aware normalization transparently, and reports both raw and normalized counts in the final output matrix for differential analysis. This ensures flexibility in downstream interpretation while preserving the ability to adjust for systemic experimental artifacts.
+
+!!! warning "What if a replicate has 0 spike-in reads?"
+If `spikein: true` is set but a replicate has **zero reads** aligned to the spike-in genome (e.g. the spike-in material wasn't actually added to that library, the spike-in genome/index is misconfigured, or a genuinely contamination-free host-only library), ASPEN cannot compute a scaling factor for it and the run will **fail with a clear error message** naming the affected replicate(s) rather than silently producing `Inf`/`NaN` normalized counts. To resolve this: verify the spike-in genome/index path in `config.yaml`, confirm spike-in material was actually included during library prep for that replicate, or set `spikein: false` if none of your samples have spike-in material.
 
 ### 📊 **Reporting**
 

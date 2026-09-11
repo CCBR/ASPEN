@@ -74,6 +74,8 @@ To explore all possible options of the `aspen` command you can either run it wit
 
 Here is what help looks like:
 
+> **Note**: This is illustrative example output captured at doc-writing time — exact values (e.g. `pipeline_home`, `git commit/tag`, `aspen_version`) will differ depending on which ASPEN version/branch is installed at your site. Run `aspen --help` yourself to see the current values for your installation.
+
 ```bash
 
 ##########################################################################################
@@ -197,6 +199,8 @@ contrasts_fdr_cutoff: 0.05
 
 ASPEN supports spike-in normalization, which is useful for controlling technical variability or comparing global shifts in chromatin accessibility across samples. Spike-in reads (e.g., from _Drosophila melanogaster_ or _E. coli_) are aligned separately and used to compute normalization factors that are applied to host genome accessibility counts.
 
+Not sure whether you need this for your experiment? See ["Should I turn on spike-in normalization?"](overview.md#optional-spike-in-normalization) in the Overview docs for a decision guide.
+
 To enable spike-in normalization, edit the `config.yaml` file that was generated during `init`. You can find it in your output directory (`<path_to_output_folder>/config.yaml`).
 
 Open the file and locate the following lines:
@@ -235,8 +239,6 @@ Once enabled, ASPEN will:
 - Quantify spike-in counts per sample.
 - Normalize accessibility counts using spike-in-derived scaling factors.
 - Report both normalized and raw counts in the output tables and reports.
-
-This step is optional but highly recommended when you expect global changes in chromatin accessibility due to treatments or perturbations.
 
 ### 🛠️ Dry Run the Pipeline
 

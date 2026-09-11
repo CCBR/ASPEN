@@ -1,5 +1,0 @@
-Once the ROIs are established, ASPEN generates two distinct count matrices:
-
-- **Tn5 Nicking Sites Count Matrix**: This matrix quantifies the frequency of Tn5 transposase insertion events at each ROI. The `filtered.bam` file (with PCR duplicates and not `dedup.bam`) is used for determining Tn5 sites and counting them. The Tn5 transposase preferentially inserts into accessible regions of the chromatin, and the number of insertion events serves as a proxy for chromatin accessibility. By counting these insertion sites, researchers can accurately infer the openness of chromatin regions under different experimental conditions.
-
-- **Read Counts Matrix**: This matrix records the number of sequencing reads mapped to each ROI. The `filtered.bam` file (with PCR duplicates and not `dedup.bam`) is used for counting. While Tn5 nicking sites provide a more direct measure of chromatin accessibility, read counts are included in ASPEN as they have been widely used in recent publications. Analyzing both matrices together offers a comprehensive view of chromatin accessibility dynamics.
