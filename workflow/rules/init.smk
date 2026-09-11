@@ -155,6 +155,11 @@ except KeyError:
 
 PEAKCALLERS = ["genrich", "macs2"]
 COUNTING_METHODS = ["tn5sites", "reads"]
+# counts matrices (and DiffATAC results) are generated from both the
+# duplicate-removed "dedup" BAM and the duplicate-retaining "nondedup"
+# (filtered) BAM, so end users can compare/choose which to use downstream.
+# See docs/extra.md and issue #138 for background/guidance.
+BAM_TYPES = ["dedup", "nondedup"]
 if contrastsfileexists:
     check_readaccess(config["contrasts"])
     try:

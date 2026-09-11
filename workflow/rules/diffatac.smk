@@ -109,13 +109,14 @@ ls -alrth $(dirname {output.roi_annotated})
 rule get_counts_table:
     input:
         bam_files = lambda wildcards: expand(
-            join(RESULTSDIR, "visualization", "{method}_bam", "{replicate}.{method}.bam"),
+            join(RESULTSDIR, "visualization", "{bamtype}", "{method}_bam", "{replicate}.{method}.bam"),
+            bamtype=wildcards.bamtype,
             method=wildcards.method,
             replicate=REPLICATES
         ),
         gtf = join(RESULTSDIR,"peaks","{peakcaller}","fixed_width","ROI.{peakcaller}.gtf"),
     output:
-        counts = join(RESULTSDIR, "peaks", "{peakcaller}", "fixed_width", "counts", "ROI.{peakcaller}.{method}_counts.tsv"),
+        counts = join(RESULTSDIR, "peaks", "{peakcaller}", "fixed_width", "counts", "{bamtype}", "ROI.{peakcaller}.{method}_counts.tsv"),
     params:
         scriptsdir = SCRIPTSDIR,
         script = "_featureCounts_header_fix.py"
@@ -149,9 +150,9 @@ localrules: scale_counts_table
 rule scale_counts_table:
     input:
         scaling_factors = rules.compute_scaling_factors.output.scaling_factors,
-        counts = join(RESULTSDIR, "peaks", "{peakcaller}", "fixed_width", "counts", "ROI.{peakcaller}.{method}_counts.tsv"),
+        counts = join(RESULTSDIR, "peaks", "{peakcaller}", "fixed_width", "counts", "{bamtype}", "ROI.{peakcaller}.{method}_counts.tsv"),
     output:
-        scaledcounts = join(RESULTSDIR, "peaks", "{peakcaller}", "fixed_width", "counts", "ROI.{peakcaller}.{method}_scaled_counts.tsv")
+        scaledcounts = join(RESULTSDIR, "peaks", "{peakcaller}", "fixed_width", "counts", "{bamtype}", "ROI.{peakcaller}.{method}_scaled_counts.tsv")
     params:
         scriptsdir=SCRIPTSDIR,
         script="_scale_counts.py",
@@ -168,9 +169,9 @@ python {params.scriptsdir}/{params.script} --counts {input.counts} --scaling_fac
 
 rule diffatac:
     input:
-        counts = join(RESULTSDIR, "peaks", "{peakcaller}", "fixed_width", "counts", "ROI.{peakcaller}.{method}_counts.tsv")
+        counts = join(RESULTSDIR, "peaks", "{peakcaller}", "fixed_width", "counts", "{bamtype}", "ROI.{peakcaller}.{method}_counts.tsv")
     output:
-        degsdone = join(PEAKSDIR, "{peakcaller}", "DiffATAC", "{method}", "degs.done")
+        degsdone = join(PEAKSDIR, "{peakcaller}", "DiffATAC", "{bamtype}", "{method}", "degs.done")
     params:
         contrasts   = config['contrasts'],
         scriptsdir  = SCRIPTSDIR,
@@ -244,11 +245,11 @@ touch {output.degsdone}
 
 rule diffatac_aggregate:
     input:
-        counts      = join(RESULTSDIR, "peaks", "{peakcaller}", "fixed_width", "counts", "ROI.{peakcaller}.{method}_counts.tsv"),
-        degsdone    = join(RESULTSDIR,"peaks","{peakcaller}","DiffATAC","{method}","degs.done"),
+        counts      = join(RESULTSDIR, "peaks", "{peakcaller}", "fixed_width", "counts", "{bamtype}", "ROI.{peakcaller}.{method}_counts.tsv"),
+        degsdone    = join(RESULTSDIR,"peaks","{peakcaller}","DiffATAC","{bamtype}","{method}","degs.done"),
     output:
-        alldegshtml = join(RESULTSDIR,"peaks","{peakcaller}","DiffATAC","{method}","all_diff_atacs.html"),
-        alldegstsv  = join(RESULTSDIR,"peaks","{peakcaller}","DiffATAC","{method}","all_diff_atacs.tsv"),
+        alldegshtml = join(RESULTSDIR,"peaks","{peakcaller}","DiffATAC","{bamtype}","{method}","all_diff_atacs.html"),
+        alldegstsv  = join(RESULTSDIR,"peaks","{peakcaller}","DiffATAC","{bamtype}","{method}","all_diff_atacs.tsv"),
     params:
         contrasts   = config['contrasts'],
         scriptsdir  = SCRIPTSDIR,

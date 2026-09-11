@@ -288,6 +288,8 @@ rule compute_scaling_factors:
         counts=expand(join(RESULTSDIR,"spikein","{replicate}","{replicate}.counts"),replicate=REPLICATES),
     output:
         scaling_factors=join(RESULTSDIR,"spikein","scaling_factors.tsv"),
+    log:
+        join(RESULTSDIR,"spikein","compute_scaling_factors.log"),
     params:
         replicates=REPLICATES,
         workdir=RESULTSDIR,
@@ -306,7 +308,7 @@ unset PYTHONPATH
 # Check if spike-in is enabled
 if [[ "{params.spikein}" == "true" ]];then
     # Compute scaling factors using the provided script
-    cat {input.counts} | python {params.scriptsdir}/{params.script} | sort > {output.scaling_factors}
+    cat {input.counts} | python {params.scriptsdir}/{params.script} 2> {log} | sort > {output.scaling_factors}
 else
     # If spike-in is not enabled, set scaling factor to 1.0 for all replicates
     cat {input.counts} | sort > ${{TMPDIR}}/allcounts.txt
@@ -320,25 +322,39 @@ fi
 #########################################################
 
 
+def get_bam_by_bamtype(wildcards):
+# """
+# Resolve the source BAM for a given {bamtype} wildcard value:
+#   dedup    -> dedup.bam (PCR/optical duplicates removed by Picard MarkDuplicates)
+#   nondedup -> filtered.bam (quality-filtered but duplicates retained)
+# """
+    if wildcards.bamtype == "dedup":
+        return join(ALIGNDIR,"dedupBam",wildcards.replicate+".dedup.bam")
+    elif wildcards.bamtype == "nondedup":
+        return join(ALIGNDIR,"filteredBam",wildcards.replicate+".filtered.bam")
+    else:
+        raise ValueError("Unknown bamtype wildcard: "+wildcards.bamtype)
+
 rule create_tn5bams:
 # """
 # Create tn5 and reads bam files for creating bigwigs
-# Input: filtered BAM file from alignment step
+# Input: dedup or filtered (nondedup) BAM file from alignment step, selected via {bamtype}
 # Output: tn5 and reads BAM files
-# This rule generates tn5 and reads BAM files from the filtered BAM file obtained after alignment.
+# This rule generates tn5 and reads BAM files from the {bamtype} BAM file obtained after alignment.
 # The tn5 BAM file contains the positions of Tn5 insertions, while the reads BAM file contains
 # the positions of the filtered original reads. These BAM files are used to create bigwig files for
 # visualization in genome browsers.
 # """
     # group: "TAD"
     input:
-        bam=rules.align.output.filteredBam,
+        bam=get_bam_by_bamtype,
     output:
-        tn5bam=join(RESULTSDIR,"visualization","tn5sites_bam","{replicate}.tn5sites.bam"),
-        readsbed=join(RESULTSDIR,"visualization","reads_bed","{replicate}.reads.bed.gz"), # these will be used by chromVar
-        readsbam=join(RESULTSDIR,"visualization","reads_bam","{replicate}.reads.bam"),
+        tn5bam=join(RESULTSDIR,"visualization","{bamtype}","tn5sites_bam","{replicate}.tn5sites.bam"),
+        readsbed=join(RESULTSDIR,"visualization","{bamtype}","reads_bed","{replicate}.reads.bed.gz"), # these will be used by chromVar
+        readsbam=join(RESULTSDIR,"visualization","{bamtype}","reads_bam","{replicate}.reads.bam"),
     params:
         replicate="{replicate}",
+        bamtype="{bamtype}",
         genome=GENOME,
         genomefile=GENOMEFILE,
         scriptsdir=SCRIPTSDIR,
@@ -396,7 +412,7 @@ samtools index {output.readsbam}
 rule create_bigwigs:
 # """
 # Create spike-in scaled bigwigs for visualization
-# Input: tn5 and reads BAM files, scaling factors
+# Input: tn5 and reads BAM files (per {bamtype}: dedup or nondedup), scaling factors
 # Output: tn5 and reads bigwig files
 # This rule generates bigwig files from tn5 and reads BAM files, applying the scaling factors
 # computed from spike-in counts to normalize the coverage. The resulting bigwig files can be
@@ -407,11 +423,12 @@ rule create_bigwigs:
         readsbam=rules.create_tn5bams.output.readsbam,
         scaling_factors=rules.compute_scaling_factors.output.scaling_factors
     output:
-        tn5bw=join(RESULTSDIR,"visualization","tn5sites_bigwig","{replicate}.tn5sites.bw"),
-        readsbw=join(RESULTSDIR,"visualization","reads_bigwig","{replicate}.reads.bw"),
+        tn5bw=join(RESULTSDIR,"visualization","{bamtype}","tn5sites_bigwig","{replicate}.tn5sites.bw"),
+        readsbw=join(RESULTSDIR,"visualization","{bamtype}","reads_bigwig","{replicate}.reads.bw"),
     params:
         spikein=str(SPIKEIN).lower(),
         replicate="{replicate}",
+        bamtype="{bamtype}",
         scriptsdir=SCRIPTSDIR,
         script="_print_replicate_scaling_factor.py"
     container: config["deeptoolsdocker"]

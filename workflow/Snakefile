@@ -57,20 +57,20 @@ rule all:
         # spikein counts and scaling factors
         expand(join(RESULTSDIR, "spikein", "{replicate}", "{replicate}.counts"), replicate=REPLICATES),
         join(RESULTSDIR, "spikein", "scaling_factors.tsv"),
-        expand(join(RESULTSDIR, "peaks", "{peakcaller}", "fixed_width", "counts", "ROI.{peakcaller}.{method}_scaled_counts.tsv"), method=COUNTING_METHODS, peakcaller=PEAKCALLERS),
+        expand(join(RESULTSDIR, "peaks", "{peakcaller}", "fixed_width", "counts", "{bamtype}", "ROI.{peakcaller}.{method}_scaled_counts.tsv"), method=COUNTING_METHODS, peakcaller=PEAKCALLERS, bamtype=BAM_TYPES),
         # visualizations
-        expand(join(RESULTSDIR, "visualization", "{method}_bam", "{replicate}.{method}.bam"), method=COUNTING_METHODS, replicate=REPLICATES),
-        expand(join(RESULTSDIR, "visualization", "{method}_bigwig", "{replicate}.{method}.bw"), method=COUNTING_METHODS, replicate=REPLICATES),
-        expand(join(RESULTSDIR, "visualization", "reads_bed", "{replicate}.reads.bed.gz"), replicate=REPLICATES), # these will be used by chromVar
+        expand(join(RESULTSDIR, "visualization", "{bamtype}", "{method}_bam", "{replicate}.{method}.bam"), method=COUNTING_METHODS, replicate=REPLICATES, bamtype=BAM_TYPES),
+        expand(join(RESULTSDIR, "visualization", "{bamtype}", "{method}_bigwig", "{replicate}.{method}.bw"), method=COUNTING_METHODS, replicate=REPLICATES, bamtype=BAM_TYPES),
+        expand(join(RESULTSDIR, "visualization", "{bamtype}", "reads_bed", "{replicate}.reads.bed.gz"), replicate=REPLICATES, bamtype=BAM_TYPES), # these will be used by chromVar
         # regions of interest (ROI) gtf
         expand(join(PEAKSDIR, "{peakcaller}", "fixed_width", "ROI.{peakcaller}.gtf"), peakcaller=PEAKCALLERS),
         expand(join(PEAKSDIR, "{peakcaller}", "fixed_width", "ROI.{peakcaller}.bed.annotated.gz"), peakcaller=PEAKCALLERS),
-        # ROI counts matrix using both tn5sites and reads for each peakcaller
-        expand(join(PEAKSDIR, "{peakcaller}", "fixed_width", "counts", "ROI.{peakcaller}.{method}_counts.tsv"), method=COUNTING_METHODS, peakcaller=PEAKCALLERS),
+        # ROI counts matrix using both tn5sites and reads for each peakcaller, for both dedup and nondedup BAM types
+        expand(join(PEAKSDIR, "{peakcaller}", "fixed_width", "counts", "{bamtype}", "ROI.{peakcaller}.{method}_counts.tsv"), method=COUNTING_METHODS, peakcaller=PEAKCALLERS, bamtype=BAM_TYPES),
         # diffatac
-        expand(join(PEAKSDIR, "{peakcaller}", "DiffATAC", "{method}", "degs.done"), method=COUNTING_METHODS, peakcaller=PEAKCALLERS) if CONTRASTS.shape[0] > 0 else [],
+        expand(join(PEAKSDIR, "{peakcaller}", "DiffATAC", "{bamtype}", "{method}", "degs.done"), method=COUNTING_METHODS, peakcaller=PEAKCALLERS, bamtype=BAM_TYPES) if CONTRASTS.shape[0] > 0 else [],
         # aggregated diffatac results
-        expand(join(PEAKSDIR, "{peakcaller}", "DiffATAC", "{method}", "all_diff_atacs.tsv"), method=COUNTING_METHODS, peakcaller=PEAKCALLERS) if CONTRASTS.shape[0] > 0 else [],
+        expand(join(PEAKSDIR, "{peakcaller}", "DiffATAC", "{bamtype}", "{method}", "all_diff_atacs.tsv"), method=COUNTING_METHODS, peakcaller=PEAKCALLERS, bamtype=BAM_TYPES) if CONTRASTS.shape[0] > 0 else [],
 
 on_complete = f"""
 for cmd in spooker jobby; do

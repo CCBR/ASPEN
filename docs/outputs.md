@@ -68,14 +68,28 @@ WORKDIR
     ├── peaks
     │   ├── genrich
     │   │   ├── DiffATAC
-    │   │   │   ├── reads
-    │   │   │   └── tn5sites
+    │   │   │   ├── dedup
+    │   │   │   │   ├── reads
+    │   │   │   │   └── tn5sites
+    │   │   │   └── nondedup
+    │   │   │       ├── reads
+    │   │   │       └── tn5sites
     │   │   └── fixed_width
+    │   │       └── counts
+    │   │           ├── dedup
+    │   │           └── nondedup
     │   └── macs2
     │       ├── DiffATAC
-    │       │   ├── reads
-    │       │   └── tn5sites
+    │       │   ├── dedup
+    │       │   │   ├── reads
+    │       │   │   └── tn5sites
+    │       │   └── nondedup
+    │       │       ├── reads
+    │       │       └── tn5sites
     │       └── fixed_width
+    │           └── counts
+    │               ├── dedup
+    │               └── nondedup
     ├── QC
     │   ├── fastqc
     │   ├── fld
@@ -96,31 +110,34 @@ WORKDIR
     │   ├── genrichReads
     │   └── trim
     └── visualization
-        ├── reads_bam
-        ├── reads_bed
-        ├── reads_bigwig
-        ├── tn5sites_bam
-        └── tn5sites_bigwig
+        ├── dedup
+        │   ├── reads_bam
+        │   ├── reads_bed
+        │   ├── reads_bigwig
+        │   ├── tn5sites_bam
+        │   └── tn5sites_bigwig
+        └── nondedup
+            ├── reads_bam
+            ├── reads_bed
+            ├── reads_bigwig
+            ├── tn5sites_bam
+            └── tn5sites_bigwig
 ```
 
 Content details:
 
-| Folder        | SubFolder           | Description                                                                                                                                                                                                                                         |
-| ------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| alignment     | qsortedBam          | - Query sorted Bowtie2 alignments in BAM format. <br> - Excludes unmapped and platform/vendor quality failing reads. <br> - Used for Genrich peak calling.                                                                                          |
-| alignment     | filteredBam         | - Filtered BAM files after excluding non-primary, supplementary, and MAPQ <=5 alignments. <br> - Used for counting reads/tn5 nicks. <br> - Derived from `qsortedBam`.                                                                               |
-| alignment     | dedupBam            | - Deduplicated filtered BAM files. <br> - PCR or optical duplicates marked with PicardTools and excluded. <br> - Can be used downstream with CCBR_TOBIAS pipeline. <br> - Derived from `filteredBam`.                                               |
-| alignment     | tagAlign            | - `tagAlign.gz` files used for MACS2 peak calling. <br> - Derived from `dedupBam`.                                                                                                                                                                  |
-| peaks         | genrich & macs      | - Genrich/MACS2 peak calls (raw, consensus, fixed-width). <br> - Contains ROI files with Diff-ATAC results if `contrasts.tsv` is provided. <br> - Calculated with DESeq2 using both read counts and tn5 nicking sites in ROI.                       |
-| QC            | various             | - Flagstats. <br> - Dupmetrics. <br> - Read counts. <br> - Motif enrichments. <br> - FLD stats. <br> - Fqscreen. <br> - FRiP. <br> - ChIPSeeker results. <br> - TSS enrichments. <br> - Preseq. <br> - Homer/AME motif enrichments. <br> - MultiQC. |
-| QC            | peak_annotation     | detailed peak annotations described below                                                                                                                                                                                                           |
-| spikein       | 1 folder per sample | - Per sample spike-in counts. <br> - Overall scaling factors table.                                                                                                                                                                                 |
-| tmp           | various             | - Can be deleted. <br> - Blacklist index. <br> - Intermediate FASTQs. <br> - Genrich output reads.                                                                                                                                                  |
-| visualization | reads_bam           | - Tn5 nick adjusted reads in BAM format. <br> - Derived from `filteredBam`.                                                                                                                                                                         |
-| visualization | reads_bed           | - Tn5 nick adjusted reads in BED format. <br> - Derived from `reads_bam`. <br> - Can be used by ChromVar.                                                                                                                                           |
-| visualization | reads_bigwig        | - Tn5 nick adjusted reads in BIGWIG format. <br> - Scaled using spike-in scaling factors if present. <br> - Derived from `reads_bam`.                                                                                                               |
-| visualization | tn5sites_bam        | - Tn5 nicking sites in BAM format. <br> - Derived from `filteredBam`.                                                                                                                                                                               |
-| visualization | tn5sites_bigwig     | - Tn5 nicking sites in BIGWIG format. <br> - Scaled using spike-in scaling factors if present. <br> - Derived from `tn5sites_bam`.                                                                                                                  |
+| Folder        | SubFolder           | Description                                                                                                                                                                                                                                                                                                                                                                                                               |
+| ------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| alignment     | qsortedBam          | - Query sorted Bowtie2 alignments in BAM format. <br> - Excludes unmapped and platform/vendor quality failing reads. <br> - Used for Genrich peak calling.                                                                                                                                                                                                                                                                |
+| alignment     | filteredBam         | - Filtered BAM files after excluding non-primary, supplementary, and MAPQ <=5 alignments. <br> - This is the `nondedup` BAM (i.e. before duplicate removal) used for the `nondedup` counts/DiffATAC variant. <br> - Derived from `qsortedBam`.                                                                                                                                                                            |
+| alignment     | dedupBam            | - Deduplicated filtered BAM files (PCR/optical duplicates marked with PicardTools and excluded). <br> - Derived from `filteredBam`. <br> - Used for MACS2 peak calling, FRiP, and the recommended `dedup` counts/DiffATAC variant. <br> - Can also be used downstream with CCBR_TOBIAS pipeline.                                                                                                                          |
+| alignment     | tagAlign            | - `tagAlign.gz` files used for MACS2 peak calling. <br> - Derived from `dedupBam`.                                                                                                                                                                                                                                                                                                                                        |
+| peaks         | genrich & macs      | - Genrich/MACS2 peak calls (raw, consensus, fixed-width). <br> - Contains ROI files with Diff-ATAC results if `contrasts.tsv` is provided. <br> - Calculated with DESeq2 using both read counts and tn5 nicking sites in ROI. <br> - Counts matrices and DiffATAC results are generated separately for `dedup` (PCR duplicates removed, recommended) and `nondedup` (duplicates retained) BAMs, in like-named subfolders. |
+| visualization | dedup / nondedup    | - Tn5 nicking-site/read BAMs, BEDs, and bigwigs, split into `dedup` and `nondedup` subfolders depending on whether PCR duplicates were removed from the source BAM before generating them.                                                                                                                                                                                                                                |
+| QC            | various             | - Flagstats. <br> - Dupmetrics. <br> - Read counts. <br> - Motif enrichments. <br> - FLD stats. <br> - Fqscreen. <br> - FRiP. <br> - ChIPSeeker results. <br> - TSS enrichments. <br> - Preseq. <br> - Homer/AME motif enrichments. <br> - MultiQC.                                                                                                                                                                       |
+| QC            | peak_annotation     | detailed peak annotations described below                                                                                                                                                                                                                                                                                                                                                                                 |
+| spikein       | 1 folder per sample | - Per sample spike-in counts. <br> - Overall scaling factors table.                                                                                                                                                                                                                                                                                                                                                       |
+| tmp           | various             | - Can be deleted. <br> - Blacklist index. <br> - Intermediate FASTQs. <br> - Genrich output reads.                                                                                                                                                                                                                                                                                                                        |
 
 !!! note
 BAM files from `dedupBam` can be used for downstream footprinting analysis using [CCBR_TOBIAS](https://github.com/CCBR/CCBR_Tobias) pipeline
@@ -133,8 +150,32 @@ BAM files from `dedupBam` can also be converted to BED format and processed with
 
 #### How consensus peaks are generated
 
+**Why two rounds?** A single replicate's peak calls are noisy — some "peaks"
+are just sequencing/technical artifacts that happened to occur in one
+replicate. Pooling and filtering peaks _within_ a sample (Round 1) gives a
+reproducibility-checked, per-sample truth set. But differential accessibility
+testing needs to compare counts _across_ samples/conditions, which requires
+one shared set of regions measured identically everywhere — a per-sample
+peak set alone doesn't give you that. Round 2 solves this by merging the
+per-sample consensus peaks into a single, fixed-width Region of Interest
+(ROI) set shared by every sample, so the same coordinates can be quantified
+and compared across the whole experiment.
+
 ASPEN produces peaks at two levels of consensus. Understanding the distinction is
 important for interpreting output files and configuring the pipeline correctly.
+
+ASPEN generates three related-but-distinct peak representations, not three
+competing choices: `pooled.narrowPeak` (diagnostic — how many peaks exist in
+the pooled replicate data, before requiring individual-replicate
+reproducibility), `consensus.bed` (Round 1 — variable-width,
+reproducibility-filtered peaks per sample, useful for peak annotation and for
+comparing against other pipelines' conventional peak outputs), and the
+`fixed_width` consensus (Round 2 — same width for every ROI, specifically so
+that read/Tn5 counts and DESeq2 differential testing aren't confounded by
+peak-length differences or broken by daisy-chained merges across many
+samples). **Use the fixed-width ROI set for differential accessibility
+testing; use `consensus.bed`/`pooled.narrowPeak` for peak annotation, QC, or
+cross-pipeline comparison.**
 
 **Round 1 — Per-sample consensus** (`*.macs2.consensus.bed` / `*.genrich.consensus.bed`)
 
@@ -142,7 +183,7 @@ important for interpreting output files and configuring the pipeline correctly.
 
 1. All replicate tagAlign files for a sample are **pooled** and passed to MACS2/Genrich together → produces a large set of candidate peaks from the pooled data.
 2. Each candidate peak is checked for overlap with peaks called in each **individual replicate**.
-3. A peak is retained in the consensus only if it overlaps peaks in **≥ `consensus_min_replicates`** replicates (default: 1, meaning present in at least 1 replicate). Adjust `consensus_min_replicates` in `config.yaml` to make this filter stricter.
+3. A peak is retained in the consensus only if it overlaps peaks in **≥ `consensus_min_replicates`** replicates (default: 2, meaning present in at least 2 replicates). Adjust `consensus_min_replicates` in `config.yaml` to make this filter stricter.
 
 ```
 replicate 1 peaks ─┐
@@ -155,8 +196,9 @@ replicate 3 peaks ─┘                    (≥ min_replicates)
 > _"Across ALL samples, what is the unified set of fixed-width windows for differential accessibility analysis?"_
 
 1. Per-sample consensus peaks are converted to **fixed-width windows** (default: 500 bp, centered on the peak summit) using the method from [Corces et al. 2018](https://doi.org/10.1038/nmeth.4396). Window width is controlled by `fixed_width` in `config.yaml`.
-2. Fixed-width peaks from all samples are **merged** → `ROI.macs2.bed` — the master set of regions used for DESeq2 read counting and differential accessibility analysis.
-3. P-values across the fixed-width consensus are re-normalized (`*.renormalized.fixed_width.consensus.narrowPeak`) to account for the pooling.
+2. Each fixed-width peak is additionally required to overlap peaks in **≥ `roi_min_replicates`** samples/replicates (default: 1) and to meet the **`roi_min_spm`** signal-per-million threshold (default: 2) — analogous to, but independent from, the Round 1 `consensus_min_*` filters above. Adjust `roi_min_replicates`/`roi_min_spm` in `config.yaml` to change how strict this cross-sample filter is.
+3. Fixed-width peaks passing that filter are **merged** → `ROI.macs2.bed` — the master set of regions used for DESeq2 read counting and differential accessibility analysis.
+4. P-values across the fixed-width consensus are re-normalized (`*.renormalized.fixed_width.consensus.narrowPeak`) to account for the pooling.
 
 ```
 sample1.consensus.bed ─► fixed-width peaks ─┐
@@ -166,11 +208,27 @@ sample3.consensus.bed ─► fixed-width peaks ─┘
 
 !!! tip "Config knobs that control consensus"
 
-| Parameter                  | Default | Effect                                                                       |
-| -------------------------- | ------- | ---------------------------------------------------------------------------- |
-| `consensus_min_replicates` | `1`     | Min. replicates a peak must appear in to be retained in per-sample consensus |
-| `consensus_min_spm`        | `5`     | Min. signal-per-million reads threshold for a peak to be included            |
-| `fixed_width`              | `500`   | Width (bp) of fixed-width peaks used to build the ROI set                    |
+| Parameter                  | Default | Round | Effect                                                                                   |
+| -------------------------- | ------- | ----- | ---------------------------------------------------------------------------------------- |
+| `consensus_min_replicates` | `2`     | 1     | Min. replicates a peak must appear in to be retained in per-sample consensus             |
+| `consensus_min_spm`        | `5`     | 1     | Min. signal-per-million reads threshold for a peak to be included                        |
+| `roi_min_replicates`       | `1`     | 2     | Min. samples/replicates a fixed-width peak must appear in to be kept in the ROI set      |
+| `roi_min_spm`              | `2`     | 2     | Min. signal-per-million reads threshold for a fixed-width peak to be kept in the ROI set |
+| `fixed_width`              | `500`   | 1     | Width (bp) of fixed-width peaks used to build the ROI set                                |
+
+#### Counts matrices: reads vs Tn5 nicking sites, and `dedup` vs `nondedup`
+
+Once the ROIs are established, ASPEN generates two distinct count matrices:
+
+- **Tn5 Nicking Sites Count Matrix**: This matrix quantifies the frequency of Tn5 transposase insertion events at each ROI. The number of insertion events serves as a proxy for chromatin accessibility, since Tn5 transposase preferentially inserts into accessible regions of the chromatin. By counting these insertion sites, researchers can accurately infer the openness of chromatin regions under different experimental conditions.
+
+- **Read Counts Matrix**: This matrix records the number of sequencing reads mapped to each ROI. While Tn5 nicking sites provide a more direct measure of chromatin accessibility, read counts are included in ASPEN as they have been widely used in recent publications. Analyzing both matrices together offers a comprehensive view of chromatin accessibility dynamics.
+
+Both count matrices (and the corresponding DiffATAC/DESeq2 results) are generated **twice** — once from `dedup.bam` (PCR/optical duplicates removed) and once from `filtered.bam` (quality-filtered, duplicates retained, labeled `nondedup`) — under separate `dedup`/`nondedup` output folders (see the folder tree above). Previously only the duplicate-retaining `filtered.bam` was used, which was inconsistent with how MACS2 peaks are called (from `dedup.bam`-derived `tagAlign.gz`) and how FRiP is computed (also from `dedup.bam`).
+
+**Recommendation: use the `dedup` counts/DiffATAC results for standard differential accessibility analysis.** PCR duplication rate varies across samples (input amount, PCR cycles, library complexity), and this variability is not corrected by DESeq2/edgeR size factors — leaving duplicates in can confound differential calls. This also matches standard ATAC-seq practice (e.g. the ENCODE ATAC-seq pipeline, ArchR, Signac).
+
+The `nondedup` outputs are retained for comparison/legacy reasons, with one caveat worth knowing: because Tn5 preferentially inserts into a limited set of highly accessible positions, independent DNA molecules can genuinely land on the same insertion coordinate at very open/narrow sites, and naive deduplication can occasionally discard some true (non-PCR) signal there. Picard's paired-end duplicate definition (which requires _both_ fragment ends to match, not just one nick site) substantially — though not perfectly — mitigates this. If you suspect this is affecting your data, cross-check the per-replicate NRF/PBC (`QC/preseq`) library-complexity metrics: unexpectedly high duplication despite high library complexity points to this effect rather than true PCR over-amplification.
 
 #### Peak Annotation folder
 
@@ -237,18 +295,32 @@ WORKDIR
             ├── sample1.consensus.macs2.peakfiles
             ├── sample1.replicate.macs2.peakfiles
             ├── DiffATAC
-            │   ├── reads
-            │   │   ├── all_diff_atacs.html
-            │   │   ├── all_diff_atacs.tsv
-            │   │   ├── degs.done
-            │   │   ├── sample2_vs_sample1.html
-            │   │   └── sample2_vs_sample1.tsv
-            │   └── tn5sites
-            │       ├── all_diff_atacs.html
-            │       ├── all_diff_atacs.tsv
-            │       ├── degs.done
-            │       ├── sample2_vs_sample1.html
-            │       └── sample2_vs_sample1.tsv
+            │   ├── dedup
+            │   │   ├── reads
+            │   │   │   ├── all_diff_atacs.html
+            │   │   │   ├── all_diff_atacs.tsv
+            │   │   │   ├── degs.done
+            │   │   │   ├── sample2_vs_sample1.html
+            │   │   │   └── sample2_vs_sample1.tsv
+            │   │   └── tn5sites
+            │   │       ├── all_diff_atacs.html
+            │   │       ├── all_diff_atacs.tsv
+            │   │       ├── degs.done
+            │   │       ├── sample2_vs_sample1.html
+            │   │       └── sample2_vs_sample1.tsv
+            │   └── nondedup
+            │       ├── reads
+            │       │   ├── all_diff_atacs.html
+            │       │   ├── all_diff_atacs.tsv
+            │       │   ├── degs.done
+            │       │   ├── sample2_vs_sample1.html
+            │       │   └── sample2_vs_sample1.tsv
+            │       └── tn5sites
+            │           ├── all_diff_atacs.html
+            │           ├── all_diff_atacs.tsv
+            │           ├── degs.done
+            │           ├── sample2_vs_sample1.html
+            │           └── sample2_vs_sample1.tsv
             ├── sample2
             │   ├── sample2_replicate1.macs2.narrowPeak
             │   ├── sample2_replicate1.macs2.narrowPeak_motif_enrichment
@@ -294,8 +366,12 @@ WORKDIR
                 ├── sample1.renormalized.fixed_width.consensus.narrowPeak
                 ├── sample1.renormalized.fixed_width.consensus.narrowPeak.annotated.gz
                 ├── counts
-                │   ├── ROI.macs2.reads_counts.tsv
-                │   └── ROI.macs2.tn5sites_counts.tsv
+                │   ├── dedup
+                │   │   ├── ROI.macs2.reads_counts.tsv
+                │   │   └── ROI.macs2.tn5sites_counts.tsv
+                │   └── nondedup
+                │       ├── ROI.macs2.reads_counts.tsv
+                │       └── ROI.macs2.tn5sites_counts.tsv
                 ├── sample2_replicate1.macs2.fixed_width.narrowPeak
                 ├── sample2_replicate2.macs2.fixed_width.narrowPeak
                 ├── sample2.fixed_width.consensus.narrowPeak
@@ -315,20 +391,20 @@ WORKDIR
 
 Some of the key output files are:
 
-| File                                                | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `*.macs2.narrowPeak`                                | peak calls from MACS2 filtered by q-value for each samples each replicate                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| `*.macs2.unfiltered.narrowPeak`                     | peak calls from MACS2 (unfiltered) for each samples each replicate                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| `*.narrowPeak_motif_enrichment/ame_results.txt`     | motif enrichment results from AME tool from MEME suite using HOCOMOCO v11 database                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| `*.narrowPeak_motif_enrichment/knownResults.txt`    | motif enrichment results using HOMER with HOCOMOCO v11 database                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `*.macs2.consensus.bed`                             | consensus peak call between multiple replicates of each sample. **Note:** consensus bed annotations are located in `QC/peak_annotations`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| `DiffATAC/reads`                                    | folder containing differential open chromatin results: <br> - computated using read counts in MACS2 regions of interest (ROIs) <br> - `all_diff_atacs.html` HTML report aggregated across all contrasts from `contrasts.tsv` <br> - `all_diff_atacs.tsv` DESeq2 results in TSV format aggregated across all contrasts from `contrasts.tsv` <br> - HTML and TSV file each per contrast in `contrasts.tsv`                                                                                                                                                                                                                                   |
-| `DiffATAC/tn5sites`                                 | folder containing differential open chromatin results: <br> - computated using Tn5 nicking site counts in MACS2 regions of interest (ROIs) <br> - `all_diff_atacs.html` HTML report aggregated across all contrasts from `contrasts.tsv` <br> - `all_diff_atacs.tsv` DESeq2 results in TSV format aggregated across all contrasts from `contrasts.tsv` <br> - HTML and TSV file each per contrast in `contrasts.tsv`                                                                                                                                                                                                                       |
-| `fixed_width`                                       | `fixed_width` can be set in `config.yaml` to create peaks of a user defined fixed width (default 500bp). This folder contains: <br> - individual replicate `*.fixed_width.narrowPeak` files <br> - `*.renormalized.fixed_width.consensus.narrowPeak` per sample; [_Corces et. al._](https://doi.org/10.1038/nmeth.4396) method is used for consensus calling; used to generate MACS2 regions of interest (ROI) peaks which are used to generate a reads or Tn5 sites counts matrix for DESeq2 <br> - ROI related files: `ROI.macs2.bed`, `ROI.macs2.bed.annotated.gz`, `ROI.macs2.annotation_summary`, `ROI.macs2.annotation_distribution` |
-| `fixed_width/counts/ROI.macs2.read_counts.tsv`      | read counts in MACS2 ROIs using featureCounts                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| `fixed_width/counts/ROI.reads_scaled_counts.tsv`    | `ROI.macs2.read_counts.tsv` scaled using spike-in scaling factors                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| `fixed_width/counts/ROI.tn5sites_counts.tsv`        | Tn5 nicking site counts in MACS2 ROIs using featureCounts                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| `fixed_width/counts/ROI.tn5sites_scaled_counts.tsv` | `ROI.macs2.tn5sites_counts.tsv` scaled using spike-in scaling factors                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| File                                                                 | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `*.macs2.narrowPeak`                                                 | peak calls from MACS2 filtered by q-value for each samples each replicate                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `*.macs2.unfiltered.narrowPeak`                                      | peak calls from MACS2 (unfiltered) for each samples each replicate                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `*.narrowPeak_motif_enrichment/ame_results.txt`                      | motif enrichment results from AME tool from MEME suite using HOCOMOCO v11 database                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `*.narrowPeak_motif_enrichment/knownResults.txt`                     | motif enrichment results using HOMER with HOCOMOCO v11 database                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `*.macs2.consensus.bed`                                              | consensus peak call between multiple replicates of each sample. **Note:** consensus bed annotations are located in `QC/peak_annotations`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `DiffATAC/dedup/reads`, `DiffATAC/nondedup/reads`                    | folder containing differential open chromatin results: <br> - computated using read counts in MACS2 regions of interest (ROIs) <br> - `dedup` uses `dedup.bam`-derived counts (PCR/optical duplicates removed, recommended); `nondedup` uses `filtered.bam`-derived counts (duplicates retained) <br> - `all_diff_atacs.html` HTML report aggregated across all contrasts from `contrasts.tsv` <br> - `all_diff_atacs.tsv` DESeq2 results in TSV format aggregated across all contrasts from `contrasts.tsv` <br> - HTML and TSV file each per contrast in `contrasts.tsv`                                                                 |
+| `DiffATAC/dedup/tn5sites`, `DiffATAC/nondedup/tn5sites`              | folder containing differential open chromatin results: <br> - computated using Tn5 nicking site counts in MACS2 regions of interest (ROIs) <br> - `dedup` uses `dedup.bam`-derived counts (PCR/optical duplicates removed, recommended); `nondedup` uses `filtered.bam`-derived counts (duplicates retained) <br> - `all_diff_atacs.html` HTML report aggregated across all contrasts from `contrasts.tsv` <br> - `all_diff_atacs.tsv` DESeq2 results in TSV format aggregated across all contrasts from `contrasts.tsv` <br> - HTML and TSV file each per contrast in `contrasts.tsv`                                                     |
+| `fixed_width`                                                        | `fixed_width` can be set in `config.yaml` to create peaks of a user defined fixed width (default 500bp). This folder contains: <br> - individual replicate `*.fixed_width.narrowPeak` files <br> - `*.renormalized.fixed_width.consensus.narrowPeak` per sample; [_Corces et. al._](https://doi.org/10.1038/nmeth.4396) method is used for consensus calling; used to generate MACS2 regions of interest (ROI) peaks which are used to generate a reads or Tn5 sites counts matrix for DESeq2 <br> - ROI related files: `ROI.macs2.bed`, `ROI.macs2.bed.annotated.gz`, `ROI.macs2.annotation_summary`, `ROI.macs2.annotation_distribution` |
+| `fixed_width/counts/{dedup,nondedup}/ROI.macs2.read_counts.tsv`      | read counts in MACS2 ROIs using featureCounts; generated separately from `dedup.bam` (duplicates removed, recommended) and `filtered.bam`/`nondedup` (duplicates retained)                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `fixed_width/counts/{dedup,nondedup}/ROI.reads_scaled_counts.tsv`    | `ROI.macs2.read_counts.tsv` scaled using spike-in scaling factors                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `fixed_width/counts/{dedup,nondedup}/ROI.tn5sites_counts.tsv`        | Tn5 nicking site counts in MACS2 ROIs using featureCounts; generated separately from `dedup.bam` (duplicates removed, recommended) and `filtered.bam`/`nondedup` (duplicates retained)                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `fixed_width/counts/{dedup,nondedup}/ROI.tn5sites_scaled_counts.tsv` | `ROI.macs2.tn5sites_counts.tsv` scaled using spike-in scaling factors                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
 ### Genrich output folder
 
