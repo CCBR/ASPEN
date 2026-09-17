@@ -1,3 +1,5 @@
+## ASPEN development version
+
 ## ASPEN 1.3.0
 
 - Generate Tn5 nicking-site and read counts matrices, and the corresponding DiffATAC/DESeq2 results, from both `dedup.bam` (PCR/optical duplicates removed) and `filtered.bam` (duplicates retained, labeled `nondedup`), written to separate `dedup`/`nondedup` output subfolders under `visualization/` and `peaks/{peakcaller}/{fixed_width/counts,DiffATAC}/`; previously only the duplicate-retaining `filtered.bam` was used. `dedup` is recommended for standard differential accessibility testing. (#138, @kopardev)
