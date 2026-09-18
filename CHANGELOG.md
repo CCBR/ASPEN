@@ -1,5 +1,7 @@
 ## ASPEN development version
 
+- Add structured pipeline state tracking: a `pipeline.status.json` sidecar and `pipeline.{running,completed,failed,canceled}` marker files are now written to `WORKDIR` during `run`, with a live progress monitor that periodically updates `pipeline.running` with a step-completion percentage; a best-effort `jobby` TSV summary (`snakemake.log.jobby`) is now also generated when Slurm submission fails before Snakemake starts. Consolidated shared logging/banner/version-tag helper functions into a new staged library (`workflow/scripts/ccbr_pipeline_logging.sh`, slated for future migration to `ccbr_tools`); redesigned the `--version`/banner output. (#119, @kopardev)
+
 ## ASPEN 1.3.0
 
 - Generate Tn5 nicking-site and read counts matrices, and the corresponding DiffATAC/DESeq2 results, from both `dedup.bam` (PCR/optical duplicates removed) and `filtered.bam` (duplicates retained, labeled `nondedup`), written to separate `dedup`/`nondedup` output subfolders under `visualization/` and `peaks/{peakcaller}/{fixed_width/counts,DiffATAC}/`; previously only the duplicate-retaining `filtered.bam` was used. `dedup` is recommended for standard differential accessibility testing. (#138, @kopardev)

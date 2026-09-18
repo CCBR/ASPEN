@@ -81,11 +81,13 @@ Here is what help looks like:
 ##########################################################################################
 
 Welcome to
-____ ____ ___  ____ _  _
-|__| [__  |__] |___ |\ |
-|  | ___] |    |___ | \|
 
-A_TAC_S_eq A_nalysis P_ip_E_li_N_e
+╔══════════════════════════════════╗
+║  ASPEN PIPELINE                  ║
+║  v1.3.0                          ║
+╚══════════════════════════════════╝
+
+ATAC-Seq Analysis Pipeline
 
 ##########################################################################################
 
@@ -144,8 +146,8 @@ VersionInfo:
   python          : python/3.10
   snakemake       : snakemake
   pipeline_home   : /data/CCBR_Pipeliner/Pipelines/ASPEN/feature_spikeins
-  git commit/tag  : 4ab396420595c4ccf15416a4c11b523b2d0db862    v1.2.0
-  aspen_version   : v1.2.0
+  git commit/tag  : 8d197d39927be3f60558911bd8b2756f36835deb    v1.3.0
+  aspen_version   : v1.3.0
 
 ##########################################################################################
 ```
@@ -299,3 +301,21 @@ To quickly gauge the process of the entire pipeline run:
 ```bash
 grep "done$" <path_to_output_folder>/snakemake.log
 ```
+
+### 📝 Lightweight Status Checks via Pipeline State Markers
+
+In addition to `squeue`/`scontrol`, ASPEN writes a set of state-tracking files directly into `WORKDIR` while a `run` is executing, so you don't need Slurm access (e.g. from a laptop over `ssh`) to check on a run:
+
+- `pipeline.running`, `pipeline.completed`, `pipeline.failed`, `pipeline.canceled` — exactly one of these marker files exists at a time, reflecting the current state. While the pipeline is running, `pipeline.running` is periodically refreshed by a background progress monitor with a human-readable summary, including the percentage of Snakemake steps completed so far:
+
+    ```bash
+    cat <path_to_output_folder>/pipeline.running
+    ```
+
+- `pipeline.status.json` — a machine-readable sidecar with the same information (`state`, `reason`, `slurm_job_id`, start/end timestamps, `duration_seconds`, `tasks_done`/`tasks_total`, `exit_code`), useful for scripting/automation:
+
+    ```bash
+    cat <path_to_output_folder>/pipeline.status.json
+    ```
+
+- `snakemake.log.jobby` / `snakemake.log.jobby.short` — a `jobby` TSV summary of per-rule/job resource usage, generated as a best-effort step after the run finishes (even if the Slurm submission itself failed before Snakemake started).

@@ -7,7 +7,7 @@ site_description: >-
 # Repository
 repo_name: CCBR/ASPEN
 repo_url: https://github.com/CCBR/ASPEN
-edit_uri: https://github.com/CCBR/ASPEN/edit/main/docs/
+edit_uri: ""
 
 # Copyright
 copyright: Copyright &copy; {{ now().year }} CCBR

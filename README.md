@@ -10,8 +10,10 @@
 ## QuickStart guide
 
 ```bash
-module load ccbrpipeliner/7
+module load ccbrpipeliner
 ```
+
+> **Note**: This is illustrative example output captured at doc-writing time — exact values (e.g. `pipeline_home`, `git commit/tag`, `aspen_version`) will differ depending on which ASPEN version/branch is installed at your site. Run `aspen --help` yourself to see the current values for your installation.
 
 ```bash
 aspen --help
@@ -21,11 +23,13 @@ aspen --help
 ##########################################################################################
 
 Welcome to
-____ ____ ___  ____ _  _
-|__| [__  |__] |___ |\ |
-|  | ___] |    |___ | \|    v1.2.0
 
-A_TAC_S_eq A_nalysis P_ip_E_li_N_e
+╔══════════════════════════════════╗
+║  ASPEN PIPELINE                  ║
+║  v1.3.0                          ║
+╚══════════════════════════════════╝
+
+ATAC-Seq Analysis Pipeline
 
 ##########################################################################################
 
@@ -41,6 +45,8 @@ Here is a list of genome supported by aspen:
   * mm10          [Mouse]
   * mmul10        [Macaca mulatta(Rhesus monkey) or rheMac10]
   * bosTau9       [Bos taurus(cattle)]
+  * hs1           [Human T2T-CHM13]
+  * hs1_chrR      [Human T2T-CHM13 + chrR rDNA unit]
 
 aspen calls peaks using the following tools:
 
@@ -48,7 +54,7 @@ aspen calls peaks using the following tools:
  * Genrich        [RECOMMENDED FOR USE]
 
 USAGE:
-  bash /data/CCBR_Pipeliner/Pipelines/ASPEN/release/1.2.0/aspen -w/--workdir=<WORKDIR> -m/--runmode=<RUNMODE>
+  bash /data/CCBR_Pipeliner/Pipelines/ASPEN/release/1.3.0/aspen -w/--workdir=<WORKDIR> -m/--runmode=<RUNMODE>
 
 Required Arguments:
 1.  WORKDIR     : [Type: String]: Absolute or relative path to the output folder with write permissions.
@@ -72,18 +78,18 @@ Optional Arguments:
 --help|-h       : print this help
 
 Example commands:
-  bash /data/CCBR_Pipeliner/Pipelines/ASPEN/release/1.2.0/aspen -w=/my/output/folder -m=init
-  bash /data/CCBR_Pipeliner/Pipelines/ASPEN/release/1.2.0/aspen -w=/my/output/folder -m=dryrun
-  bash /data/CCBR_Pipeliner/Pipelines/ASPEN/release/1.2.0/aspen -w=/my/output/folder -m=run
+  bash /data/CCBR_Pipeliner/Pipelines/ASPEN/release/1.3.0/aspen -w=/my/output/folder -m=init
+  bash /data/CCBR_Pipeliner/Pipelines/ASPEN/release/1.3.0/aspen -w=/my/output/folder -m=dryrun
+  bash /data/CCBR_Pipeliner/Pipelines/ASPEN/release/1.3.0/aspen -w=/my/output/folder -m=run
 
 ##########################################################################################
 
 VersionInfo:
   python          : python/3.10
   snakemake       : snakemake
-  pipeline_home   : /data/CCBR_Pipeliner/Pipelines/ASPEN/release/1.2.0
-  git commit/tag  : 4ab396420595c4ccf15416a4c11b523b2d0db862    v1.2.0
-  aspen_version   : v1.2.0
+  pipeline_home   : /data/CCBR_Pipeliner/Pipelines/ASPEN/release/1.3.0
+  git commit/tag  : 8d197d39927be3f60558911bd8b2756f36835deb    v1.3.0
+  aspen_version   : v1.3.0
 
 ##########################################################################################
 ```
