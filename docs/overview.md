@@ -138,7 +138,28 @@ Per [ENCODE's ATAC-seq data standards](https://www.encodeproject.org/atac-seq/#s
 
 ### 🔑 **HOMER and AME**
 
-ASPEN integrates motif enrichment analysis tools, including HOMER and AME, to identify transcription factor binding motifs within accessible chromatin regions. This analysis provides valuable insights into the regulatory mechanisms governing gene expression. By uncovering enriched motifs, researchers can infer the potential transcription factors driving chromatin accessibility changes and identify key regulators of cellular processes. The combination of HOMER and AME ensures a comprehensive and robust approach to motif discovery, facilitating the interpretation of ATAC-seq data in the context of gene regulation and epigenetic control. HOCOMOCO v11 motifs, which are bundled as resources with ASPEN, are used for both motif enrichment tools.
+ASPEN runs motif enrichment on replicate peak calls and sample-level consensus
+peak sets using the bundled HOCOMOCO v11 motif collection. HOMER is used first
+in known-motif mode to generate matched target/background FASTA files, and AME
+then reuses those exact FASTA files for a second target-versus-background test.
+This gives you two complementary views of motif enrichment without changing the
+underlying sequence set between tools.
+
+ASPEN intentionally disables HOMER's de novo motif discovery in this step. That
+keeps runtime manageable and focuses the default report on known motif families.
+If a project later needs de novo motif discovery, that can be added as a
+separate workflow enhancement rather than mixed into the default run.
+
+!!! tip "Rule of thumb"
+Start by looking for motif families that are strong in **both** HOMER and
+AME. In HOMER, focus on motifs with very small `p-value`/`q-value` values
+and a clear increase in `% of Target Sequences with Motif` relative to
+background. In AME, focus on low `adj_p-value`/`E-value` hits where `%TP`
+is clearly higher than `%FP`.
+
+Detailed file locations and interpretation notes for `knownResults.txt`,
+`ame_results.txt`, `target.fa`, and `background.fa` are documented in
+[docs/outputs.md](outputs.md).
 
 ## 📜 **Comprehensive Reporting**
 

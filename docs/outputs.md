@@ -138,7 +138,7 @@ Content details:
 | alignment     | tagAlign            | - `tagAlign.gz` files used for MACS2 peak calling. <br> - Derived from `dedupBam`.                                                                                                                                                                                                                                                                                                                                        |
 | peaks         | genrich & macs      | - Genrich/MACS2 peak calls (raw, consensus, fixed-width). <br> - Contains ROI files with Diff-ATAC results if `contrasts.tsv` is provided. <br> - Calculated with DESeq2 using both read counts and tn5 nicking sites in ROI. <br> - Counts matrices and DiffATAC results are generated separately for `dedup` (PCR duplicates removed, recommended) and `nondedup` (duplicates retained) BAMs, in like-named subfolders. |
 | visualization | dedup / nondedup    | - Tn5 nicking-site/read BAMs, BEDs, and bigwigs, split into `dedup` and `nondedup` subfolders depending on whether PCR duplicates were removed from the source BAM before generating them.                                                                                                                                                                                                                                |
-| QC            | various             | - Flagstats. <br> - Dupmetrics. <br> - Read counts. <br> - Motif enrichments. <br> - FLD stats. <br> - Fqscreen. <br> - FRiP. <br> - ChIPSeeker results. <br> - TSS enrichments. <br> - Preseq. <br> - Homer/AME motif enrichments. <br> - MultiQC.                                                                                                                                                                       |
+| QC            | various             | - Flagstats. <br> - Dupmetrics. <br> - Read counts. <br> - FLD stats. <br> - Fqscreen. <br> - FRiP. <br> - ChIPSeeker results. <br> - TSS enrichments. <br> - Preseq. <br> - MultiQC. <br> - A small `*.motif_enrichment` completion marker is written here, but the actual HOMER/AME result files live under `results/peaks/{macs2,genrich}/{sample or replicate}/*_motif_enrichment/`.                                  |
 | QC            | peak_annotation     | detailed peak annotations described below                                                                                                                                                                                                                                                                                                                                                                                 |
 | spikein       | 1 folder per sample | - Per sample spike-in counts. <br> - Overall scaling factors table.                                                                                                                                                                                                                                                                                                                                                       |
 | tmp           | various             | - Can be deleted. <br> - Blacklist index. <br> - Intermediate FASTQs. <br> - Genrich output reads.                                                                                                                                                                                                                                                                                                                        |
@@ -399,8 +399,12 @@ Some of the key output files are:
 | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `*.macs2.narrowPeak`                                                 | peak calls from MACS2 filtered by q-value for each samples each replicate                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | `*.macs2.unfiltered.narrowPeak`                                      | peak calls from MACS2 (unfiltered) for each samples each replicate                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| `*.narrowPeak_motif_enrichment/ame_results.txt`                      | motif enrichment results from AME tool from MEME suite using HOCOMOCO v11 database                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| `*.narrowPeak_motif_enrichment/knownResults.txt`                     | motif enrichment results using HOMER with HOCOMOCO v11 database                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `*_motif_enrichment/knownResults.txt`                                | tabular HOMER known-motif enrichment results using the bundled HOCOMOCO v11 database. This is the easiest file to sort/filter in Excel or R. Key columns include motif name, consensus sequence, p-value, q-value, and the percentage of target vs. background sequences containing the motif.                                                                                                                                                                                                                                                                                                                                             |
+| `*_motif_enrichment/knownResults.html`                               | browser-friendly view of the same HOMER known-motif results, useful for quick review of motif logos and enrichment statistics before moving into downstream filtering.                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `*_motif_enrichment/ame_results.txt`                                 | combined AME motif enrichment results using the bundled HOCOMOCO v11 MEME-format motifs. ASPEN runs many small AME jobs in parallel and then merges them into this one ranked table. Important columns include `adj_p-value`, `E-value`, `TP`, `%TP`, `FP`, and `%FP`. A short `# CTCF_enrichment = ...` line is appended at the end as a simple CTCF-specific sanity check.                                                                                                                                                                                                                                                               |
+| `*_motif_enrichment/target.fa`                                       | FASTA sequences from the input peaks. These are produced by HOMER with `-dumpFasta` and then reused directly as the primary input to AME, so both tools test the same peak sequences.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `*_motif_enrichment/background.fa`                                   | GC/CpG-matched background FASTA sequences generated by HOMER. ASPEN passes this same file to AME with `--control`, which keeps the HOMER and AME comparisons aligned.                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `*_motif_enrichment/motifFindingParameters.txt`                      | exact HOMER command-line parameters recorded by HOMER. This is the first place to check when you want to confirm what settings were used for motif enrichment in a finished run.                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | `*.macs2.consensus.bed`                                              | consensus peak call between multiple replicates of each sample. **Note:** consensus bed annotations are located in `QC/peak_annotations`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | `DiffATAC/dedup/reads`, `DiffATAC/nondedup/reads`                    | folder containing differential open chromatin results: <br> - computated using read counts in MACS2 regions of interest (ROIs) <br> - `dedup` uses `dedup.bam`-derived counts (PCR/optical duplicates removed, recommended); `nondedup` uses `filtered.bam`-derived counts (duplicates retained) <br> - `all_diff_atacs.html` HTML report aggregated across all contrasts from `contrasts.tsv` <br> - `all_diff_atacs.tsv` DESeq2 results in TSV format aggregated across all contrasts from `contrasts.tsv` <br> - HTML and TSV file each per contrast in `contrasts.tsv`                                                                 |
 | `DiffATAC/dedup/tn5sites`, `DiffATAC/nondedup/tn5sites`              | folder containing differential open chromatin results: <br> - computated using Tn5 nicking site counts in MACS2 regions of interest (ROIs) <br> - `dedup` uses `dedup.bam`-derived counts (PCR/optical duplicates removed, recommended); `nondedup` uses `filtered.bam`-derived counts (duplicates retained) <br> - `all_diff_atacs.html` HTML report aggregated across all contrasts from `contrasts.tsv` <br> - `all_diff_atacs.tsv` DESeq2 results in TSV format aggregated across all contrasts from `contrasts.tsv` <br> - HTML and TSV file each per contrast in `contrasts.tsv`                                                     |
@@ -409,6 +413,110 @@ Some of the key output files are:
 | `fixed_width/counts/{dedup,nondedup}/ROI.reads_scaled_counts.tsv`    | `ROI.macs2.read_counts.tsv` scaled using spike-in scaling factors                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | `fixed_width/counts/{dedup,nondedup}/ROI.tn5sites_counts.tsv`        | Tn5 nicking site counts in MACS2 ROIs using featureCounts; generated separately from `dedup.bam` (duplicates removed, recommended) and `filtered.bam`/`nondedup` (duplicates retained)                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | `fixed_width/counts/{dedup,nondedup}/ROI.tn5sites_scaled_counts.tsv` | `ROI.macs2.tn5sites_counts.tsv` scaled using spike-in scaling factors                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+
+#### How motif enrichment is generated
+
+ASPEN runs motif enrichment on both replicate peak calls (`*.narrowPeak`) and
+sample-level consensus peak sets (`*.consensus.bed`). The output folders live
+next to those peak files as `*_motif_enrichment/`.
+
+The workflow uses two tools with the same HOCOMOCO v11 motif collection:
+
+- **HOMER** runs first in known-motif mode. ASPEN intentionally uses HOMER's
+  `-nomotif` option, so it does **not** perform de novo motif discovery here.
+  This keeps runtime reasonable and focuses interpretation on known
+  transcription factor motifs from HOCOMOCO.
+- **AME** runs second using the MEME-format version of the same HOCOMOCO motif
+  set.
+
+ASPEN does one important thing to keep the two tools comparable: HOMER is run
+with `-dumpFasta`, which writes `target.fa` and `background.fa`. Those exact
+same FASTA files are then reused as the AME input and AME control set. In
+plain terms, HOMER and AME are evaluating the same peak sequences against the
+same matched background instead of each tool inventing its own background.
+
+AME is also parallelized so it finishes faster. Instead of scanning the whole
+motif library in one long serial job, ASPEN splits the MEME motif archive into
+individual `.meme` files, launches one AME job per motif file with GNU
+`parallel`, and finally merges the per-motif `ame.tsv` outputs back into one
+ranked `ame_results.txt` file. The final `rank` column therefore reflects the
+merged result across the tested HOCOMOCO motifs, not separate per-job rankings.
+
+One more practical detail: replicate-level `*.narrowPeak` inputs are trimmed to
+the top `ntop` peaks by peak score (default `50000`) before motif analysis,
+while sample-level `*.consensus.bed` inputs use all consensus peaks. If your
+replicate and consensus motif results differ, this is one reason why.
+
+!!! tip
+If you need to confirm the exact HOMER settings used in a finished run,
+start with `motifFindingParameters.txt`. If you want to reproduce the AME
+input precisely, reuse the `target.fa` and `background.fa` files in the
+same output folder.
+
+#### Interpreting motif enrichment results
+
+For most users, start with `knownResults.txt` and `ame_results.txt`, then ask
+two simple questions:
+
+1. Are the top motifs statistically strong?
+2. Do the same motif families appear in both HOMER and AME?
+
+**HOMER (`knownResults.txt`)**
+
+HOMER reports how enriched each known motif is in your peak sequences compared
+with the matched background. The most useful columns are usually:
+
+- `Motif Name` / `Consensus`: which transcription factor motif matched
+- `P-value` and `q-value`: statistical significance
+- `% of Target Sequences with Motif`: how often the motif appears in your peaks
+- `% of Background Sequences with Motif`: how often it appears in the matched
+  background
+
+In practice, you usually want motifs with very small p-values/q-values and a
+clear increase in target-sequence frequency over background. HOMER's own
+documentation notes that strongly enriched motifs in good peak sets are often
+extremely significant. Do not focus on significance alone, though. A motif that
+is statistically significant but present at nearly the same frequency in target
+and background is usually less interesting biologically than one with a clear
+target-vs-background gap.
+
+**AME (`ame_results.txt`)**
+
+ASPEN's AME runs use a target set (`target.fa`) and an explicit control set
+(`background.fa`), so AME reports how well each motif separates peak sequences
+from background sequences. The most useful columns are usually:
+
+- `adj_p-value`: multiple-testing-adjusted significance
+- `E-value`: expected number of equally strong hits by chance across the tested
+  motifs
+- `TP` and `%TP`: target sequences correctly classified as motif-positive
+- `FP` and `%FP`: background sequences incorrectly classified as motif-positive
+
+For junior users, `%TP` versus `%FP` is often the easiest practical readout. If
+`%TP` is clearly higher than `%FP`, the motif is more common in the real peak
+set than in the matched background. If those values are very similar, the motif
+may be statistically weak or biologically nonspecific even if it still appears
+in the file.
+
+At the end of `ame_results.txt`, ASPEN appends a `# CTCF_enrichment = ...`
+line. This is a simple sanity check based on the first enriched `CTCF_*` motif
+found in the AME table. It is not a general replacement for reviewing the full
+table, but it can be a useful quick signal when you expect strong architectural
+or insulator-like chromatin features.
+
+**How to use HOMER and AME together**
+
+Treat motifs that appear near the top of **both** HOMER and AME as higher
+confidence candidates. HOMER is useful for a quick motif-frequency summary,
+while AME gives an explicit target-versus-control comparison. When the same
+motif family is strong in both outputs, that is usually a better signal than a
+motif that only appears in one tool.
+
+If you want to read the original tool documentation, start here:
+
+- [HOMER `findMotifsGenome.pl` documentation](http://homer.ucsd.edu/homer/ngs/peakMotifs.html)
+- [MEME Suite AME documentation](https://meme-suite.org/meme/doc/ame.html)
+- [MEME Suite AME output format reference](https://meme-suite.org/meme/doc/ame-output-format.html)
 
 ### Genrich output folder
 

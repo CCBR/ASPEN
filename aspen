@@ -224,7 +224,7 @@ fi
 # copy essential folders
 for f in $ESSENTIAL_FOLDERS;do
   # rsync -az --progress ${PIPELINE_HOME}/$f $WORKDIR/
-  cp -rv ${PIPELINE_HOME}/$f ${WORKDIR}/
+  cp -r ${PIPELINE_HOME}/$f ${WORKDIR}/
 done
 
 cd ${WORKDIR}
@@ -400,6 +400,7 @@ function dryrun() {
   run "--dry-run" | tee ${WORKDIR}/dryrun.log
   echo "Git Commit/Tag: $GIT_COMMIT_TAG" > ${WORKDIR}/dryrun_git_commit.txt
   log_ok "Dry-run completed."
+  log_info "Full dry-run output captured in ${WORKDIR}/dryrun.log"
   log_next "Submit run with: aspen --workdir=$WORKDIR --runmode=run"
 }
 
@@ -451,6 +452,9 @@ function runslurm() {
 # Submit the execution of the pipeline to the biowulf job scheduler (slurm)
 
   runcheck
+  if [[ ! -r "$CLUSTERSTATUSCMD" || ! -x "$CLUSTERSTATUSCMD" ]]; then
+    err "Cluster status script '$CLUSTERSTATUSCMD' is missing or not executable."
+  fi
   set_singularity_binds
   set_cluster_arg
   log_divider
@@ -690,7 +694,7 @@ _START_TS=\$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 _progress_monitor &
 _monitor_pid=\$!
 
-snakemake -s $SNAKEFILE --directory $WORKDIR $SINGULARITY_STR --printshellcmds --latency-wait 120 --configfile $CONFIGFILE --cluster-config $CLUSTERFILE --cluster "$CLUSTER_SBATCH_CMD" -j 500 --rerun-incomplete ${RERUNTRIGGERS} --restart-times ${retries} --keep-going --stats ${WORKDIR}/snakemake.stats 2>&1 | tee ${WORKDIR}/snakemake.log
+snakemake -s $SNAKEFILE --directory $WORKDIR $SINGULARITY_STR --printshellcmds --latency-wait 120 --configfile $CONFIGFILE --cluster-config $CLUSTERFILE --cluster "$CLUSTER_SBATCH_CMD" --cluster-status "$CLUSTERSTATUSCMD" --cluster-cancel scancel -j 500 --rerun-incomplete ${RERUNTRIGGERS} --restart-times ${retries} --keep-going --stats ${WORKDIR}/snakemake.stats 2>&1 | tee ${WORKDIR}/snakemake.log
 snakemake_rc="\${PIPESTATUS[0]}"
 kill "\$_monitor_pid" 2>/dev/null || true
 wait "\$_monitor_pid" 2>/dev/null || true
@@ -878,7 +882,7 @@ function main(){
   CONFIGFILE="${WORKDIR}/config.yaml"
   CLUSTERFILE="${WORKDIR}/cluster.json"
 
-  # CLUSTERSTATUSCMD="${PIPELINE_HOME}/resources/cluster_status.sh"
+  CLUSTERSTATUSCMD="${PIPELINE_HOME}/resources/cluster_status.sh"
 
   if [[ -z "$SING_CACHE_DIR" ]]; then
     if [[ -n "$SIFCACHE" && -d "$SIFCACHE" ]]; then
