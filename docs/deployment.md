@@ -31,20 +31,21 @@ ASPEN requires a sample manifest file (`samples.tsv`) to identify and organize y
 - `path_to_R2_fastq`: Absolute path to the Read 2 FASTQ file (required for paired-end data).
 
 !!! note
-Symlinks for R1 and R2 files will be created in the results directory, named as `<replicateName>.R1.fastq.gz` and `<replicateName>.R2.fastq.gz`, respectively. Therefore, original filenames do not need to be altered.
+    Symlinks for R1 and R2 files will be created in the results directory, named as `<replicateName>.R1.fastq.gz` and `<replicateName>.R2.fastq.gz`, respectively. Therefore, original filenames do not need to be altered.
 
 !!! note
-The `replicateName` is used as a prefix for individual peak calls, while the `sampleName` serves as a prefix for consensus peak calls.
+    The `replicateName` is used as a prefix for individual peak calls, while the `sampleName` serves as a prefix for consensus peak calls.
 
 !!! warning "Biological vs. technical replicates"
-ASPEN expects **one row per biological replicate**. If you sequenced the same sample across multiple lanes or sequencing runs (technical replicates), you must **concatenate those FASTQ files into a single file** before creating your manifest — ASPEN does not merge lanes internally.
+    ASPEN expects **one row per biological replicate**. If you sequenced the same sample across multiple lanes or sequencing runs (technical replicates), you must **concatenate those FASTQ files into a single file** before creating your manifest — ASPEN does not merge lanes internally.
 
-    | Replicate type | Definition | What to do |
-    |---|---|---|
-    | **Biological** | Independent biological samples (separate cultures, animals, patients, etc.) | One row per sample in `samples.tsv` |
-    | **Technical** | Same sample re-sequenced across multiple lanes or runs | `cat` the FASTQs together first, then one row |
+    Biological replicates are independent samples:
+
+    - **Biological**: independent biological samples (separate cultures, animals, patients, etc.). Use one row per sample in `samples.tsv`.
+    - **Technical**: the same sample re-sequenced across multiple lanes or runs. `cat` the FASTQs together first, then use one row.
 
     Example of concatenating technical replicates before running ASPEN:
+
     ```bash
     cat sample1_L001_R1.fastq.gz sample1_L002_R1.fastq.gz > sample1_R1.fastq.gz
     cat sample1_L001_R2.fastq.gz sample1_L002_R2.fastq.gz > sample1_R2.fastq.gz
@@ -53,7 +54,7 @@ ASPEN expects **one row per biological replicate**. If you sequenced the same sa
     DESeq2 (used in `diffatac`) requires **at least 2 biological replicates per group**. Technical replicates do not count as biological replicates and will not satisfy this requirement.
 
 !!! note
-For differential ATAC analysis, create a `contrasts.tsv` file with two columns (Group1 and Group2 ... aka Sample1 and Sample2, without headers) and place it in the output directory after initialization. Ensure each group/sample in the contrast has at least two biological replicates, as DESeq2 requires this for accurate contrast calculations.
+    For differential ATAC analysis, create a `contrasts.tsv` file with two columns (Group1 and Group2 ... aka Sample1 and Sample2, without headers) and place it in the output directory after initialization. Ensure each group/sample in the contrast has at least two biological replicates, as DESeq2 requires this for accurate contrast calculations.
 
 ## 🏃 Running the ASPEN Pipeline
 
@@ -70,11 +71,12 @@ aspen -m=init -w=<path_to_output_folder>
 This command generates a config.yaml and a placeholder `samples.tsv` in the specified directory. Edit these files to reflect your experimental setup, replacing the placeholder `samples.tsv` with your prepared manifest. If performing differential analysis, include the `contrasts.tsv` file at this stage.
 
 !!! note
-To explore all possible options of the `aspen` command you can either run it without any arguments or run `aspen --help`
+    To explore all possible options of the `aspen` command you can either run it without any arguments or run `aspen --help`
 
 Here is what help looks like:
 
-> **Note**: This is illustrative example output captured at doc-writing time — exact values (e.g. `pipeline_home`, `git commit/tag`, `aspen_version`) will differ depending on which ASPEN version/branch is installed at your site. Run `aspen --help` yourself to see the current values for your installation.
+!!! note
+    This is illustrative example output captured at doc-writing time — exact values (e.g. `pipeline_home`, `git commit/tag`, `aspen_version`) will differ depending on which ASPEN version/branch is installed at your site. Run `aspen --help` yourself to see the current values for your installation.
 
 ```bash
 
@@ -250,6 +252,21 @@ Before executing the full analysis and after editing the `config.yaml` as needed
 aspen -m=dryrun -w=<path_to_output_folder>
 ```
 
+#### What successful dry-run output looks like
+
+![Example ASPEN dry-run console output](assets/images/aspen_dryrun_console.jpeg)
+
+The dry-run summary confirms that ASPEN finished the preflight checks successfully, points you to `dryrun.log` for the full transcript, and ends with the exact `run` command to use next.
+
+In practice, the wrapper prefixes mean:
+
+- `STEP` starts a major wrapper phase.
+- `OK` confirms that phase completed successfully.
+- `INFO` reports status details such as where output was written.
+- `NEXT` gives the follow-up command or monitoring action ASPEN expects you to take.
+
+For `dryrun`, the short terminal summary is only the high-level result. The full dry-run transcript is written to `dryrun.log`; see the [outputs page](outputs.md) for the complete workdir artifact reference.
+
 This step outlines the sequence of tasks (Directed Acyclic Graph - DAG) without actual execution, allowing you to verify the planned operations.
 
 ### 🚀 Execute the Pipeline
@@ -260,13 +277,28 @@ If the dry run output is satisfactory, proceed to execute the pipeline:
 aspen -m=run -w=<path_to_output_folder>
 ```
 
+#### What successful run submission output looks like
+
+![Example ASPEN run submission console output](assets/images/aspen_run_console.jpeg)
+
+The run summary shows that ASPEN created the submission script, wrote the `pipeline.running` marker updates during submission, and printed the `NEXT` monitoring hints for `squeue`, `snakemake.log`, and `pipeline.status.json`.
+
+Those lines map directly to files in `WORKDIR`:
+
+- `submit_script.sbatch` is created before the master Slurm job is submitted.
+- `pipeline.running` is the human-readable status marker updated during execution.
+- `pipeline.status.json` is the machine-readable sidecar for scripting and automation.
+- `snakemake.log` is the detailed workflow execution log once the run starts.
+
+Treat the `NEXT` lines as the wrapper's built-in "what should I do now?" guidance. They point you to the same files and commands documented below and in the [outputs page](outputs.md), without requiring you to remember the monitoring commands yourself.
+
 This command submits a master job to the Slurm workload manager, which orchestrates the entire analysis workflow, managing job submissions and monitoring progress.
 
 ASPEN submits the generated Snakemake job with rule-level resources exposed to Slurm. The heavy rules that may need extra scratch space now define an attempt-aware `resources.gres` value, so the first submission uses the baseline `cluster.json` request and later retries can scale the requested `lscratch` allocation automatically if a rule is retried by Snakemake. This keeps the default configuration in `cluster.json` while still allowing individual rules to become more conservative on repeated failures.
 
 - 🛠️ **Optional Argument**:
 
-`--singcache` or `-c`: Specify a Singularity cache directory. The default is `/data/${USER}/.singularity` if available; otherwise, it defaults to `${WORKDIR}/snakemake/.singularity`.
+`--singcache` or `-c`: Override the Singularity cache directory. On Biowulf, when you load the `ccbrpipeliner` module, ASPEN already uses `SIFCACHE=/data/CCBR_Pipeliner/SIFS` for you, so you usually do not need `-c`. Use `-c` only on another HPC system if you want to point ASPEN at your own cache directory or pull containers yourself.
 
 **💡 Example Command**:
 
@@ -274,13 +306,31 @@ ASPEN submits the generated Snakemake job with rule-level resources exposed to S
 aspen -m=run -w=<path_to_output_folder> -c /data/${USER}/.singularity
 ```
 
-This command runs the pipeline with the specified working directory and Singularity cache directory.
-
-> **Note**: If deploying on Biowulf, try setting the `--singcache` to `/data/CCBR_Pipeliner/SIFS` to reuse the pre-pulled containers and save time.
+This example is for a non-Biowulf HPC system where you want to manage your own Singularity cache location.
 
 ## 📊 Monitor ASPEN Runs
 
-To monitor the status of your ASPEN pipeline and its associated jobs on a Slurm-managed system, you can utilize the squeue and scontrol commands. The squeue command provides information about jobs in the scheduling queue, while scontrol offers detailed insights into specific jobs.
+For day-to-day status checks, use the sidecar and `pipeline.*` files below first. They are the fastest and most reliable way to see whether ASPEN is running, completed, or failed. Reach for `squeue` and `scontrol` only when you want an advanced scheduler-level view or need to inspect an individual SLURM job.
+
+If you do need to inspect the cluster directly, `squeue` shows the queue state and `scontrol` exposes detailed job metadata.
+
+### 📝 Pipeline State Markers: the primary status check
+
+ASPEN writes a set of state-tracking files directly into `WORKDIR` while a `run` is executing, so you can check status from the sidecar and `pipeline.*` files first, even without Slurm access (for example, from a laptop over `ssh`):
+
+- `pipeline.running`, `pipeline.completed`, `pipeline.failed`, `pipeline.canceled` — exactly one of these marker files exists at a time, reflecting the current state. While the pipeline is running, `pipeline.running` is periodically refreshed by a background progress monitor with a human-readable summary, including the percentage of Snakemake steps completed so far:
+
+    ```bash
+    cat <path_to_output_folder>/pipeline.running
+    ```
+
+- `pipeline.status.json` — a machine-readable sidecar with the same information (`state`, `reason`, `slurm_job_id`, start/end timestamps, `duration_seconds`, `tasks_done`/`tasks_total`, `exit_code`), useful for scripting/automation:
+
+    ```bash
+    cat <path_to_output_folder>/pipeline.status.json
+    ```
+
+- `snakemake.log.jobby` / `snakemake.log.jobby.short` — a `jobby` TSV summary of per-rule/job resource usage, generated as a best-effort step after the run finishes (even if the Slurm submission itself failed before Snakemake started).
 
 To view all your active and pending jobs, execute:
 
@@ -303,21 +353,3 @@ To quickly gauge the process of the entire pipeline run:
 ```bash
 grep "done$" <path_to_output_folder>/snakemake.log
 ```
-
-### 📝 Lightweight Status Checks via Pipeline State Markers
-
-In addition to `squeue`/`scontrol`, ASPEN writes a set of state-tracking files directly into `WORKDIR` while a `run` is executing, so you don't need Slurm access (e.g. from a laptop over `ssh`) to check on a run:
-
-- `pipeline.running`, `pipeline.completed`, `pipeline.failed`, `pipeline.canceled` — exactly one of these marker files exists at a time, reflecting the current state. While the pipeline is running, `pipeline.running` is periodically refreshed by a background progress monitor with a human-readable summary, including the percentage of Snakemake steps completed so far:
-
-    ```bash
-    cat <path_to_output_folder>/pipeline.running
-    ```
-
-- `pipeline.status.json` — a machine-readable sidecar with the same information (`state`, `reason`, `slurm_job_id`, start/end timestamps, `duration_seconds`, `tasks_done`/`tasks_total`, `exit_code`), useful for scripting/automation:
-
-    ```bash
-    cat <path_to_output_folder>/pipeline.status.json
-    ```
-
-- `snakemake.log.jobby` / `snakemake.log.jobby.short` — a `jobby` TSV summary of per-rule/job resource usage, generated as a best-effort step after the run finishes (even if the Slurm submission itself failed before Snakemake started).

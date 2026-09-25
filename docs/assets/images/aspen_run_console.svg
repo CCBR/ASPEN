@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="650" viewBox="0 0 1180 650" role="img" aria-labelledby="title desc">
+  <title id="title">ASPEN successful run submission console output</title>
+  <desc id="desc">Terminal-style screenshot showing successful ASPEN run submission output, state marker updates, and monitoring hints.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#fffaf0"/>
+      <stop offset="100%" stop-color="#f3efe3"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000000" flood-opacity="0.16"/>
+    </filter>
+    <style>
+      .sans { font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif; }
+      .mono { font-family: 'IBM Plex Mono', 'Cascadia Code', Consolas, monospace; }
+      .title { font-size: 32px; font-weight: 700; fill: #1a1f24; }
+      .sub { font-size: 17px; fill: #5d646d; }
+      .label { font-size: 12px; letter-spacing: 1.6px; text-transform: uppercase; fill: #5b5a53; }
+      .termtitle { font-size: 14px; fill: #b4bec8; }
+      .line { font-size: 19px; }
+      .base { fill: #e8edf2; }
+      .prompt { fill: #c6a0f6; }
+      .step { fill: #ffd166; font-weight: 700; }
+      .ok { fill: #81d979; font-weight: 700; }
+      .info { fill: #7dcfff; font-weight: 700; }
+      .next { fill: #ff9e64; font-weight: 700; }
+      .dim { fill: #b4bec8; }
+      .rule { fill: #7a828e; }
+    </style>
+  </defs>
+
+  <rect width="1180" height="650" fill="url(#bg)" rx="28"/>
+  <rect x="42" y="34" width="152" height="28" rx="14" fill="#fffaf0" stroke="#cdbf9e"/>
+  <text x="118" y="52" text-anchor="middle" class="sans label">ASPEN Docs Asset</text>
+  <text x="42" y="103" class="sans title">Successful run submission summary</text>
+  <text x="42" y="132" class="sans sub">Example image for deployment docs near the run command and monitoring guidance.</text>
+
+  <g filter="url(#shadow)">
+    <rect x="42" y="164" width="1096" height="444" rx="22" fill="#111315" stroke="#2f353d"/>
+    <rect x="42" y="164" width="1096" height="50" rx="22" fill="#1f2328"/>
+    <rect x="42" y="192" width="1096" height="22" fill="#1f2328"/>
+  </g>
+
+  <circle cx="77" cy="189" r="6" fill="#ff5f57"/>
+  <circle cx="97" cy="189" r="6" fill="#febc2e"/>
+  <circle cx="117" cy="189" r="6" fill="#28c840"/>
+  <text x="145" y="194" class="sans termtitle">bash • ASPEN run example</text>
+
+  <g class="mono line">
+    <text x="68" y="244"><tspan class="prompt">$</tspan><tspan class="base"> aspen --workdir=&lt;WORKDIR&gt; --runmode=run</tspan></text>
+    <text x="68" y="277"><tspan class="ok">OK</tspan><tspan class="base">    Dry-run was successful.</tspan></text>
+    <text x="68" y="310"><tspan class="step">STEP</tspan><tspan class="base">  [run] Preparing workdir for new execution</tspan></text>
+    <text x="68" y="343"><tspan class="ok">OK</tspan><tspan class="base">    Created &lt;WORKDIR&gt;/submit_script.sbatch</tspan></text>
+    <text x="68" y="376"><tspan class="info">INFO</tspan><tspan class="base">  State marker updated: pipeline.running </tspan><tspan class="dim">(reason=submission_started, slurm_job_id=NA)</tspan></text>
+    <text x="68" y="409"><tspan class="info">INFO</tspan><tspan class="base">  State marker updated: pipeline.running </tspan><tspan class="dim">(reason=sbatch_submitted, slurm_job_id=&lt;jobid&gt;)</tspan></text>
+    <text x="68" y="442" class="rule">---------------------------------------------------------------------</text>
+    <text x="68" y="475"><tspan class="ok">OK</tspan><tspan class="base">    Job submitted successfully </tspan><tspan class="dim">(SLURM job ID: &lt;jobid&gt;)</tspan></text>
+    <text x="68" y="508"><tspan class="next">NEXT</tspan><tspan class="base">  Monitor:  squeue -u $USER</tspan></text>
+    <text x="68" y="541"><tspan class="next">NEXT</tspan><tspan class="base">  Progress: tail -f &lt;WORKDIR&gt;/snakemake.log</tspan></text>
+    <text x="68" y="574"><tspan class="next">NEXT</tspan><tspan class="base">  Status:   ls -1 &lt;WORKDIR&gt;/pipeline.*</tspan></text>
+    <text x="68" y="607"><tspan class="next">NEXT</tspan><tspan class="base">  Sidecar:  &lt;WORKDIR&gt;/pipeline.status.json</tspan></text>
+  </g>
+</svg>

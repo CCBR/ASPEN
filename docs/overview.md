@@ -59,23 +59,23 @@ Genrich is integrated into the pipeline to complement MACS2. This tool is partic
 By combining the strengths of MACS2 and Genrich, ASPEN delivers a comprehensive and reliable peak detection framework, facilitating downstream analyses and enabling researchers to uncover critical insights into chromatin accessibility and gene regulation.
 
 !!! tip "Which peak caller should I use?"
-Both MACS2 and Genrich run automatically for every sample — you
-don't have to choose upfront. **Genrich is generally
-recommended for ATAC-seq** because it was purpose-built for
-assays like ATAC-seq/DNase-seq: it models Tn5 transposase cut
-sites directly (`-j` ATAC-seq mode) rather than adapting a
-ChIP-seq fragment-shift model, and it combines biological
-replicates natively via Fisher's method instead of requiring a
-separate consensus step. **MACS2** was originally designed for
-ChIP-seq and requires ATAC-specific parameter workarounds to
-approximate cut-site signal, but remains the field standard —
-it's included because many reviewers and downstream tools
-expect to see MACS2 peaks, and comparing both gives an extra
-sanity check. CCBR's internal benchmarking on ASPEN's ATAC-seq
-data has generally found Genrich peaks to be higher quality. If
-your MACS2 and Genrich DiffATAC results disagree substantially
-for a given region, treat that region as lower-confidence
-rather than assuming one caller is unconditionally "right".
+    Both MACS2 and Genrich run automatically for every sample — you
+    don't have to choose upfront. **Genrich is generally
+    recommended for ATAC-seq** because it was purpose-built for
+    assays like ATAC-seq/DNase-seq: it models Tn5 transposase cut
+    sites directly (`-j` ATAC-seq mode) rather than adapting a
+    ChIP-seq fragment-shift model, and it combines biological
+    replicates natively via Fisher's method instead of requiring a
+    separate consensus step. **MACS2** was originally designed for
+    ChIP-seq and requires ATAC-specific parameter workarounds to
+    approximate cut-site signal, but remains the field standard —
+    it's included because many reviewers and downstream tools
+    expect to see MACS2 peaks, and comparing both gives an extra
+    sanity check. CCBR's internal benchmarking on ASPEN's ATAC-seq
+    data has generally found Genrich peaks to be higher quality. If
+    your MACS2 and Genrich DiffATAC results disagree substantially
+    for a given region, treat that region as lower-confidence
+    rather than assuming one caller is unconditionally "right".
 
 ### 🤝 **Consensus Peaks**
 
@@ -116,21 +116,21 @@ ASPEN employs custom scripts to analyze the distribution of fragment lengths wit
 To evaluate the sufficiency of sequencing depth and detect potential biases introduced during PCR amplification, ASPEN utilizes Preseq to estimate library complexity, reporting the Non-Redundant Fraction (`NRF`) and PCR Bottlenecking Coefficients (`PBC1`, `PBC2`). This metric helps determine whether the sequencing effort is adequate to capture the diversity of the library, ensuring that the data is representative of the underlying chromatin landscape. By identifying potential saturation or over-representation of certain fragments, researchers can assess the reliability of their sequencing results.
 
 !!! tip "Rule of thumb"
-Per [ENCODE's ATAC-seq data standards](https://www.encodeproject.org/atac-seq/#standards), the preferred values are **`NRF` > 0.9, `PBC1` > 0.9, and `PBC2` > 3**. Lower values indicate a less complex library (e.g. over-amplified by PCR), which can inflate apparent signal at a subset of loci rather than reflecting true biological accessibility.
+    Per [ENCODE's ATAC-seq data standards](https://www.encodeproject.org/atac-seq/#standards), the preferred values are **`NRF` > 0.9, `PBC1` > 0.9, and `PBC2` > 3**. Lower values indicate a less complex library (e.g. over-amplified by PCR), which can inflate apparent signal at a subset of loci rather than reflecting true biological accessibility.
 
 ### 🧬 **Transcription Start Site (TSS) Enrichment**
 
 ASPEN calculates TSS enrichment scores, a widely recognized quality metric for ATAC-seq data. These scores measure the accumulation of sequencing reads around transcription start sites (TSS), which are hallmark regions of open chromatin. High TSS enrichment scores indicate well-prepared libraries with minimal technical artifacts, as they reflect the accessibility of promoter regions and the integrity of the chromatin preparation process.
 
 !!! tip "Rule of thumb"
-[ENCODE's ATAC-seq data standards](https://www.encodeproject.org/atac-seq/#standards) define annotation-dependent TSS enrichment cutoffs — for example, using a GRCh38 RefSeq TSS annotation: **< 5 is concerning, 5-7 is acceptable, and > 7 is ideal**. **Caveat:** ASPEN builds its TSS bins from GENCODE (not RefSeq) gene annotations (see `resources/tssBed/`), so ENCODE's exact per-annotation cutoffs may not transfer precisely to ASPEN's TSS enrichment values — treat these numbers as directional guidance (aim for high single digits or higher) rather than an exact pass/fail threshold.
+    [ENCODE's ATAC-seq data standards](https://www.encodeproject.org/atac-seq/#standards) define annotation-dependent TSS enrichment cutoffs — for example, using a GRCh38 RefSeq TSS annotation: **< 5 is concerning, 5-7 is acceptable, and > 7 is ideal**. **Caveat:** ASPEN builds its TSS bins from GENCODE (not RefSeq) gene annotations (see `resources/tssBed/`), so ENCODE's exact per-annotation cutoffs may not transfer precisely to ASPEN's TSS enrichment values — treat these numbers as directional guidance (aim for high single digits or higher) rather than an exact pass/fail threshold.
 
 ### 📊 **Fraction of Reads in Peaks (FRiP)**
 
 The Fraction of Reads in Peaks (FRiP) score quantifies the proportion of sequencing reads that fall within identified peaks, serving as a measure of the signal-to-noise ratio in the dataset. Higher FRiP scores indicate datasets with strong, biologically meaningful signals and minimal background noise. Additionally, ASPEN computes the fraction of reads localized to specific genomic features, such as promoters, enhancers, and DNase hypersensitive sites (DHS). These feature-specific FRiP scores provide further insights into the quality and biological relevance of the data.
 
 !!! tip "Rule of thumb"
-Per [ENCODE's ATAC-seq data standards](https://www.encodeproject.org/atac-seq/#standards), a FRiP score **> 0.3** indicates high-quality data, though values **> 0.2** may still be acceptable. Consistently lower scores suggest poor signal-to-noise and warrant a closer look at library prep or peak-calling parameters.
+    Per [ENCODE's ATAC-seq data standards](https://www.encodeproject.org/atac-seq/#standards), a FRiP score **> 0.3** indicates high-quality data, though values **> 0.2** may still be acceptable. Consistently lower scores suggest poor signal-to-noise and warrant a closer look at library prep or peak-calling parameters.
 
 ---
 
@@ -151,11 +151,11 @@ If a project later needs de novo motif discovery, that can be added as a
 separate workflow enhancement rather than mixed into the default run.
 
 !!! tip "Rule of thumb"
-Start by looking for motif families that are strong in **both** HOMER and
-AME. In HOMER, focus on motifs with very small `p-value`/`q-value` values
-and a clear increase in `% of Target Sequences with Motif` relative to
-background. In AME, focus on low `adj_p-value`/`E-value` hits where `%TP`
-is clearly higher than `%FP`.
+    Start by looking for motif families that are strong in **both** HOMER and
+    AME. In HOMER, focus on motifs with very small `p-value`/`q-value` values
+    and a clear increase in `% of Target Sequences with Motif` relative to
+    background. In AME, focus on low `adj_p-value`/`E-value` hits where `%TP`
+    is clearly higher than `%FP`.
 
 Detailed file locations and interpretation notes for `knownResults.txt`,
 `ame_results.txt`, `target.fa`, and `background.fa` are documented in
@@ -212,18 +212,19 @@ In ASPEN, if spike-in data is present:
 This spike-in-derived scaling factor allows the comparison of chromatin accessibility across conditions even when global chromatin accessibility levels differ (e.g., treatment-induced repression or global decondensation).
 
 !!! tip "Should I turn on spike-in normalization?"
-Ask yourself: do I expect a **global, genome-wide shift** in chromatin accessibility between my conditions — rather than just **localized** changes at a handful of specific regulatory elements?
+    Ask yourself: do I expect a **global, genome-wide shift** in chromatin accessibility between my conditions — rather than just **localized** changes at a handful of specific regulatory elements?
 
-    - **Yes** (e.g. a chromatin remodeler inhibitor, a broad transcription factor knockdown/knockout, drug-induced chromatin modulation) → turn on spike-in normalization. Standard depth-based normalization (DESeq2 size factors) assumes *most* regions are unchanged between conditions — that assumption breaks down under a genome-wide shift, and spike-in gives you an external, biology-independent scale instead.
-    - **No** (you expect differences to be confined to specific loci/pathways, with most of the genome unchanged) → spike-in is probably unnecessary. It adds experimental complexity (extra reagents, a second alignment step, and a "0 spike-in reads" failure mode to manage — see the warning below) for a scenario DESeq2's built-in normalization already handles well.
+    **Yes** (for example, a chromatin remodeler inhibitor, a broad transcription factor knockdown/knockout, or drug-induced chromatin modulation) → turn on spike-in normalization. Standard depth-based normalization (DESeq2 size factors) assumes *most* regions are unchanged between conditions, and that assumption breaks down under a genome-wide shift. Spike-in gives you an external, biology-independent scale instead.
+
+    **No** (you expect differences to be confined to specific loci/pathways, with most of the genome unchanged) → spike-in is probably unnecessary. It adds experimental complexity (extra reagents, a second alignment step, and a "0 spike-in reads" failure mode to manage — see the warning below) for a scenario DESeq2's built-in normalization already handles well.
 
     See [Enabling Spike-In Normalization](deployment.md#enabling-spike-in-normalization-optional) for the config steps once you've decided to use it.
 
 ASPEN performs spike-in-aware normalization transparently, and reports both raw and normalized counts in the final output matrix for differential analysis. This ensures flexibility in downstream interpretation while preserving the ability to adjust for systemic experimental artifacts.
 
 !!! warning "What if a replicate has 0 spike-in reads?"
-If `spikein: true` is set but a replicate has **zero reads** aligned to the spike-in genome (e.g. the spike-in material wasn't actually added to that library, the spike-in genome/index is misconfigured, or a genuinely contamination-free host-only library), ASPEN cannot compute a scaling factor for it and the run will **fail with a clear error message** naming the affected replicate(s) rather than silently producing `Inf`/`NaN` normalized counts. To resolve this: verify the spike-in genome/index path in `config.yaml`, confirm spike-in material was actually included during library prep for that replicate, or set `spikein: false` if none of your samples have spike-in material.
+    If `spikein: true` is set but a replicate has **zero reads** aligned to the spike-in genome (e.g. the spike-in material wasn't actually added to that library, the spike-in genome/index is misconfigured, or a genuinely contamination-free host-only library), ASPEN cannot compute a scaling factor for it and the run will **fail with a clear error message** naming the affected replicate(s) rather than silently producing `Inf`/`NaN` normalized counts. To resolve this: verify the spike-in genome/index path in `config.yaml`, confirm spike-in material was actually included during library prep for that replicate, or set `spikein: false` if none of your samples have spike-in material.
 
 ### 📊 **Reporting**
 
-ASPEN enhances differential chromatin accessibility analysis by providing an interactive HTML report generated from DESeq2 results, featuring various visualizations. Additionally, it offers a TSV (tabl-delimited) file with integrated gene annotations, compatible with Microsoft Excel, enabling efficient data manipulation and facilitating the identification of genes near regions with altered accessibility. The Excel file is aggregated across all different contrasts queried in the project.
+ASPEN enhances differential chromatin accessibility analysis by providing an interactive HTML report generated from DESeq2 results, featuring various visualizations. Additionally, it offers a TSV (tab-delimited) file with integrated gene annotations, compatible with Microsoft Excel, enabling efficient data manipulation and facilitating the identification of genes near regions with altered accessibility. The Excel file is aggregated across all different contrasts queried in the project.

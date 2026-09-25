@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ASPEN Console Output Examples</title>
+    <style>
+      :root {
+        --page-bg: #f3efe3;
+        --frame: #d9cfb8;
+        --terminal-bg: #111315;
+        --terminal-top: #1f2328;
+        --terminal-border: #2f353d;
+        --text: #e8edf2;
+        --muted: #b4bec8;
+        --ok: #81d979;
+        --info: #7dcfff;
+        --step: #ffd166;
+        --next: #ff9e64;
+        --prompt: #c6a0f6;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at top left, #fffaf0 0%, transparent 32%),
+          linear-gradient(180deg, #f6f1e4 0%, var(--page-bg) 100%);
+        color: #1a1f24;
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      }
+
+      main {
+        width: 1240px;
+        margin: 0 auto;
+        padding: 48px 32px 64px;
+      }
+
+      .header {
+        margin-bottom: 28px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        padding: 6px 10px;
+        border: 1px solid #cdbf9e;
+        border-radius: 999px;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #5b5a53;
+        background: rgba(255, 252, 244, 0.75);
+      }
+
+      h1 {
+        margin: 12px 0 8px;
+        font-size: 42px;
+        line-height: 1.08;
+      }
+
+      .subtitle {
+        margin: 0;
+        font-size: 18px;
+        line-height: 1.5;
+        color: #4e5560;
+        max-width: 920px;
+      }
+
+      .shot {
+        margin-top: 28px;
+        padding: 18px;
+        border: 1px solid var(--frame);
+        border-radius: 24px;
+        background: rgba(255, 250, 240, 0.78);
+        box-shadow: 0 16px 40px rgba(56, 46, 24, 0.08);
+      }
+
+      .caption {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 14px;
+        padding: 0 4px;
+      }
+
+      .caption h2 {
+        margin: 0;
+        font-size: 24px;
+        line-height: 1.2;
+      }
+
+      .caption p {
+        margin: 0;
+        font-size: 14px;
+        color: #616873;
+      }
+
+      .terminal {
+        overflow: hidden;
+        border: 1px solid var(--terminal-border);
+        border-radius: 20px;
+        background: var(--terminal-bg);
+        box-shadow: 0 20px 36px rgba(0, 0, 0, 0.22);
+      }
+
+      .terminal-topbar {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 18px;
+        border-bottom: 1px solid #343a43;
+        background: var(--terminal-top);
+      }
+
+      .traffic {
+        display: flex;
+        gap: 8px;
+      }
+
+      .traffic span {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+
+      .traffic span:nth-child(1) { background: #ff5f57; }
+      .traffic span:nth-child(2) { background: #febc2e; }
+      .traffic span:nth-child(3) { background: #28c840; }
+
+      .title {
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      pre {
+        margin: 0;
+        padding: 22px 24px 26px;
+        white-space: pre-wrap;
+        font: 15px/1.6 "IBM Plex Mono", "Cascadia Code", Consolas, monospace;
+        color: var(--text);
+      }
+
+      .prompt { color: var(--prompt); }
+      .step { color: var(--step); font-weight: 600; }
+      .ok { color: var(--ok); font-weight: 600; }
+      .info { color: var(--info); font-weight: 600; }
+      .next { color: var(--next); font-weight: 600; }
+      .dim { color: var(--muted); }
+      .rule { color: #7a828e; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="header">
+        <div class="eyebrow">ASPEN Docs Assets</div>
+        <h1>ASPEN console output examples</h1>
+        <p class="subtitle">Terminal-style screenshots for the deployment docs, showing what successful <code>dryrun</code> and <code>run</code> wrapper output look like in practice.</p>
+      </div>
+
+      <section class="shot" id="dryrun-shot">
+        <div class="caption">
+          <h2>Successful dry-run summary</h2>
+          <p>Use in deployment docs near the <code>aspen -m=dryrun</code> example.</p>
+        </div>
+        <div class="terminal">
+          <div class="terminal-topbar">
+            <div class="traffic"><span></span><span></span><span></span></div>
+            <div class="title">bash • ASPEN dryrun example</div>
+          </div>
+          <pre><span class="prompt">$</span> aspen --workdir=&lt;WORKDIR&gt; --runmode=dryrun
+<span class="step">STEP</span>  [dryrun] Running preflight checks
+<span class="info">INFO</span>  Validating config, samples, and runtime dependencies
+<span class="info">INFO</span>  Rendering the planned Snakemake DAG without execution
+<span class="ok">OK</span>    Dry-run completed.
+<span class="info">INFO</span>  Full dry-run output captured in &lt;WORKDIR&gt;/dryrun.log
+<span class="next">NEXT</span>  Submit run with: aspen --workdir=&lt;WORKDIR&gt; --runmode=run</pre>
+        </div>
+      </section>
+
+      <section class="shot" id="run-shot">
+        <div class="caption">
+          <h2>Successful run submission summary</h2>
+          <p>Use in deployment docs near the <code>aspen -m=run</code> and monitoring guidance.</p>
+        </div>
+        <div class="terminal">
+          <div class="terminal-topbar">
+            <div class="traffic"><span></span><span></span><span></span></div>
+            <div class="title">bash • ASPEN run example</div>
+          </div>
+          <pre><span class="prompt">$</span> aspen --workdir=&lt;WORKDIR&gt; --runmode=run
+<span class="ok">OK</span>    Dry-run was successful.
+<span class="step">STEP</span>  [run] Preparing workdir for new execution
+<span class="ok">OK</span>    Created &lt;WORKDIR&gt;/submit_script.sbatch
+<span class="info">INFO</span>  State marker updated: pipeline.running <span class="dim">(reason=submission_started, slurm_job_id=NA)</span>
+<span class="info">INFO</span>  State marker updated: pipeline.running <span class="dim">(reason=sbatch_submitted, slurm_job_id=&lt;jobid&gt;)</span>
+<span class="rule">---------------------------------------------------------------------</span>
+<span class="ok">OK</span>    Job submitted successfully <span class="dim">(SLURM job ID: &lt;jobid&gt;)</span>
+<span class="next">NEXT</span>  Monitor:  squeue -u $USER
+<span class="next">NEXT</span>  Progress: tail -f &lt;WORKDIR&gt;/snakemake.log
+<span class="next">NEXT</span>  Status:   ls -1 &lt;WORKDIR&gt;/pipeline.*
+<span class="next">NEXT</span>  Sidecar:  &lt;WORKDIR&gt;/pipeline.status.json</pre>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
