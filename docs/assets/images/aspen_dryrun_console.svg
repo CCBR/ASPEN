@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="500" viewBox="0 0 1180 500" role="img" aria-labelledby="title desc">
+  <title id="title">ASPEN successful dry-run console output</title>
+  <desc id="desc">Terminal-style screenshot showing successful ASPEN dry-run output and next-step guidance.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#fffaf0"/>
+      <stop offset="100%" stop-color="#f3efe3"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000000" flood-opacity="0.16"/>
+    </filter>
+    <style>
+      .sans { font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif; }
+      .mono { font-family: 'IBM Plex Mono', 'Cascadia Code', Consolas, monospace; }
+      .title { font-size: 32px; font-weight: 700; fill: #1a1f24; }
+      .sub { font-size: 17px; fill: #5d646d; }
+      .label { font-size: 12px; letter-spacing: 1.6px; text-transform: uppercase; fill: #5b5a53; }
+      .termtitle { font-size: 14px; fill: #b4bec8; }
+      .line { font-size: 20px; }
+      .base { fill: #e8edf2; }
+      .prompt { fill: #c6a0f6; }
+      .step { fill: #ffd166; font-weight: 700; }
+      .ok { fill: #81d979; font-weight: 700; }
+      .info { fill: #7dcfff; font-weight: 700; }
+      .next { fill: #ff9e64; font-weight: 700; }
+    </style>
+  </defs>
+
+  <rect width="1180" height="500" fill="url(#bg)" rx="28"/>
+  <rect x="42" y="34" width="152" height="28" rx="14" fill="#fffaf0" stroke="#cdbf9e"/>
+  <text x="118" y="52" text-anchor="middle" class="sans label">ASPEN Docs Asset</text>
+  <text x="42" y="103" class="sans title">Successful dry-run summary</text>
+  <text x="42" y="132" class="sans sub">Example image for deployment docs near the aspen dryrun command.</text>
+
+  <g filter="url(#shadow)">
+    <rect x="42" y="164" width="1096" height="294" rx="22" fill="#111315" stroke="#2f353d"/>
+    <rect x="42" y="164" width="1096" height="50" rx="22" fill="#1f2328"/>
+    <rect x="42" y="192" width="1096" height="22" fill="#1f2328"/>
+  </g>
+
+  <circle cx="77" cy="189" r="6" fill="#ff5f57"/>
+  <circle cx="97" cy="189" r="6" fill="#febc2e"/>
+  <circle cx="117" cy="189" r="6" fill="#28c840"/>
+  <text x="145" y="194" class="sans termtitle">bash • ASPEN dryrun example</text>
+
+  <g class="mono line">
+    <text x="68" y="244"><tspan class="prompt">$</tspan><tspan class="base"> aspen --workdir=&lt;WORKDIR&gt; --runmode=dryrun</tspan></text>
+    <text x="68" y="279"><tspan class="step">STEP</tspan><tspan class="base">  [dryrun] Running preflight checks</tspan></text>
+    <text x="68" y="314"><tspan class="info">INFO</tspan><tspan class="base">  Validating config, samples, and runtime dependencies</tspan></text>
+    <text x="68" y="349"><tspan class="info">INFO</tspan><tspan class="base">  Rendering the planned Snakemake DAG without execution</tspan></text>
+    <text x="68" y="384"><tspan class="ok">OK</tspan><tspan class="base">    Dry-run completed.</tspan></text>
+    <text x="68" y="419"><tspan class="info">INFO</tspan><tspan class="base">  Full dry-run output captured in &lt;WORKDIR&gt;/dryrun.log</tspan></text>
+    <text x="68" y="454"><tspan class="next">NEXT</tspan><tspan class="base">  Submit run with: aspen --workdir=&lt;WORKDIR&gt; --runmode=run</tspan></text>
+  </g>
+</svg>

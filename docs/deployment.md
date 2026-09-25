@@ -307,30 +307,29 @@ aspen -m=run -w=<path_to_output_folder> -c /data/${USER}/.singularity
 
 This example is for a non-Biowulf HPC system where you want to manage your own Singularity cache location.
 
-grep "done$" <path_to_output_folder>/snakemake.log
+## 📊 Monitor ASPEN Runs
+
+For day-to-day status checks, use the sidecar and `pipeline.*` files below first. They are the fastest and most reliable way to see whether ASPEN is running, completed, or failed. Reach for `squeue` and `scontrol` only when you want an advanced scheduler-level view or need to inspect an individual SLURM job.
+
+If you do need to inspect the cluster directly, `squeue` shows the queue state and `scontrol` exposes detailed job metadata.
+
 ### 📝 Pipeline State Markers: the primary status check
 
 ASPEN writes a set of state-tracking files directly into `WORKDIR` while a `run` is executing, so you can check status from the sidecar and `pipeline.*` files first, even without Slurm access (for example, from a laptop over `ssh`):
 
 - `pipeline.running`, `pipeline.completed`, `pipeline.failed`, `pipeline.canceled` — exactly one of these marker files exists at a time, reflecting the current state. While the pipeline is running, `pipeline.running` is periodically refreshed by a background progress monitor with a human-readable summary, including the percentage of Snakemake steps completed so far:
 
-    ```bash
-    cat <path_to_output_folder>/pipeline.running
-    ```
+  ```bash
+  cat <path_to_output_folder>/pipeline.running
+  ```
 
 - `pipeline.status.json` — a machine-readable sidecar with the same information (`state`, `reason`, `slurm_job_id`, start/end timestamps, `duration_seconds`, `tasks_done`/`tasks_total`, `exit_code`), useful for scripting/automation:
 
-    ```bash
-    cat <path_to_output_folder>/pipeline.status.json
-    ```
+  ```bash
+  cat <path_to_output_folder>/pipeline.status.json
+  ```
 
 - `snakemake.log.jobby` / `snakemake.log.jobby.short` — a `jobby` TSV summary of per-rule/job resource usage, generated as a best-effort step after the run finishes (even if the Slurm submission itself failed before Snakemake started).
-
-## 📊 Monitor ASPEN Runs
-
-For day-to-day status checks, use the sidecar and `pipeline.*` files above first. They are the fastest and most reliable way to see whether ASPEN is running, completed, or failed. Reach for `squeue` and `scontrol` only when you want an advanced scheduler-level view or need to inspect an individual SLURM job.
-
-If you do need to inspect the cluster directly, `squeue` shows the queue state and `scontrol` exposes detailed job metadata.
 
 To view all your active and pending jobs, execute:
 
