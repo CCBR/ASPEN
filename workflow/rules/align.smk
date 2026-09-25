@@ -36,6 +36,8 @@ rule trim:
         script="ccbr_cutadapt_pe.bash"
     container: config["cutadaptdocker"]
     threads: getthreads("trim")
+    resources:
+        gres=lambda wildcards, attempt: scale_gres("trim", attempt)
     shell:"""
 if [ -w "/lscratch/${{SLURM_JOB_ID}}" ];then cd /lscratch/${{SLURM_JOB_ID}};else cd /dev/shm;fi
 unset PYTHONPATH
@@ -64,6 +66,8 @@ rule create_BL_index:
         genome=GENOME,
     container: config["masterdocker"]
     threads: getthreads("create_BL_index")
+    resources:
+        gres=lambda wildcards, attempt: scale_gres("create_BL_index", attempt)
     shell:"""
 blindexdir=$(dirname {output.sa})
 sabasename=$(basename {output.sa})
@@ -95,6 +99,8 @@ rule remove_BL:
         script="ccbr_remove_blacklisted_reads_pe.bash"
     container: config["masterdocker"]
     threads: getthreads("remove_BL")
+    resources:
+        gres=lambda wildcards, attempt: scale_gres("remove_BL", attempt)
     shell:"""
 if [ -w "/lscratch/${{SLURM_JOB_ID}}" ];then cd /lscratch/${{SLURM_JOB_ID}};else cd /dev/shm;fi
 sa={input.sa}
@@ -154,6 +160,8 @@ rule align:
         mem=getmemG("align")
     container: config["masterdocker"]
     threads: getthreads("align")
+    resources:
+        gres=lambda wildcards, attempt: scale_gres("align", attempt)
     shell:"""
 set -exo pipefail
 if [ -w "/lscratch/${{SLURM_JOB_ID}}" ];then cd /lscratch/${{SLURM_JOB_ID}};else cd /dev/shm;fi
@@ -255,6 +263,8 @@ rule align2spikein:
         mem=getmemG("align2spikein")
     container: config["bwadocker"]
     threads: getthreads("align2spikein")
+    resources:
+        gres=lambda wildcards, attempt: scale_gres("align2spikein", attempt)
     shell:"""
 set -exo pipefail
 if [ -w "/lscratch/${{SLURM_JOB_ID}}" ];then cd /lscratch/${{SLURM_JOB_ID}};else cd /dev/shm;fi
@@ -361,6 +371,8 @@ rule create_tn5bams:
         script="ccbr_atac_bam2tn5bed.py"
     container: config["masterdocker"]
     threads: getthreads("create_tn5bams")
+    resources:
+        gres=lambda wildcards, attempt: scale_gres("create_tn5bams", attempt)
     shell:"""
 set -exo pipefail
 unset PYTHONPATH
@@ -433,6 +445,8 @@ rule create_bigwigs:
         script="_print_replicate_scaling_factor.py"
     container: config["deeptoolsdocker"]
     threads: getthreads("create_bigwigs")
+    resources:
+        gres=lambda wildcards, attempt: scale_gres("create_bigwigs", attempt)
     shell:"""
 set -exo pipefail
 unset PYTHONPATH

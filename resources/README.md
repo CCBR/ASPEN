@@ -7,6 +7,6 @@ This folder, `resources/`, is meant to contain all resources (except larger geno
 - **motif**: HOCOMOCO v11 motifs in HOMER and MEME formats for human and mouse.
 - **tssBed**: BED files pin-pointing the transcription start sites of annotated genes for hg19/38 and mm10.
 
-`cluster.json` file can make specific resource requests to biowulf via slurm. Each Snakemake rule can make a unique hardware request for slurm execution.
+`cluster.json` file can make specific resource requests to biowulf via slurm. ASPEN uses these values as the baseline per-rule resource settings, and the workflow now passes `resources.gres` through to Slurm so retry attempts can request more `lscratch` when a rule defines an attempt-aware `resources:` expression. In practice, this means `cluster.json` still controls the default resource profile, while the rule definitions can increase the `gres` request automatically on later Snakemake attempts.
 
 `tools.yaml` file would typically contain the modules required to be loaded for rule execution on the Biowulf cluster. Since we are using dockers for all rules in this pipeline, `tools.yaml` will be empty.

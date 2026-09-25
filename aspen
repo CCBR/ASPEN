@@ -326,7 +326,7 @@ function set_cluster_arg(){
   CLUSTER_SBATCH_CMD="sbatch --cpus-per-task {cluster.threads} -p {cluster.partition} -t {cluster.time} --mem {cluster.mem} --job-name {cluster.name} --output {cluster.output} --error {cluster.error}"
   clustername=$(scontrol show config|grep ClusterName|awk '{print $NF}')
   if [[ "$clustername" == "biowulf" ]];then
-    CLUSTER_SBATCH_CMD="${CLUSTER_SBATCH_CMD} --gres {cluster.gres}"
+    CLUSTER_SBATCH_CMD="${CLUSTER_SBATCH_CMD} --gres {resources.gres}"
   fi
 }
 
@@ -397,7 +397,14 @@ function dryrun() {
       mv ${WORKDIR}/dryrun_git_commit.txt ${WORKDIR}/logs/dryrun_git_commit.${modtime}.txt
     fi
   fi
-  run "--dry-run" | tee ${WORKDIR}/dryrun.log
+  set -o pipefail
+  run "--dry-run" 2>&1 | tee ${WORKDIR}/dryrun.log
+  dryrun_rc=${PIPESTATUS[0]}
+  set +o pipefail
+  if [ "${dryrun_rc}" -ne 0 ];then
+    log_error "Dry-run failed with exit code ${dryrun_rc}. See ${WORKDIR}/dryrun.log for details."
+    exit "${dryrun_rc}"
+  fi
   echo "Git Commit/Tag: $GIT_COMMIT_TAG" > ${WORKDIR}/dryrun_git_commit.txt
   log_ok "Dry-run completed."
   log_info "Full dry-run output captured in ${WORKDIR}/dryrun.log"
@@ -694,7 +701,7 @@ _START_TS=\$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 _progress_monitor &
 _monitor_pid=\$!
 
-snakemake -s $SNAKEFILE --directory $WORKDIR $SINGULARITY_STR --printshellcmds --latency-wait 120 --configfile $CONFIGFILE --cluster-config $CLUSTERFILE --cluster "$CLUSTER_SBATCH_CMD" --cluster-status "$CLUSTERSTATUSCMD" --cluster-cancel scancel -j 500 --rerun-incomplete ${RERUNTRIGGERS} --restart-times ${retries} --keep-going --stats ${WORKDIR}/snakemake.stats 2>&1 | tee ${WORKDIR}/snakemake.log
+snakemake -s $SNAKEFILE --directory $WORKDIR $SINGULARITY_STR --printshellcmds --latency-wait 120 --configfile $CONFIGFILE --cluster-config $CLUSTERFILE --default-resources "gres='lscratch:256'" --cluster "$CLUSTER_SBATCH_CMD" --cluster-status "$CLUSTERSTATUSCMD" --cluster-cancel scancel -j 500 --rerun-incomplete ${RERUNTRIGGERS} --restart-times ${retries} --keep-going --stats ${WORKDIR}/snakemake.stats 2>&1 | tee ${WORKDIR}/snakemake.log
 snakemake_rc="\${PIPESTATUS[0]}"
 kill "\$_monitor_pid" 2>/dev/null || true
 wait "\$_monitor_pid" 2>/dev/null || true
@@ -770,6 +777,7 @@ snakemake $1 -s $SNAKEFILE \
 --latency-wait 120 \
 --configfile $CONFIGFILE \
 --cluster-config $CLUSTERFILE \
+--default-resources "gres='lscratch:256'" \
 --cluster "$CLUSTER_SBATCH_CMD" \
 -j 500 \
 --rerun-incomplete \

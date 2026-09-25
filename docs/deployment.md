@@ -262,6 +262,8 @@ aspen -m=run -w=<path_to_output_folder>
 
 This command submits a master job to the Slurm workload manager, which orchestrates the entire analysis workflow, managing job submissions and monitoring progress.
 
+ASPEN submits the generated Snakemake job with rule-level resources exposed to Slurm. The heavy rules that may need extra scratch space now define an attempt-aware `resources.gres` value, so the first submission uses the baseline `cluster.json` request and later retries can scale the requested `lscratch` allocation automatically if a rule is retried by Snakemake. This keeps the default configuration in `cluster.json` while still allowing individual rules to become more conservative on repeated failures.
+
 - 🛠️ **Optional Argument**:
 
 `--singcache` or `-c`: Specify a Singularity cache directory. The default is `/data/${USER}/.singularity` if available; otherwise, it defaults to `${WORKDIR}/snakemake/.singularity`.

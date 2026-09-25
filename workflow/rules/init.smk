@@ -231,6 +231,15 @@ with open(CLUSTERJSON) as json_file:
 getthreads=lambda rname:int(CLUSTER[rname]["threads"]) if rname in CLUSTER and "threads" in CLUSTER[rname] else int(CLUSTER["__default__"]["threads"])
 getmemg=lambda rname:CLUSTER[rname]["mem"] if rname in CLUSTER else CLUSTER["__default__"]["mem"]
 getmemG=lambda rname:getmemg(rname).replace("g","G")
+getgres=lambda rname:CLUSTER[rname]["gres"] if rname in CLUSTER and "gres" in CLUSTER[rname] else CLUSTER["__default__"]["gres"]
+
+def scale_gres(rname, attempt):
+    base_gres = getgres(rname)
+    if ":" in str(base_gres):
+        prefix, size = str(base_gres).rsplit(":", 1)
+        if size.isdigit():
+            return f"{prefix}:{int(size) * int(attempt)}"
+    return base_gres
 #########################################################
 
 #########################################################
