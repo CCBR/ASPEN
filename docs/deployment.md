@@ -31,30 +31,30 @@ ASPEN requires a sample manifest file (`samples.tsv`) to identify and organize y
 - `path_to_R2_fastq`: Absolute path to the Read 2 FASTQ file (required for paired-end data).
 
 !!! note
-  Symlinks for R1 and R2 files will be created in the results directory, named as `<replicateName>.R1.fastq.gz` and `<replicateName>.R2.fastq.gz`, respectively. Therefore, original filenames do not need to be altered.
+Symlinks for R1 and R2 files will be created in the results directory, named as `<replicateName>.R1.fastq.gz` and `<replicateName>.R2.fastq.gz`, respectively. Therefore, original filenames do not need to be altered.
 
 !!! note
-  The `replicateName` is used as a prefix for individual peak calls, while the `sampleName` serves as a prefix for consensus peak calls.
+The `replicateName` is used as a prefix for individual peak calls, while the `sampleName` serves as a prefix for consensus peak calls.
 
 !!! warning "Biological vs. technical replicates"
-  ASPEN expects **one row per biological replicate**. If you sequenced the same sample across multiple lanes or sequencing runs (technical replicates), you must **concatenate those FASTQ files into a single file** before creating your manifest — ASPEN does not merge lanes internally.
+ASPEN expects **one row per biological replicate**. If you sequenced the same sample across multiple lanes or sequencing runs (technical replicates), you must **concatenate those FASTQ files into a single file** before creating your manifest — ASPEN does not merge lanes internally.
 
-  Biological replicates are independent samples:
+Biological replicates are independent samples:
 
-  - **Biological**: independent biological samples (separate cultures, animals, patients, etc.). Use one row per sample in `samples.tsv`.
-  - **Technical**: the same sample re-sequenced across multiple lanes or runs. `cat` the FASTQs together first, then use one row.
+- **Biological**: independent biological samples (separate cultures, animals, patients, etc.). Use one row per sample in `samples.tsv`.
+- **Technical**: the same sample re-sequenced across multiple lanes or runs. `cat` the FASTQs together first, then use one row.
 
-  Example of concatenating technical replicates before running ASPEN:
+Example of concatenating technical replicates before running ASPEN:
 
-  ```bash
-  cat sample1_L001_R1.fastq.gz sample1_L002_R1.fastq.gz > sample1_R1.fastq.gz
-  cat sample1_L001_R2.fastq.gz sample1_L002_R2.fastq.gz > sample1_R2.fastq.gz
-  ```
+```bash
+cat sample1_L001_R1.fastq.gz sample1_L002_R1.fastq.gz > sample1_R1.fastq.gz
+cat sample1_L001_R2.fastq.gz sample1_L002_R2.fastq.gz > sample1_R2.fastq.gz
+```
 
-  DESeq2 (used in `diffatac`) requires **at least 2 biological replicates per group**. Technical replicates do not count as biological replicates and will not satisfy this requirement.
+DESeq2 (used in `diffatac`) requires **at least 2 biological replicates per group**. Technical replicates do not count as biological replicates and will not satisfy this requirement.
 
 !!! note
-  For differential ATAC analysis, create a `contrasts.tsv` file with two columns (Group1 and Group2 ... aka Sample1 and Sample2, without headers) and place it in the output directory after initialization. Ensure each group/sample in the contrast has at least two biological replicates, as DESeq2 requires this for accurate contrast calculations.
+For differential ATAC analysis, create a `contrasts.tsv` file with two columns (Group1 and Group2 ... aka Sample1 and Sample2, without headers) and place it in the output directory after initialization. Ensure each group/sample in the contrast has at least two biological replicates, as DESeq2 requires this for accurate contrast calculations.
 
 ## 🏃 Running the ASPEN Pipeline
 
@@ -319,15 +319,15 @@ ASPEN writes a set of state-tracking files directly into `WORKDIR` while a `run`
 
 - `pipeline.running`, `pipeline.completed`, `pipeline.failed`, `pipeline.canceled` — exactly one of these marker files exists at a time, reflecting the current state. While the pipeline is running, `pipeline.running` is periodically refreshed by a background progress monitor with a human-readable summary, including the percentage of Snakemake steps completed so far:
 
-  ```bash
-  cat <path_to_output_folder>/pipeline.running
-  ```
+    ```bash
+    cat <path_to_output_folder>/pipeline.running
+    ```
 
 - `pipeline.status.json` — a machine-readable sidecar with the same information (`state`, `reason`, `slurm_job_id`, start/end timestamps, `duration_seconds`, `tasks_done`/`tasks_total`, `exit_code`), useful for scripting/automation:
 
-  ```bash
-  cat <path_to_output_folder>/pipeline.status.json
-  ```
+    ```bash
+    cat <path_to_output_folder>/pipeline.status.json
+    ```
 
 - `snakemake.log.jobby` / `snakemake.log.jobby.short` — a `jobby` TSV summary of per-rule/job resource usage, generated as a best-effort step after the run finishes (even if the Slurm submission itself failed before Snakemake started).
 
