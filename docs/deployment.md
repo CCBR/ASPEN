@@ -250,6 +250,21 @@ Before executing the full analysis and after editing the `config.yaml` as needed
 aspen -m=dryrun -w=<path_to_output_folder>
 ```
 
+#### What successful dry-run output looks like
+
+![Example ASPEN dry-run console output](assets/images/aspen_dryrun_console.jpeg)
+
+The dry-run summary confirms that ASPEN finished the preflight checks successfully, points you to `dryrun.log` for the full transcript, and ends with the exact `run` command to use next.
+
+In practice, the wrapper prefixes mean:
+
+- `STEP` starts a major wrapper phase.
+- `OK` confirms that phase completed successfully.
+- `INFO` reports status details such as where output was written.
+- `NEXT` gives the follow-up command or monitoring action ASPEN expects you to take.
+
+For `dryrun`, the short terminal summary is only the high-level result. The full dry-run transcript is written to `dryrun.log`; see the [outputs page](outputs.md) for the complete workdir artifact reference.
+
 This step outlines the sequence of tasks (Directed Acyclic Graph - DAG) without actual execution, allowing you to verify the planned operations.
 
 ### 🚀 Execute the Pipeline
@@ -259,6 +274,21 @@ If the dry run output is satisfactory, proceed to execute the pipeline:
 ```bash
 aspen -m=run -w=<path_to_output_folder>
 ```
+
+#### What successful run submission output looks like
+
+![Example ASPEN run submission console output](assets/images/aspen_run_console.jpeg)
+
+The run summary shows that ASPEN created the submission script, wrote the `pipeline.running` marker updates during submission, and printed the `NEXT` monitoring hints for `squeue`, `snakemake.log`, and `pipeline.status.json`.
+
+Those lines map directly to files in `WORKDIR`:
+
+- `submit_script.sbatch` is created before the master Slurm job is submitted.
+- `pipeline.running` is the human-readable status marker updated during execution.
+- `pipeline.status.json` is the machine-readable sidecar for scripting and automation.
+- `snakemake.log` is the detailed workflow execution log once the run starts.
+
+Treat the `NEXT` lines as the wrapper's built-in "what should I do now?" guidance. They point you to the same files and commands documented below and in the [outputs page](outputs.md), without requiring you to remember the monitoring commands yourself.
 
 This command submits a master job to the Slurm workload manager, which orchestrates the entire analysis workflow, managing job submissions and monitoring progress.
 
