@@ -144,13 +144,13 @@ Content details:
 | tmp           | various             | - Can be deleted. <br> - Blacklist index. <br> - Intermediate FASTQs. <br> - Genrich output reads.                                                                                                                                                                                                                                                                                                                        |
 
 !!! note
-  BAM files from `dedupBam` can be used for downstream footprinting analysis using [CCBR_TOBIAS](https://github.com/CCBR/CCBR_Tobias) pipeline
+BAM files from `dedupBam` can be used for downstream footprinting analysis using [CCBR_TOBIAS](https://github.com/CCBR/CCBR_Tobias) pipeline
 
 !!! note
-  [bamCompare](https://deeptools.readthedocs.io/en/develop/content/tools/bamCompare.html) from deeptools can be run to compare BAMs from `dedupBam` for comprehensive BAM comparisons.
+[bamCompare](https://deeptools.readthedocs.io/en/develop/content/tools/bamCompare.html) from deeptools can be run to compare BAMs from `dedupBam` for comprehensive BAM comparisons.
 
 !!! note
-  BAM files from `dedupBam` can also be converted to BED format and processed with [chromVAR](https://github.com/GreenleafLab/chromVAR) to identify variability in motif accessibility across samples and assess differentially active transcription factors from the JASPAR database.
+BAM files from `dedupBam` can also be converted to BED format and processed with [chromVAR](https://github.com/GreenleafLab/chromVAR) to identify variability in motif accessibility across samples and assess differentially active transcription factors from the JASPAR database.
 
 #### How consensus peaks are generated
 
@@ -212,13 +212,13 @@ sample3.consensus.bed ─► fixed-width peaks ─┘
 
 !!! tip "Config knobs that control consensus"
 
-  | Parameter                  | Default | Round | Effect                                                                                   |
-  | -------------------------- | ------- | ----- | ---------------------------------------------------------------------------------------- |
-  | `consensus_min_replicates` | `2`     | 1     | Min. replicates a peak must appear in to be retained in per-sample consensus             |
-  | `consensus_min_spm`        | `5`     | 1     | Min. signal-per-million reads threshold for a peak to be included                        |
-  | `roi_min_replicates`       | `1`     | 2     | Min. samples/replicates a fixed-width peak must appear in to be kept in the ROI set      |
-  | `roi_min_spm`              | `2`     | 2     | Min. signal-per-million reads threshold for a fixed-width peak to be kept in the ROI set |
-  | `fixed_width`              | `500`   | 1     | Width (bp) of fixed-width peaks used to build the ROI set                                |
+| Parameter                  | Default | Round | Effect                                                                                   |
+| -------------------------- | ------- | ----- | ---------------------------------------------------------------------------------------- |
+| `consensus_min_replicates` | `2`     | 1     | Min. replicates a peak must appear in to be retained in per-sample consensus             |
+| `consensus_min_spm`        | `5`     | 1     | Min. signal-per-million reads threshold for a peak to be included                        |
+| `roi_min_replicates`       | `1`     | 2     | Min. samples/replicates a fixed-width peak must appear in to be kept in the ROI set      |
+| `roi_min_spm`              | `2`     | 2     | Min. signal-per-million reads threshold for a fixed-width peak to be kept in the ROI set |
+| `fixed_width`              | `500`   | 1     | Width (bp) of fixed-width peaks used to build the ROI set                                |
 
 #### Counts matrices: reads vs Tn5 nicking sites, and `dedup` vs `nondedup`
 
@@ -448,10 +448,10 @@ while sample-level `*.consensus.bed` inputs use all consensus peaks. If your
 replicate and consensus motif results differ, this is one reason why.
 
 !!! tip
-  If you need to confirm the exact HOMER settings used in a finished run,
-  start with `motifFindingParameters.txt`. If you want to reproduce the AME
-  input precisely, reuse the `target.fa` and `background.fa` files in the
-  same output folder.
+If you need to confirm the exact HOMER settings used in a finished run,
+start with `motifFindingParameters.txt`. If you want to reproduce the AME
+input precisely, reuse the `target.fa` and `background.fa` files in the
+same output folder.
 
 #### Interpreting motif enrichment results
 
