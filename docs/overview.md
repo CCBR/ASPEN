@@ -212,10 +212,11 @@ In ASPEN, if spike-in data is present:
 This spike-in-derived scaling factor allows the comparison of chromatin accessibility across conditions even when global chromatin accessibility levels differ (e.g., treatment-induced repression or global decondensation).
 
 !!! tip "Should I turn on spike-in normalization?"
-Ask yourself: do I expect a **global, genome-wide shift** in chromatin accessibility between my conditions — rather than just **localized** changes at a handful of specific regulatory elements?
+    Ask yourself: do I expect a **global, genome-wide shift** in chromatin accessibility between my conditions — rather than just **localized** changes at a handful of specific regulatory elements?
 
-    - **Yes** (e.g. a chromatin remodeler inhibitor, a broad transcription factor knockdown/knockout, drug-induced chromatin modulation) → turn on spike-in normalization. Standard depth-based normalization (DESeq2 size factors) assumes *most* regions are unchanged between conditions — that assumption breaks down under a genome-wide shift, and spike-in gives you an external, biology-independent scale instead.
-    - **No** (you expect differences to be confined to specific loci/pathways, with most of the genome unchanged) → spike-in is probably unnecessary. It adds experimental complexity (extra reagents, a second alignment step, and a "0 spike-in reads" failure mode to manage — see the warning below) for a scenario DESeq2's built-in normalization already handles well.
+    **Yes** (for example, a chromatin remodeler inhibitor, a broad transcription factor knockdown/knockout, or drug-induced chromatin modulation) → turn on spike-in normalization. Standard depth-based normalization (DESeq2 size factors) assumes *most* regions are unchanged between conditions, and that assumption breaks down under a genome-wide shift. Spike-in gives you an external, biology-independent scale instead.
+
+    **No** (you expect differences to be confined to specific loci/pathways, with most of the genome unchanged) → spike-in is probably unnecessary. It adds experimental complexity (extra reagents, a second alignment step, and a "0 spike-in reads" failure mode to manage — see the warning below) for a scenario DESeq2's built-in normalization already handles well.
 
     See [Enabling Spike-In Normalization](deployment.md#enabling-spike-in-normalization-optional) for the config steps once you've decided to use it.
 
