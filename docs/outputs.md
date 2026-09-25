@@ -144,13 +144,13 @@ Content details:
 | tmp           | various             | - Can be deleted. <br> - Blacklist index. <br> - Intermediate FASTQs. <br> - Genrich output reads.                                                                                                                                                                                                                                                                                                                        |
 
 !!! note
-    BAM files from `dedupBam` can be used for downstream footprinting analysis using [CCBR_TOBIAS](https://github.com/CCBR/CCBR_Tobias) pipeline
+BAM files from `dedupBam` can be used for downstream footprinting analysis using [CCBR_TOBIAS](https://github.com/CCBR/CCBR_Tobias) pipeline
 
 !!! note
-    [bamCompare](https://deeptools.readthedocs.io/en/develop/content/tools/bamCompare.html) from deeptools can be run to compare BAMs from `dedupBam` for comprehensive BAM comparisons.
+[bamCompare](https://deeptools.readthedocs.io/en/develop/content/tools/bamCompare.html) from deeptools can be run to compare BAMs from `dedupBam` for comprehensive BAM comparisons.
 
 !!! note
-    BAM files from `dedupBam` can also be converted to BED format and processed with [chromVAR](https://github.com/GreenleafLab/chromVAR) to identify variability in motif accessibility across samples and assess differentially active transcription factors from the JASPAR database.
+BAM files from `dedupBam` can also be converted to BED format and processed with [chromVAR](https://github.com/GreenleafLab/chromVAR) to identify variability in motif accessibility across samples and assess differentially active transcription factors from the JASPAR database.
 
 #### How consensus peaks are generated
 
@@ -448,10 +448,10 @@ while sample-level `*.consensus.bed` inputs use all consensus peaks. If your
 replicate and consensus motif results differ, this is one reason why.
 
 !!! tip
-    If you need to confirm the exact HOMER settings used in a finished run,
-    start with `motifFindingParameters.txt`. If you want to reproduce the AME
-    input precisely, reuse the `target.fa` and `background.fa` files in the
-    same output folder.
+If you need to confirm the exact HOMER settings used in a finished run,
+start with `motifFindingParameters.txt`. If you want to reproduce the AME
+input precisely, reuse the `target.fa` and `background.fa` files in the
+same output folder.
 
 #### Interpreting motif enrichment results
 

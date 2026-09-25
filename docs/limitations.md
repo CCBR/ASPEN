@@ -19,14 +19,14 @@
 | hs1_chrR        | Human           | _Homo sapiens_ (T2T-CHM13 + chrR rDNA unit; see note below) |
 
 !!! tip "Use `hs1_chrR` for ribosomal DNA chromatin accessibility studies"
-    Standard genome assemblies mask or collapse ribosomal DNA (rDNA) repeat
-    loci, making it impossible to call ATAC-seq peaks in these regions.
-    `hs1_chrR` is a customized version of the T2T-CHM13 (`hs1`) assembly
-    where endogenous rDNA-like sequences are masked throughout the canonical
-    chromosomes, and a single consensus rDNA unit (NCBI KY962518.1, modified)
-    is inserted as an additional chromosome **chrR**. This design ensures that
-    rDNA-mapping reads are captured unambiguously on chrR rather than being
-    lost to multi-mapping or suppressed by masking.
+Standard genome assemblies mask or collapse ribosomal DNA (rDNA) repeat
+loci, making it impossible to call ATAC-seq peaks in these regions.
+`hs1_chrR` is a customized version of the T2T-CHM13 (`hs1`) assembly
+where endogenous rDNA-like sequences are masked throughout the canonical
+chromosomes, and a single consensus rDNA unit (NCBI KY962518.1, modified)
+is inserted as an additional chromosome **chrR**. This design ensures that
+rDNA-mapping reads are captured unambiguously on chrR rather than being
+lost to multi-mapping or suppressed by masking.
 
     **When to choose `hs1_chrR` over `hs1`:**
 

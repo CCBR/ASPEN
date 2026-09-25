@@ -31,13 +31,13 @@ ASPEN requires a sample manifest file (`samples.tsv`) to identify and organize y
 - `path_to_R2_fastq`: Absolute path to the Read 2 FASTQ file (required for paired-end data).
 
 !!! note
-    Symlinks for R1 and R2 files will be created in the results directory, named as `<replicateName>.R1.fastq.gz` and `<replicateName>.R2.fastq.gz`, respectively. Therefore, original filenames do not need to be altered.
+Symlinks for R1 and R2 files will be created in the results directory, named as `<replicateName>.R1.fastq.gz` and `<replicateName>.R2.fastq.gz`, respectively. Therefore, original filenames do not need to be altered.
 
 !!! note
-    The `replicateName` is used as a prefix for individual peak calls, while the `sampleName` serves as a prefix for consensus peak calls.
+The `replicateName` is used as a prefix for individual peak calls, while the `sampleName` serves as a prefix for consensus peak calls.
 
 !!! warning "Biological vs. technical replicates"
-    ASPEN expects **one row per biological replicate**. If you sequenced the same sample across multiple lanes or sequencing runs (technical replicates), you must **concatenate those FASTQ files into a single file** before creating your manifest — ASPEN does not merge lanes internally.
+ASPEN expects **one row per biological replicate**. If you sequenced the same sample across multiple lanes or sequencing runs (technical replicates), you must **concatenate those FASTQ files into a single file** before creating your manifest — ASPEN does not merge lanes internally.
 
     Biological replicates are independent samples:
 
@@ -54,7 +54,7 @@ ASPEN requires a sample manifest file (`samples.tsv`) to identify and organize y
     DESeq2 (used in `diffatac`) requires **at least 2 biological replicates per group**. Technical replicates do not count as biological replicates and will not satisfy this requirement.
 
 !!! note
-    For differential ATAC analysis, create a `contrasts.tsv` file with two columns (Group1 and Group2 ... aka Sample1 and Sample2, without headers) and place it in the output directory after initialization. Ensure each group/sample in the contrast has at least two biological replicates, as DESeq2 requires this for accurate contrast calculations.
+For differential ATAC analysis, create a `contrasts.tsv` file with two columns (Group1 and Group2 ... aka Sample1 and Sample2, without headers) and place it in the output directory after initialization. Ensure each group/sample in the contrast has at least two biological replicates, as DESeq2 requires this for accurate contrast calculations.
 
 ## 🏃 Running the ASPEN Pipeline
 
@@ -71,12 +71,12 @@ aspen -m=init -w=<path_to_output_folder>
 This command generates a config.yaml and a placeholder `samples.tsv` in the specified directory. Edit these files to reflect your experimental setup, replacing the placeholder `samples.tsv` with your prepared manifest. If performing differential analysis, include the `contrasts.tsv` file at this stage.
 
 !!! note
-    To explore all possible options of the `aspen` command you can either run it without any arguments or run `aspen --help`
+To explore all possible options of the `aspen` command you can either run it without any arguments or run `aspen --help`
 
 Here is what help looks like:
 
 !!! note
-    This is illustrative example output captured at doc-writing time — exact values (e.g. `pipeline_home`, `git commit/tag`, `aspen_version`) will differ depending on which ASPEN version/branch is installed at your site. Run `aspen --help` yourself to see the current values for your installation.
+This is illustrative example output captured at doc-writing time — exact values (e.g. `pipeline_home`, `git commit/tag`, `aspen_version`) will differ depending on which ASPEN version/branch is installed at your site. Run `aspen --help` yourself to see the current values for your installation.
 
 ```bash
 
