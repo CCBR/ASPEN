@@ -116,21 +116,21 @@ ASPEN employs custom scripts to analyze the distribution of fragment lengths wit
 To evaluate the sufficiency of sequencing depth and detect potential biases introduced during PCR amplification, ASPEN utilizes Preseq to estimate library complexity, reporting the Non-Redundant Fraction (`NRF`) and PCR Bottlenecking Coefficients (`PBC1`, `PBC2`). This metric helps determine whether the sequencing effort is adequate to capture the diversity of the library, ensuring that the data is representative of the underlying chromatin landscape. By identifying potential saturation or over-representation of certain fragments, researchers can assess the reliability of their sequencing results.
 
 !!! tip "Rule of thumb"
-    Per [ENCODE's ATAC-seq data standards](https://www.encodeproject.org/atac-seq/#standards), the preferred values are **`NRF` > 0.9, `PBC1` > 0.9, and `PBC2` > 3**. Lower values indicate a less complex library (e.g. over-amplified by PCR), which can inflate apparent signal at a subset of loci rather than reflecting true biological accessibility.
+Per [ENCODE's ATAC-seq data standards](https://www.encodeproject.org/atac-seq/#standards), the preferred values are **`NRF` > 0.9, `PBC1` > 0.9, and `PBC2` > 3**. Lower values indicate a less complex library (e.g. over-amplified by PCR), which can inflate apparent signal at a subset of loci rather than reflecting true biological accessibility.
 
 ### 🧬 **Transcription Start Site (TSS) Enrichment**
 
 ASPEN calculates TSS enrichment scores, a widely recognized quality metric for ATAC-seq data. These scores measure the accumulation of sequencing reads around transcription start sites (TSS), which are hallmark regions of open chromatin. High TSS enrichment scores indicate well-prepared libraries with minimal technical artifacts, as they reflect the accessibility of promoter regions and the integrity of the chromatin preparation process.
 
 !!! tip "Rule of thumb"
-    [ENCODE's ATAC-seq data standards](https://www.encodeproject.org/atac-seq/#standards) define annotation-dependent TSS enrichment cutoffs — for example, using a GRCh38 RefSeq TSS annotation: **< 5 is concerning, 5-7 is acceptable, and > 7 is ideal**. **Caveat:** ASPEN builds its TSS bins from GENCODE (not RefSeq) gene annotations (see `resources/tssBed/`), so ENCODE's exact per-annotation cutoffs may not transfer precisely to ASPEN's TSS enrichment values — treat these numbers as directional guidance (aim for high single digits or higher) rather than an exact pass/fail threshold.
+[ENCODE's ATAC-seq data standards](https://www.encodeproject.org/atac-seq/#standards) define annotation-dependent TSS enrichment cutoffs — for example, using a GRCh38 RefSeq TSS annotation: **< 5 is concerning, 5-7 is acceptable, and > 7 is ideal**. **Caveat:** ASPEN builds its TSS bins from GENCODE (not RefSeq) gene annotations (see `resources/tssBed/`), so ENCODE's exact per-annotation cutoffs may not transfer precisely to ASPEN's TSS enrichment values — treat these numbers as directional guidance (aim for high single digits or higher) rather than an exact pass/fail threshold.
 
 ### 📊 **Fraction of Reads in Peaks (FRiP)**
 
 The Fraction of Reads in Peaks (FRiP) score quantifies the proportion of sequencing reads that fall within identified peaks, serving as a measure of the signal-to-noise ratio in the dataset. Higher FRiP scores indicate datasets with strong, biologically meaningful signals and minimal background noise. Additionally, ASPEN computes the fraction of reads localized to specific genomic features, such as promoters, enhancers, and DNase hypersensitive sites (DHS). These feature-specific FRiP scores provide further insights into the quality and biological relevance of the data.
 
 !!! tip "Rule of thumb"
-    Per [ENCODE's ATAC-seq data standards](https://www.encodeproject.org/atac-seq/#standards), a FRiP score **> 0.3** indicates high-quality data, though values **> 0.2** may still be acceptable. Consistently lower scores suggest poor signal-to-noise and warrant a closer look at library prep or peak-calling parameters.
+Per [ENCODE's ATAC-seq data standards](https://www.encodeproject.org/atac-seq/#standards), a FRiP score **> 0.3** indicates high-quality data, though values **> 0.2** may still be acceptable. Consistently lower scores suggest poor signal-to-noise and warrant a closer look at library prep or peak-calling parameters.
 
 ---
 
@@ -151,11 +151,11 @@ If a project later needs de novo motif discovery, that can be added as a
 separate workflow enhancement rather than mixed into the default run.
 
 !!! tip "Rule of thumb"
-    Start by looking for motif families that are strong in **both** HOMER and
-    AME. In HOMER, focus on motifs with very small `p-value`/`q-value` values
-    and a clear increase in `% of Target Sequences with Motif` relative to
-    background. In AME, focus on low `adj_p-value`/`E-value` hits where `%TP`
-    is clearly higher than `%FP`.
+Start by looking for motif families that are strong in **both** HOMER and
+AME. In HOMER, focus on motifs with very small `p-value`/`q-value` values
+and a clear increase in `% of Target Sequences with Motif` relative to
+background. In AME, focus on low `adj_p-value`/`E-value` hits where `%TP`
+is clearly higher than `%FP`.
 
 Detailed file locations and interpretation notes for `knownResults.txt`,
 `ame_results.txt`, `target.fa`, and `background.fa` are documented in
