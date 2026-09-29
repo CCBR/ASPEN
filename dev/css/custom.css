@@ -44,3 +44,44 @@ div.admonition.warning {
     margin: 10px 0;
     border-radius: 5px;
 }
+
+/* Increase content width for large monitors */
+@media (min-width: 1400px) {
+    .wy-nav-content-wrap {
+        margin-left: 300px;
+    }
+    .wy-nav-content {
+        max-width: 1100px;
+    }
+}
+
+@media (min-width: 1600px) {
+    .wy-nav-content-wrap {
+        margin-left: 300px;
+    }
+    .wy-nav-content {
+        max-width: 1300px;
+    }
+}
+
+@media (min-width: 1920px) {
+    .wy-nav-content-wrap {
+        margin-left: 300px;
+    }
+    .wy-nav-content {
+        max-width: 1500px;
+    }
+}
+
+/* Keep header and body columns in one shared table layout. */
+.rst-content table {
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: auto;
+}
+
+.rst-content table td,
+.rst-content table th {
+    overflow-wrap: break-word;
+    padding: 8px 12px;
+}
