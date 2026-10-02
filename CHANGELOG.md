@@ -1,5 +1,7 @@
 ## ASPEN development version
 
+## ASPEN 1.5.0
+
 - Add the missing `deeptools_plot` rule to generate the final `plotHeatmap`/`plotProfile` TSS and metagene PDFs from the `deeptools_mat` matrices, and wire these (plus the upstream `deeptools_prep`/`deeptools_mat` outputs) into `rule all` so `dryrun`/`run` actually schedule them; previously nothing requested these outputs so Snakemake silently never ran deepTools past matrix generation. Also fix `deeptools_mat` to use the workdir's configured genome's TSS BED archive (`config[GENOME]["tssBed"]`) instead of an always-hardcoded `hg38_tssbeds.tar.gz`, and drop the unused `{bedtype}` wildcard. Update `docs/outputs.md` to describe the actual output filenames/location (`results/deeptools/{group}.{bamtype}.{TSS,metagene}.{heatmap,profile}.pdf`) instead of the previously documented, never-implemented `protein_coding`/`all_samples` naming scheme. (#7, @kopardev)
 - Improve failed-run diagnostics by recording the failing Snakemake rule and command in `pipeline.status.json` and the human-readable `pipeline.failed` marker, so users can immediately see which step (for example, `deeptools_mat`) triggered the failure without digging through `snakemake.log` manually. (#154, @kopardev)
 - Document successful `dryrun` and `run` console output in `docs/deployment.md`, including example screenshots, an explanation of `STEP`/`OK`/`INFO`/`NEXT`, and explicit links between wrapper messages and `WORKDIR` status files. (#147, @kopardev)
