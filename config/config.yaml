@@ -229,4 +229,4 @@ pipeline: "ASPEN"
 version: "$ASPENVERSION"
 pipeline_home: "$PIPELINE_HOME"
 
-ccbr_tools_path: "/data/CCBR_Pipeliner/Tools/ccbr_tools/latest/bin/"
+ccbr_tools_path: "/data/CCBR_Pipeliner/Tools/ccbr_tools/v0.7/bin/"
